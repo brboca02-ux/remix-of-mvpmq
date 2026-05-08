@@ -35,6 +35,7 @@ import { Route as PropostaLeadIdRouteImport } from './routes/proposta.$leadId'
 import { Route as PropostaSiteProposalIdRouteImport } from './routes/proposta-site.$proposalId'
 import { Route as ModelosDeSitesModelIdRouteImport } from './routes/modelos-de-sites.$modelId'
 import { Route as InsightsIdRouteImport } from './routes/insights.$id'
+import { Route as DevJobsRouteImport } from './routes/dev.jobs'
 import { Route as ApiChatRouteImport } from './routes/api.chat'
 import { Route as AjustesIntegracoesRouteImport } from './routes/ajustes.integracoes'
 import { Route as AgendaSetupRouteImport } from './routes/agenda/setup'
@@ -175,6 +176,11 @@ const InsightsIdRoute = InsightsIdRouteImport.update({
   path: '/insights/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevJobsRoute = DevJobsRouteImport.update({
+  id: '/dev/jobs',
+  path: '/dev/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/agenda/setup': typeof AgendaSetupRoute
   '/ajustes/integracoes': typeof AjustesIntegracoesRoute
   '/api/chat': typeof ApiChatRoute
+  '/dev/jobs': typeof DevJobsRoute
   '/insights/$id': typeof InsightsIdRoute
   '/modelos-de-sites/$modelId': typeof ModelosDeSitesModelIdRoute
   '/proposta-site/$proposalId': typeof PropostaSiteProposalIdRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/agenda/setup': typeof AgendaSetupRoute
   '/ajustes/integracoes': typeof AjustesIntegracoesRoute
   '/api/chat': typeof ApiChatRoute
+  '/dev/jobs': typeof DevJobsRoute
   '/insights/$id': typeof InsightsIdRoute
   '/modelos-de-sites/$modelId': typeof ModelosDeSitesModelIdRoute
   '/proposta-site/$proposalId': typeof PropostaSiteProposalIdRoute
@@ -317,6 +325,7 @@ export interface FileRoutesById {
   '/agenda/setup': typeof AgendaSetupRoute
   '/ajustes/integracoes': typeof AjustesIntegracoesRoute
   '/api/chat': typeof ApiChatRoute
+  '/dev/jobs': typeof DevJobsRoute
   '/insights/$id': typeof InsightsIdRoute
   '/modelos-de-sites/$modelId': typeof ModelosDeSitesModelIdRoute
   '/proposta-site/$proposalId': typeof PropostaSiteProposalIdRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/agenda/setup'
     | '/ajustes/integracoes'
     | '/api/chat'
+    | '/dev/jobs'
     | '/insights/$id'
     | '/modelos-de-sites/$modelId'
     | '/proposta-site/$proposalId'
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/agenda/setup'
     | '/ajustes/integracoes'
     | '/api/chat'
+    | '/dev/jobs'
     | '/insights/$id'
     | '/modelos-de-sites/$modelId'
     | '/proposta-site/$proposalId'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/agenda/setup'
     | '/ajustes/integracoes'
     | '/api/chat'
+    | '/dev/jobs'
     | '/insights/$id'
     | '/modelos-de-sites/$modelId'
     | '/proposta-site/$proposalId'
@@ -467,6 +479,7 @@ export interface RootRouteChildren {
   AgendaSetupRoute: typeof AgendaSetupRoute
   AjustesIntegracoesRoute: typeof AjustesIntegracoesRoute
   ApiChatRoute: typeof ApiChatRoute
+  DevJobsRoute: typeof DevJobsRoute
   InsightsIdRoute: typeof InsightsIdRoute
   PropostaSiteProposalIdRoute: typeof PropostaSiteProposalIdRoute
   PropostaLeadIdRoute: typeof PropostaLeadIdRoute
@@ -666,6 +679,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InsightsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dev/jobs': {
+      id: '/dev/jobs'
+      path: '/dev/jobs'
+      fullPath: '/dev/jobs'
+      preLoaderRoute: typeof DevJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -767,6 +787,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgendaSetupRoute: AgendaSetupRoute,
   AjustesIntegracoesRoute: AjustesIntegracoesRoute,
   ApiChatRoute: ApiChatRoute,
+  DevJobsRoute: DevJobsRoute,
   InsightsIdRoute: InsightsIdRoute,
   PropostaSiteProposalIdRoute: PropostaSiteProposalIdRoute,
   PropostaLeadIdRoute: PropostaLeadIdRoute,
