@@ -28,7 +28,11 @@ export function getSupabase() {
   }
 
   return createClient<Database>(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    },
   });
 }
 
