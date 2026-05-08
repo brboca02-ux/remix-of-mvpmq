@@ -1,0 +1,7 @@
+import { createServerFn } from "@tanstack/react-start";
+import { runAuthAudit } from "./auth-audit.server";
+
+export const auditAuthSystem = createServerFn({ method: "GET" })
+  .handler(async () => {
+    return runAuthAudit();
+  });

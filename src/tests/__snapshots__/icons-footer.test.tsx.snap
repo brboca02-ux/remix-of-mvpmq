@@ -1,0 +1,224 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SiteFooter Snapshot > renders correctly and matches snapshot 1`] = `
+<DocumentFragment>
+  <footer
+    class="border-t border-border/60 bg-background"
+  >
+    <div
+      class="mx-auto max-w-7xl px-4 py-12 md:px-6"
+    >
+      <div
+        class="grid grid-cols-1 gap-8 md:grid-cols-4"
+      >
+        <div
+          class="space-y-4"
+        >
+          <h3
+            class="text-lg font-bold tracking-tight"
+          >
+            MarketScope AI
+          </h3>
+          <p
+            class="text-sm text-muted-foreground leading-relaxed"
+          >
+            Transformando dados em oportunidades reais. A plataforma definitiva para prospecção B2B inteligente e geração de presença digital.
+          </p>
+        </div>
+        <div
+          class="space-y-4"
+        >
+          <h4
+            class="text-sm font-semibold"
+          >
+            Plataforma
+          </h4>
+          <nav
+            class="flex flex-col gap-2"
+          >
+            <a
+              class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              to="/"
+            >
+              Início
+            </a>
+            <a
+              class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              to="/analyze"
+            >
+              Analisar
+            </a>
+            <a
+              class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              to="/history"
+            >
+              Histórico
+            </a>
+            <a
+              class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              to="/buscador"
+            >
+              Buscador
+            </a>
+          </nav>
+        </div>
+        <div
+          class="space-y-4"
+        >
+          <h4
+            class="text-sm font-semibold"
+          >
+            Suporte
+          </h4>
+          <nav
+            class="flex flex-col gap-2"
+          >
+            <a
+              class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              href="#"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-mail h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"
+                />
+                <rect
+                  height="16"
+                  rx="2"
+                  width="20"
+                  x="2"
+                  y="4"
+                />
+              </svg>
+              Contato
+            </a>
+            <a
+              class="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              href="#"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-globe h-4 w-4"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                />
+                <path
+                  d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"
+                />
+                <path
+                  d="M2 12h20"
+                />
+              </svg>
+              Documentação
+            </a>
+          </nav>
+        </div>
+        <div
+          class="space-y-4"
+        >
+          <h4
+            class="text-sm font-semibold"
+          >
+            Redes Sociais
+          </h4>
+          <div
+            class="flex gap-4"
+          >
+            <a
+              class="text-muted-foreground hover:text-foreground transition-colors"
+              href="#"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-camera h-5 w-5"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"
+                />
+                <circle
+                  cx="12"
+                  cy="13"
+                  r="3"
+                />
+              </svg>
+            </a>
+            <a
+              class="text-muted-foreground hover:text-foreground transition-colors"
+              href="#"
+            >
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-map-pin h-5 w-5"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                />
+                <circle
+                  cx="12"
+                  cy="10"
+                  r="3"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div
+        class="mt-12 border-t border-border/60 pt-8 flex flex-col items-center justify-between gap-4 md:flex-row"
+      >
+        <p
+          class="text-xs text-muted-foreground"
+        >
+          © 2026 MarketScope AI. Desenvolvido para alta conversão B2B.
+        </p>
+        <p
+          class="text-xs text-muted-foreground italic"
+        >
+          Análises geradas por IA com fins informativos.
+        </p>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
