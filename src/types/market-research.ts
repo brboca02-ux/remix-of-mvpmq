@@ -41,3 +41,14 @@
  export interface MarketResearchInput {
    input: string;
  }
+ 
+ export interface MarketResearchSavedReport {
+   id: string;
+   input: string;
+   normalizedIntent?: any;
+   report: MarketResearchReport;
+   sources?: MarketResearchSource[];
+   errors?: string[];
+   createdAt: string | null;
+   updatedAt: string | null;
+ }
