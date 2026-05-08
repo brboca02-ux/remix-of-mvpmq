@@ -1,6 +1,6 @@
  import { createServerFn } from "@tanstack/react-start";
  import { internalEnqueueJob, internalUpdateJobStatus } from "./jobs.server";
-import { getSupabase, normalizeLead, type StandardLead } from "./leads-core";
+import { getSupabase, normalizeLead, Logger, type StandardLead } from "./leads-core";
 import { processCnpjEnrichment } from "./leads-cnpj-enrichment";
 import { parseUniversalCsv } from "./leads-parser";
 
