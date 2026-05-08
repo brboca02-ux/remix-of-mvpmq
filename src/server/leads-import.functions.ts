@@ -267,7 +267,7 @@ export const updateLeadOperation = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const supabase = getSupabase();
     const id = data.lead_id.startsWith("lead_") ? data.lead_id.substring(5) : data.lead_id;
-    const { data: { user } } = await supabase.auth.getUser();
+    const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
     
     const { data: lead } = await supabase.from("leads_import").select("followup_history, niche, confidence_score").eq("id", id).single() as any;
     
@@ -281,9 +281,9 @@ export const updateLeadOperation = createServerFn({ method: "POST" })
       updates.followup_history = [...history, newItem];
 
       // Learning logic if outcome is present
-      if (data.updates.interaction_outcome && user) {
+      if (data.updates.interaction_outcome) {
           await supabase.from("winner_messages").insert({
-            user_id: user.id,
+            user_id: DEV_USER_ID,
             message_content: newItem.message || '',
             channel: newItem.channel || 'Desconhecido',
             niche: lead?.niche || 'Geral',
