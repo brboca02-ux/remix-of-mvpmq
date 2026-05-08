@@ -1,5 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-import { getSupabase, Logger, normalizeLead, withFallback, type StandardLead } from "./leads-core";
+ import { createServerFn } from "@tanstack/react-start";
+ import { getSupabase, Logger, normalizeLead, withFallback, type StandardLead } from "./leads-core";
+ import { internalEnqueueJob, internalUpdateJobStatus, internalAppendJobEvent } from "./jobs.server";
 
 const PLACES_KEY = () => process.env.GOOGLE_PLACES_API_KEY;
 
@@ -101,10 +102,21 @@ export const searchPlacesIds = createServerFn({ method: "POST" })
       for (const r of results) if (r.place_id) seen.set(r.place_id, r.name);
     }
 
-    return { 
-      places: Array.from(seen.entries()).map(([id, name]) => ({ id, name })),
-      total: seen.size 
-    };
+     const result = { 
+       places: Array.from(seen.entries()).map(([id, name]) => ({ id, name })),
+       total: seen.size 
+     };
+     
+     // Create a persistent job for this search
+     const { data: { user } } = await supabase.auth.getUser();
+     await internalEnqueueJob({
+       tipo: "places_search",
+       payload: data,
+       idempotencyKey: `places_search_${data.cidade}_${data.uf}_${data.nicho || 'solar'}_${Date.now()}`,
+       ownerUserId: user?.id
+     });
+ 
+     return result;
   });
 
 export const processPlacesChunk = createServerFn({ method: "POST" })
@@ -117,9 +129,29 @@ export const processPlacesChunk = createServerFn({ method: "POST" })
     const finalLeads: any[] = [];
     const errors: any[] = [];
 
-    for (const placeId of data.place_ids) {
-      try {
-        const d = await fetchPlaceDetails(placeId, key);
+     // Find or create mirror job
+     const mirrorJobKey = `places_bulk_${data.job_id}`;
+     const { data: { user } } = await supabase.auth.getUser();
+     const mirrorJob = await internalEnqueueJob({
+       tipo: "places_bulk",
+       payload: data,
+       idempotencyKey: mirrorJobKey,
+       ownerUserId: user?.id
+     });
+ 
+     await internalUpdateJobStatus({ jobId: mirrorJob.id, status: "running" });
+ 
+     for (const placeId of data.place_ids) {
+       try {
+         await internalAppendJobEvent({
+           jobId: mirrorJob.id,
+           eventType: "external_call_started",
+           level: "info",
+           message: `Buscando detalhes do local: ${placeId}`,
+           metadata: { placeId }
+         });
+ 
+         const d = await fetchPlaceDetails(placeId, key);
         if (!d) continue;
 
         const geo = extractGeo(d);
@@ -146,11 +178,26 @@ export const processPlacesChunk = createServerFn({ method: "POST" })
           raw: { place_id: d.place_id, rating: d.rating, score }
         });
 
-        const { error } = await supabase.from("leads_import").upsert(lead as any, { onConflict: "cnpj" });
-        if (error) throw error;
-        
-        finalLeads.push(lead);
-      } catch (err: any) {
+         const { error } = await supabase.from("leads_import").upsert(lead as any, { onConflict: "cnpj" });
+         if (error) throw error;
+         
+         await internalAppendJobEvent({
+           jobId: mirrorJob.id,
+           eventType: "external_call_completed",
+           level: "info",
+           message: `Lead processado: ${d.name}`,
+           metadata: { placeId, name: d.name }
+         });
+ 
+         finalLeads.push(lead);
+       } catch (err: any) {
+         await internalAppendJobEvent({
+           jobId: mirrorJob.id,
+           eventType: "external_call_failed",
+           level: "error",
+           message: `Erro ao processar local ${placeId}: ${err.message}`,
+           metadata: { placeId, error: err.message }
+         });
         errors.push({
           job_id: data.job_id,
           error_message: err.message,
@@ -172,13 +219,19 @@ export const processPlacesChunk = createServerFn({ method: "POST" })
       
       const isFinished = newProcessed >= (job.total_rows || 0);
       
-      await supabase.from("lead_import_jobs").update({
-        processed_rows: newProcessed,
-        success_rows: newSuccess,
-        failed_rows: newFailed,
-        status: isFinished ? "completed" : "processing",
-        finished_at: isFinished ? new Date().toISOString() : null
-      }).eq("id", data.job_id);
+       await supabase.from("lead_import_jobs").update({
+         processed_rows: newProcessed,
+         success_rows: newSuccess,
+         failed_rows: newFailed,
+         status: isFinished ? "completed" : "processing",
+         finished_at: isFinished ? new Date().toISOString() : null
+       }).eq("id", data.job_id);
+ 
+       await internalUpdateJobStatus({
+         jobId: mirrorJob.id,
+         status: isFinished ? "done" : "running",
+         result: isFinished ? { processed: newProcessed, success: newSuccess } : undefined
+       });
     }
 
     return { processed: data.place_ids.length };
