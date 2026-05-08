@@ -12,12 +12,10 @@ export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
     redirect: search.redirect as string | undefined,
   }),
-  beforeLoad: async ({ context, search }) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      throw redirect({ to: search.redirect || "/" });
-    }
-  },
+   beforeLoad: async () => {
+     // Sempre redireciona para a home, desativando o login
+     throw redirect({ to: "/" });
+   },
   component: LoginComponent,
 });
 
