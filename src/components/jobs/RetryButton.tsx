@@ -1,9 +1,50 @@
-import { Button } from "@/components/ui/button";
-import { useServerFn } from "@tanstack/react-start";
-import { retryJob } from "@/server/jobs.functions";
-import { useState } from "react";
-import { RefreshCcw } from "lucide-react";
-import { toast } from "sonner";
+ import { Button } from "@/components/ui/button";
+ import { useServerFn } from "@tanstack/react-start";
+ import { retryJob, cancelJob } from "@/server/jobs.functions";
+ import { useState } from "react";
+ import { RefreshCcw, XCircle } from "lucide-react";
+ import { toast } from "sonner";
+ export function CancelButton({ jobId, status, onSuccess }: { jobId: string; status: string; onSuccess?: () => void }) {
+   const [isConfirming, setIsConfirming] = useState(false);
+   const cancelFn = useServerFn(cancelJob);
+ 
+   const handleCancel = async () => {
+     try {
+       await cancelFn({ data: { jobId } });
+       toast.success("Cancelamento solicitado.");
+       setIsConfirming(false);
+       onSuccess?.();
+     } catch (error) {
+       toast.error("Erro ao cancelar job.");
+       console.error(error);
+     }
+   };
+ 
+   const isRunning = status === 'running';
+ 
+   return (
+     <Button 
+       variant={isConfirming ? "destructive" : "ghost"}
+       size="sm" 
+       onClick={() => {
+         if (!isConfirming) {
+           setIsConfirming(true);
+         } else {
+           handleCancel();
+         }
+       }}
+       className="gap-2 text-xs h-8"
+     >
+       <XCircle className="h-4 w-4" />
+       {isConfirming ? "Confirmar cancelamento?" : "Cancelar"}
+       {isConfirming && isRunning && (
+         <div className="absolute top-full left-0 w-64 p-2 mt-2 bg-popover text-popover-foreground text-[9px] rounded-md shadow-lg border border-border z-50">
+           A execução externa pode já estar em andamento. O app vai ignorar o resultado se ele retornar depois.
+         </div>
+       )}
+     </Button>
+   );
+ }
 
 const NON_IDEMPOTENT_TYPES = ['send_message', 'create_invoice']; // Example types
 
