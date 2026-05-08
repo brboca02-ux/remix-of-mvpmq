@@ -9,8 +9,7 @@ export const startImportJob = createServerFn({ method: "POST" })
   .inputValidator((input: { filename: string; total_rows: number; mode?: "fast" | "smart"; sample_rate?: number; }) => input)
   .handler(async ({ data }) => {
     const supabase = getSupabase();
-    // Pegar user_id da sessão se disponível (opcional, para RLS)
-    const { data: { user } } = await supabase.auth.getUser();
+    const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
     
     const { data: job, error } = await supabase.from("lead_import_jobs").insert({
       filename: data.filename,
@@ -18,7 +17,7 @@ export const startImportJob = createServerFn({ method: "POST" })
       status: "pending",
       mode: data.mode || "fast",
       sample_rate: data.sample_rate || 100.0,
-      user_id: user?.id,
+      user_id: DEV_USER_ID,
       started_at: new Date().toISOString()
     }).select().single();
 
@@ -33,7 +32,7 @@ export const startImportJob = createServerFn({ method: "POST" })
        tipo: "lead_import",
        payload: data,
        idempotencyKey: mirrorIdKey,
-       ownerUserId: user?.id
+       ownerUserId: DEV_USER_ID
      });
      
      await supabase.from("job_events").insert({
