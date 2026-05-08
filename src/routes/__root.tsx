@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { IconSecurityMonitor } from "@/lib/icons";
-import { AppShell } from "@/components/app-shell";
+ import { AppShell } from "@/components/app-shell";
+ import { BackgroundJobBanner } from "@/components/jobs/BackgroundJobBanner";
 
 
 interface RouterContext {
@@ -126,13 +127,17 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {useShell ? (
-          <AppShell hideFooter>
-            <Outlet />
-          </AppShell>
-        ) : (
-          <Outlet />
-        )}
+         {useShell ? (
+           <AppShell hideFooter>
+             <Outlet />
+             <BackgroundJobBanner />
+           </AppShell>
+         ) : (
+           <>
+             <Outlet />
+             <BackgroundJobBanner />
+           </>
+         )}
       </AuthProvider>
     </QueryClientProvider>
   );
