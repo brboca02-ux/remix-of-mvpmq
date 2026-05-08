@@ -1,12 +1,18 @@
  import { createFileRoute } from "@tanstack/react-router";
- import { useState } from "react";
+ import { useState, useEffect } from "react";
  import { useServerFn } from "@tanstack/react-start";
- import { generateMarketResearchReport } from "@/server/market-research.functions";
+ import { 
+   generateMarketResearchReport, 
+   saveMarketResearchReport, 
+   listMarketResearchReports,
+   deleteMarketResearchReport
+ } from "@/server/market-research.functions";
  import { MarketResearchInput } from "@/components/market-research/MarketResearchInput";
  import { MarketResearchResult } from "@/components/market-research/MarketResearchResult";
  import { MarketResearchEmptyState } from "@/components/market-research/MarketResearchEmptyState";
- import { MarketResearchReport } from "@/types/market-research";
- import { BarChart3, ArrowLeft } from "lucide-react";
+ import { MarketResearchHistory } from "@/components/market-research/MarketResearchHistory";
+ import { MarketResearchReport, MarketResearchSavedReport } from "@/types/market-research";
+ import { BarChart3, ArrowLeft, History } from "lucide-react";
  import { Link } from "@tanstack/react-router";
  import { toast } from "sonner";
  
@@ -17,7 +23,29 @@
  function MarketResearchPage() {
    const [report, setReport] = useState<MarketResearchReport | null>(null);
    const [isLoading, setIsLoading] = useState(false);
+   const [history, setHistory] = useState<MarketResearchSavedReport[]>([]);
+   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
+ 
    const generateReport = useServerFn(generateMarketResearchReport);
+   const saveReport = useServerFn(saveMarketResearchReport);
+   const listReports = useServerFn(listMarketResearchReports);
+   const deleteReport = useServerFn(deleteMarketResearchReport);
+ 
+   const fetchHistory = async () => {
+     setIsHistoryLoading(true);
+     try {
+       const data = await listReports({ data: { limit: 10 } });
+       setHistory(data as MarketResearchSavedReport[]);
+     } catch (err) {
+       console.error("Erro ao carregar histórico:", err);
+     } finally {
+       setIsHistoryLoading(false);
+     }
+   };
+ 
+   useEffect(() => {
+     fetchHistory();
+   }, []);
  
    const handleGenerate = async (input: string) => {
      setIsLoading(true);
@@ -27,6 +55,22 @@
        if (result.ok) {
          setReport(result as MarketResearchReport);
          toast.success("Análise concluída com sucesso!");
+         
+         // Salvar no histórico
+         try {
+           await saveReport({ 
+             data: { 
+               input, 
+               report: result as MarketResearchReport,
+               sources: (result as MarketResearchReport).sources,
+               errors: (result as MarketResearchReport).errors
+             } 
+           });
+           fetchHistory();
+         } catch (saveErr) {
+           console.error("Erro ao salvar no histórico:", saveErr);
+           toast.warning("Relatório gerado, mas não foi possível salvar no histórico.");
+         }
        } else {
          toast.error("Houve um erro na análise parcial.");
          setReport(result as MarketResearchReport);
@@ -36,6 +80,27 @@
        toast.error("Erro crítico ao gerar relatório.");
      } finally {
        setIsLoading(false);
+     }
+   };
+ 
+   const handleSelectFromHistory = (savedReport: MarketResearchSavedReport) => {
+     setReport(savedReport.report);
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+     toast.info("Relatório antigo carregado.");
+   };
+ 
+   const handleDeleteHistory = async (id: string) => {
+     try {
+       const success = await deleteReport({ data: id });
+       if (success) {
+         toast.success("Pesquisa excluída.");
+         fetchHistory();
+       } else {
+         toast.error("Erro ao excluir pesquisa.");
+       }
+     } catch (err) {
+       console.error(err);
+       toast.error("Falha ao excluir.");
      }
    };
  
@@ -68,22 +133,40 @@
          </div>
  
          {/* Input Section */}
-         <MarketResearchInput onGenerate={handleGenerate} isLoading={isLoading} />
+         <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
+           <div className="xl:col-span-3 space-y-12">
+             <MarketResearchInput onGenerate={handleGenerate} isLoading={isLoading} />
  
-         {/* Result or Empty State */}
-         <div className="pt-8">
-           {report ? (
-             <MarketResearchResult report={report} />
-           ) : isLoading ? (
-             <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50 animate-pulse">
-               <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-               <p className="text-sm font-medium uppercase tracking-widest text-primary">
-                 Processando dados das fontes...
-               </p>
+             {/* Result or Empty State */}
+             <div className="pt-8">
+               {report ? (
+                 <MarketResearchResult report={report} />
+               ) : isLoading ? (
+                 <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50 animate-pulse">
+                   <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                   <p className="text-sm font-medium uppercase tracking-widest text-primary">
+                     Processando dados das fontes...
+                   </p>
+                 </div>
+               ) : (
+                 <MarketResearchEmptyState />
+               )}
              </div>
-           ) : (
-             <MarketResearchEmptyState />
-           )}
+           </div>
+ 
+           {/* History Sidebar */}
+           <div className="space-y-6">
+             <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary/70">
+               <History className="h-4 w-4" />
+               Histórico Recente
+             </div>
+             <MarketResearchHistory 
+               reports={history} 
+               onSelect={handleSelectFromHistory} 
+               onDelete={handleDeleteHistory}
+               isLoading={isHistoryLoading}
+             />
+           </div>
          </div>
        </div>
      </div>
