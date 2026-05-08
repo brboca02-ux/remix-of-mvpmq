@@ -6,7 +6,10 @@ import { JobStatusBadge, JobStatus } from "./JobStatusBadge";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ChevronUp, ChevronDown } from "lucide-react";
 
-export function BackgroundJobBanner() {
+ const IS_DEBUG = typeof window !== 'undefined' && 
+   ((window as any).LOVABLE_JOBS_DEBUG === "1" || import.meta.env.VITE_LOVABLE_JOBS_DEBUG === "1");
+ 
+ export function BackgroundJobBanner() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const fetchJobs = useServerFn(listJobs);
@@ -19,10 +22,10 @@ export function BackgroundJobBanner() {
       try {
         // Busca jobs independentemente de sessão (modo single-user/dev)
         const [runningJobs, queuedJobs, extJobs] = await Promise.all([
-          fetchJobs({ data: { status: 'running' } }).catch(err => {
-            console.warn("Falha ao buscar jobs running:", err);
-            return [];
-          }),
+           fetchJobs({ data: { status: 'running' } }).catch(err => {
+             if (IS_DEBUG) console.warn("Falha ao buscar jobs running:", err);
+             return [];
+           }),
           fetchJobs({ data: { status: 'queued' } }).catch(err => {
             console.warn("Falha ao buscar jobs queued:", err);
             return [];
@@ -39,10 +42,10 @@ export function BackgroundJobBanner() {
         const queuedList = Array.isArray(queuedJobs) ? queuedJobs : [];
         const extList = Array.isArray(extJobs) ? extJobs : [];
         setJobs([...runningList, ...queuedList, ...extList]);
-      } catch (err) {
-        console.error("Erro crítico ao buscar jobs iniciais:", err);
-        setJobs([]);
-      }
+       } catch (err) {
+         if (IS_DEBUG) console.error("Erro crítico ao buscar jobs iniciais:", err);
+         setJobs([]);
+       }
     };
 
     init();
