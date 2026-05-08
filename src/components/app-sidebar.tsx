@@ -112,8 +112,9 @@ const ANALYSIS_ITEMS: NavItem[] = [
   { to: "/analyze", label: "Validar Ideia", icon: BarChart3 },
   { to: "/history", label: "Histórico e Nichos", icon: History },
   { to: "/", label: "Home Comercial", icon: Home, exact: true },
-  { to: "/ajustes/integracoes", label: "Integrações", icon: Zap },
-  { to: "/agenda/ops", label: "Configurações", icon: Briefcase },
+   { to: "/ajustes/integracoes", label: "Integrações", icon: Zap },
+   { to: "/dev/jobs", label: "DEV Jobs", icon: Activity },
+   { to: "/agenda/ops", label: "Configurações", icon: Briefcase },
 ];
 
 function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
