@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { signPayload } from "@/server/make-integration.server";
+ import { signPayload } from "@/server/make-integration.server";
+ import { internalUpdateJobStatus } from "@/server/jobs.server";
 
 // Public callback that Make can call to confirm delivery / replies.
 // Security: HMAC-SHA256 signature using the user's secret_token (looked up via request_id).
@@ -68,15 +69,32 @@ export const Route = createFileRoute("/api/public/make-callback")({
           const newStatus =
             event === "delivered" ? "delivered" : event === "failed" ? "failed" : event === "replied" ? "replied" : null;
 
-          if (newStatus) {
-            await supabaseAdmin
-              .from("make_send_log")
-              .update({
-                status: newStatus,
-                delivered_at: newStatus === "delivered" ? new Date().toISOString() : undefined,
-              })
-              .eq("id", log.id);
-          }
+           if (newStatus) {
+             await supabaseAdmin
+               .from("make_send_log")
+               .update({
+                 status: newStatus,
+                 delivered_at: newStatus === "delivered" ? new Date().toISOString() : undefined,
+               })
+               .eq("id", log.id);
+ 
+             // Check if there's a corresponding job
+             const { data: job } = await supabaseAdmin
+               .from("jobs")
+               .select("id")
+               .or(`idempotency_key.eq.make_${requestId},idempotency_key.eq.${requestId}`)
+               .maybeSingle();
+ 
+             if (job) {
+               const jobStatus: any = newStatus === "delivered" ? "done" : newStatus === "failed" ? "failed" : "running";
+               await internalUpdateJobStatus({
+                 jobId: job.id,
+                 status: jobStatus,
+                 result: payload,
+                 error: newStatus === "failed" ? (payload.error || "Erro no callback do Make") : undefined
+               });
+             }
+           }
 
           return jsonRes({ ok: true }, 200);
         } catch (err: any) {
