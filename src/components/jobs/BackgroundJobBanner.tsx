@@ -17,17 +17,25 @@ export function BackgroundJobBanner() {
     let cancelled = false;
     const init = async () => {
       try {
-        // Só busca jobs se houver sessão ativa (evita 401 em páginas públicas)
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session || cancelled) return;
+        // Busca jobs independentemente de sessão (modo single-user/dev)
         const [initialJobs, queuedJobs] = await Promise.all([
-          fetchJobs({ data: { status: 'running' } }).catch(() => []),
-          fetchJobs({ data: { status: 'queued' } }).catch(() => []),
+          fetchJobs({ data: { status: 'running' } }).catch(err => {
+            console.warn("Falha ao buscar jobs running:", err);
+            return [];
+          }),
+          fetchJobs({ data: { status: 'queued' } }).catch(err => {
+            console.warn("Falha ao buscar jobs queued:", err);
+            return [];
+          }),
         ]);
         if (cancelled) return;
-        setJobs([...(Array.isArray(initialJobs) ? initialJobs : []), ...(Array.isArray(queuedJobs) ? queuedJobs : [])]);
+        
+        // Garantia absoluta de que lidamos com arrays
+        const runningList = Array.isArray(initialJobs) ? initialJobs : [];
+        const queuedList = Array.isArray(queuedJobs) ? queuedJobs : [];
+        setJobs([...runningList, ...queuedList]);
       } catch (err) {
-        console.error("Erro ao buscar jobs iniciais:", err);
+        console.error("Erro crítico ao buscar jobs iniciais:", err);
       }
     };
 
