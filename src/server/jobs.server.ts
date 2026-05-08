@@ -1,4 +1,12 @@
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+ import { supabaseAdmin } from "@/integrations/supabase/client.server";
+ 
+ const LOVABLE_JOBS_DEBUG = process.env.LOVABLE_JOBS_DEBUG === "1";
+ 
+ function debugLog(message: string, ...args: any[]) {
+   if (LOVABLE_JOBS_DEBUG) {
+     console.log(`[JOBS-DEBUG] ${message}`, ...args);
+   }
+ }
 import { Database } from "@/integrations/supabase/types";
 
 export type Job = Database["public"]["Tables"]["jobs"]["Row"];
@@ -150,7 +158,10 @@ export async function internalUpdateJobStatus({
     .select()
     .single();
 
-  if (dbError) throw dbError;
+   if (dbError) {
+     debugLog(`Erro ao atualizar status do job ${jobId}:`, dbError);
+     throw dbError;
+   }
 
   const eventType = status === "running" ? "job_started" : 
                     status === "done" ? "job_completed" : 
@@ -191,7 +202,12 @@ export async function internalAppendJobEvent({
       metadata: truncatedMetadata,
     } as any);
 
-  if (error) console.error("Erro ao salvar job event:", error);
+   if (error) {
+     debugLog("Erro ao salvar job event:", error);
+     if (LOVABLE_JOBS_DEBUG) {
+       console.error("Erro crítico ao salvar evento no DB:", error);
+     }
+   }
 }
 
 export async function internalRetryJob(jobId: string) {
