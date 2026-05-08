@@ -14,11 +14,18 @@ export function BackgroundJobBanner() {
   const activeJobs = jobs.filter(j => ['queued', 'running'].includes(j.status));
 
   useEffect(() => {
+    let cancelled = false;
     const init = async () => {
       try {
-        const initialJobs = await fetchJobs({ data: { status: 'running' } });
-        const queuedJobs = await fetchJobs({ data: { status: 'queued' } });
-        setJobs([...initialJobs, ...queuedJobs]);
+        // Só busca jobs se houver sessão ativa (evita 401 em páginas públicas)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || cancelled) return;
+        const [initialJobs, queuedJobs] = await Promise.all([
+          fetchJobs({ data: { status: 'running' } }).catch(() => []),
+          fetchJobs({ data: { status: 'queued' } }).catch(() => []),
+        ]);
+        if (cancelled) return;
+        setJobs([...(Array.isArray(initialJobs) ? initialJobs : []), ...(Array.isArray(queuedJobs) ? queuedJobs : [])]);
       } catch (err) {
         console.error("Erro ao buscar jobs iniciais:", err);
       }
@@ -46,6 +53,7 @@ export function BackgroundJobBanner() {
       .subscribe();
 
     return () => {
+      cancelled = true;
       supabase.removeChannel(channel);
     };
   }, []);
