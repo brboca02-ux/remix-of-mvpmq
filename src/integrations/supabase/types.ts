@@ -2421,6 +2421,7 @@ export type Database = {
         Returns: number
       }
       cleanup_expired_location_cache: { Args: never; Returns: undefined }
+      cleanup_old_job_events: { Args: never; Returns: undefined }
       generate_lead_identity_hash: {
         Args: {
           p_cidade: string

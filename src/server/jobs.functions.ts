@@ -6,7 +6,15 @@ import {
    internalRetryJob,
    internalCancelJob
 } from "./jobs.server";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+ import { supabaseAdmin } from "@/integrations/supabase/client.server";
+ 
+ const LOVABLE_JOBS_DEBUG = process.env.LOVABLE_JOBS_DEBUG === "1";
+ 
+ function debugLog(message: string, ...args: any[]) {
+   if (LOVABLE_JOBS_DEBUG) {
+     console.log(`[JOBS-FN-DEBUG] ${message}`, ...args);
+   }
+ }
 import { z } from "zod";
 
 const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
@@ -62,10 +70,10 @@ export const listJobs = createServerFn({ method: "GET" })
     if (data.cursor) query = query.lt("created_at", data.cursor);
 
     const { data: jobs, error } = await query;
-    if (error) {
-      console.error("Erro ao listar jobs:", error);
-      return [];
-    }
+     if (error) {
+       debugLog("Erro ao listar jobs:", error);
+       return [];
+     }
     return jobs ?? [];
   });
 
@@ -120,9 +128,9 @@ export const retryJob = createServerFn({ method: "POST" })
        .order("created_at", { ascending: false })
        .limit(50);
  
-     if (error) {
-       console.error("Erro ao listar jobs ativos:", error);
-       return [];
-     }
+      if (error) {
+        debugLog("Erro ao listar jobs ativos:", error);
+        return [];
+      }
      return data || [];
    });
