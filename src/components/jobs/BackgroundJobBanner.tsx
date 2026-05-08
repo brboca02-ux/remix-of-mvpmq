@@ -11,14 +11,14 @@ export function BackgroundJobBanner() {
   const [isExpanded, setIsExpanded] = useState(false);
   const fetchJobs = useServerFn(listJobs);
 
-  const activeJobs = jobs.filter(j => ['queued', 'running'].includes(j.status));
+   const activeJobs = Array.isArray(jobs) ? jobs.filter(j => ['queued', 'running', 'queued_external'].includes(j.status)) : [];
 
   useEffect(() => {
     let cancelled = false;
     const init = async () => {
       try {
         // Busca jobs independentemente de sessão (modo single-user/dev)
-        const [initialJobs, queuedJobs] = await Promise.all([
+        const [runningJobs, queuedJobs, extJobs] = await Promise.all([
           fetchJobs({ data: { status: 'running' } }).catch(err => {
             console.warn("Falha ao buscar jobs running:", err);
             return [];
@@ -27,19 +27,30 @@ export function BackgroundJobBanner() {
             console.warn("Falha ao buscar jobs queued:", err);
             return [];
           }),
+          fetchJobs({ data: { status: 'queued_external' } }).catch(err => {
+            console.warn("Falha ao buscar jobs queued_external:", err);
+            return [];
+          }),
         ]);
         if (cancelled) return;
         
         // Garantia absoluta de que lidamos com arrays
-        const runningList = Array.isArray(initialJobs) ? initialJobs : [];
+        const runningList = Array.isArray(runningJobs) ? runningJobs : [];
         const queuedList = Array.isArray(queuedJobs) ? queuedJobs : [];
-        setJobs([...runningList, ...queuedList]);
+        const extList = Array.isArray(extJobs) ? extJobs : [];
+        setJobs([...runningList, ...queuedList, ...extList]);
       } catch (err) {
         console.error("Erro crítico ao buscar jobs iniciais:", err);
+        setJobs([]);
       }
     };
 
     init();
+
+    // Adicionar polling seguro
+    const pollInterval = setInterval(() => {
+      init();
+    }, activeJobs.length > 0 ? 5000 : 15000);
 
     const channel = supabase
       .channel('public:jobs')
@@ -62,9 +73,10 @@ export function BackgroundJobBanner() {
 
     return () => {
       cancelled = true;
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
-  }, []);
+   }, [activeJobs.length]); // Re-setup interval if active count changes
 
   if (activeJobs.length === 0) return null;
 

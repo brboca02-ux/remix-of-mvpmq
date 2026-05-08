@@ -732,6 +732,8 @@ export type Database = {
       jobs: {
         Row: {
           attempts: number | null
+          cancel_requested: boolean | null
+          cancelled_at: string | null
           created_at: string | null
           error: string | null
           finished_at: string | null
@@ -749,6 +751,8 @@ export type Database = {
         }
         Insert: {
           attempts?: number | null
+          cancel_requested?: boolean | null
+          cancelled_at?: string | null
           created_at?: string | null
           error?: string | null
           finished_at?: string | null
@@ -766,6 +770,8 @@ export type Database = {
         }
         Update: {
           attempts?: number | null
+          cancel_requested?: boolean | null
+          cancelled_at?: string | null
           created_at?: string | null
           error?: string | null
           finished_at?: string | null

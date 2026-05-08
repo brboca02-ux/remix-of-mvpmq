@@ -3,7 +3,8 @@ import {
   internalEnqueueJob, 
   internalUpdateJobStatus, 
   internalAppendJobEvent, 
-  internalRetryJob 
+   internalRetryJob,
+   internalCancelJob
 } from "./jobs.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
@@ -69,7 +70,7 @@ export const updateJobStatus = createServerFn({ method: "POST" })
   // Removido requireSupabaseAuth para modo dev/single-user
   .inputValidator(z.object({
     jobId: z.string().uuid(),
-    status: z.enum(["queued", "running", "done", "failed", "queued_external"]),
+    status: z.enum(["queued", "running", "done", "failed", "queued_external", "cancelled"]),
     result: z.any().optional(),
     error: z.string().optional(),
   }))
@@ -98,3 +99,27 @@ export const retryJob = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     return internalRetryJob(data.jobId);
   });
+ 
+ export const cancelJob = createServerFn({ method: "POST" })
+   .inputValidator(z.object({
+     jobId: z.string().uuid(),
+   }))
+   .handler(async ({ data }) => {
+     return internalCancelJob(data.jobId);
+   });
+ 
+ export const listActiveJobs = createServerFn({ method: "GET" })
+   .handler(async () => {
+     const { data, error } = await supabaseAdmin
+       .from("jobs")
+       .select("*")
+       .in("status", ["queued", "running", "queued_external"])
+       .order("created_at", { ascending: false })
+       .limit(50);
+ 
+     if (error) {
+       console.error("Erro ao listar jobs ativos:", error);
+       return [];
+     }
+     return data || [];
+   });

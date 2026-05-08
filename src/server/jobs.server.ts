@@ -2,7 +2,44 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { Database } from "@/integrations/supabase/types";
 
 export type Job = Database["public"]["Tables"]["jobs"]["Row"];
-export type JobStatus = "queued" | "running" | "done" | "failed" | "queued_external";
+ export type JobStatus = "queued" | "running" | "done" | "failed" | "queued_external" | "cancelled";
+ export async function internalCancelJob(jobId: string) {
+   const { data: job } = await supabaseAdmin
+     .from("jobs")
+     .select("*")
+     .eq("id", jobId)
+     .single();
+ 
+   if (!job) throw new Error("Job não encontrado.");
+   if (["done", "failed", "cancelled"].includes(job.status)) {
+     throw new Error("Job já finalizado ou cancelado.");
+   }
+ 
+   const updateData: any = { 
+     status: "cancelled", 
+     cancel_requested: true,
+     cancelled_at: new Date().toISOString(),
+     finished_at: new Date().toISOString()
+   };
+ 
+   const { data, error } = await supabaseAdmin
+     .from("jobs")
+     .update(updateData)
+     .eq("id", jobId)
+     .select()
+     .single();
+ 
+   if (error) throw error;
+ 
+   await internalAppendJobEvent({
+     jobId,
+     eventType: "job_cancelled",
+     level: "warn",
+     message: `Job cancelado manualmente.`,
+   });
+ 
+   return data;
+ }
 
 const MAX_PAYLOAD_SIZE = 32 * 1024; // 32KB
 const MAX_METADATA_SIZE = 4 * 1024; // 4KB
