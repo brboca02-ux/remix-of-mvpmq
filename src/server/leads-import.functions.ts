@@ -165,13 +165,23 @@ export const getImportJobStatus = createServerFn({ method: "GET" })
 
 export const getActiveImportJobs = createServerFn({ method: "GET" })
   .handler(async () => {
-    // Busca jobs ativos ou finalizados na última hora (para auditoria)
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { data: jobs } = await getSupabase().from("lead_import_jobs")
-      .select("*")
-      .or(`status.in.(pending,processing),finished_at.gt.${oneHourAgo}`)
-      .order("created_at", { ascending: false });
-    return jobs || [];
+    try {
+      // Busca jobs ativos ou finalizados na última hora (para auditoria)
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { data: jobs, error } = await getSupabase().from("lead_import_jobs")
+        .select("*")
+        .or(`status.in.(pending,processing),finished_at.gt.${oneHourAgo}`)
+        .order("created_at", { ascending: false });
+      
+      if (error) {
+        Logger.warn("Erro ao buscar jobs ativos de importação:", error);
+        return [];
+      }
+      return jobs || [];
+    } catch (e) {
+      Logger.error("Falha crítica em getActiveImportJobs:", e);
+      return [];
+    }
   });
 
 export const importLeadsCsv = createServerFn({ method: "POST" })
