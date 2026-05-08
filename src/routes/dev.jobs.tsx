@@ -7,7 +7,10 @@ import { JobProgressCard } from "@/components/jobs/JobProgressCard";
 import { Activity, History, ShieldAlert } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/dev/jobs")({
+ const IS_DEBUG = typeof window !== 'undefined' && 
+   ((window as any).LOVABLE_JOBS_DEBUG === "1" || import.meta.env.VITE_LOVABLE_JOBS_DEBUG === "1");
+ 
+ export const Route = createFileRoute("/dev/jobs")({
   component: DevJobsPage,
 });
 
@@ -19,9 +22,9 @@ function DevJobsPage() {
     try {
       const data = await fetchActive();
       setActiveJobs(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(err);
-    }
+     } catch (err) {
+       if (IS_DEBUG) console.error(err);
+     }
   };
 
   useEffect(() => {
