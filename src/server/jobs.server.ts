@@ -109,6 +109,33 @@ export async function internalUpdateJobStatus({
   result?: any;
   error?: string;
 }) {
+  // Guard: nunca sobrescrever um job já cancelado/finalizado com novo status
+  const { data: current } = await supabaseAdmin
+    .from("jobs")
+    .select("status, cancel_requested")
+    .eq("id", jobId)
+    .single();
+
+  if (current?.status === "cancelled" || current?.cancel_requested) {
+    await internalAppendJobEvent({
+      jobId,
+      eventType: "job_update_ignored",
+      level: "warn",
+      message: `Tentativa de atualizar para "${status}" ignorada — job já cancelado.`,
+    });
+    return current;
+  }
+
+  if (current && ["done", "failed"].includes(current.status) && status !== current.status) {
+    await internalAppendJobEvent({
+      jobId,
+      eventType: "job_update_ignored",
+      level: "warn",
+      message: `Tentativa de atualizar para "${status}" ignorada — job já finalizado (${current.status}).`,
+    });
+    return current;
+  }
+
   const updateData: any = { status, updated_at: new Date().toISOString() };
   if (result !== undefined) updateData.result = truncate(result, MAX_PAYLOAD_SIZE);
   if (error !== undefined) updateData.error = error;
