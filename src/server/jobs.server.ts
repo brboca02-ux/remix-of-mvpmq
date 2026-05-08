@@ -2,7 +2,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { Database } from "@/integrations/supabase/types";
 
 export type Job = Database["public"]["Tables"]["jobs"]["Row"];
-export type JobStatus = Job["status"];
+export type JobStatus = "queued" | "running" | "done" | "failed" | "queued_external";
 
 const MAX_PAYLOAD_SIZE = 32 * 1024; // 32KB
 const MAX_METADATA_SIZE = 4 * 1024; // 4KB
@@ -142,11 +142,13 @@ export async function internalRetryJob(jobId: string) {
     throw new Error("Somente jobs falhos ou aguardando reprocessamento podem ser reiniciados.");
   }
 
+  const attempts = job.attempts ?? 0;
+
   const { data, error } = await supabaseAdmin
     .from("jobs")
     .update({
       status: "queued",
-      attempts: job.attempts + 1,
+      attempts: attempts + 1,
       error: null,
       started_at: null,
       finished_at: null,
@@ -161,7 +163,7 @@ export async function internalRetryJob(jobId: string) {
     jobId,
     eventType: "job_retry_scheduled",
     level: "info",
-    message: `Job reiniciado manualmente. Tentativa #${data.attempts + 1}`,
+    message: `Job reiniciado manualmente. Tentativa #${(data.attempts ?? 0) + 1}`,
   });
 
   return data;
