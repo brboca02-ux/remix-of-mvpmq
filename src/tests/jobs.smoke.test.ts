@@ -8,20 +8,28 @@
  import { supabaseAdmin } from '../integrations/supabase/client.server';
  
  // Mock Supabase
+ const mockFrom = vi.fn();
  vi.mock('../integrations/supabase/client.server', () => ({
    supabaseAdmin: {
-     from: vi.fn(() => ({
-       select: vi.fn().mockReturnThis(),
-       insert: vi.fn().mockReturnThis(),
-       update: vi.fn().mockReturnThis(),
-       eq: vi.fn().mockReturnThis(),
-       in: vi.fn().mockReturnThis(),
-       single: vi.fn().mockReturnThis(),
-       order: vi.fn().mockReturnThis(),
-       limit: vi.fn().mockReturnThis(),
-     }))
+     from: vi.fn((...args) => mockFrom(...args)),
    }
  }));
+ 
+ // Helper to set up the mock chain
+ const setupMockChain = (data: any, error: any = null) => {
+   const chain = {
+     select: vi.fn().mockReturnThis(),
+     insert: vi.fn().mockReturnThis(),
+     update: vi.fn().mockReturnThis(),
+     eq: vi.fn().mockReturnThis(),
+     in: vi.fn().mockReturnThis(),
+     order: vi.fn().mockReturnThis(),
+     limit: vi.fn().mockReturnThis(),
+     single: vi.fn().mockResolvedValue({ data, error }),
+   };
+   mockFrom.mockReturnValue(chain);
+   return chain;
+ };
  
  describe('Jobs Layer - Smoke Tests', () => {
    const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
@@ -31,20 +39,15 @@
    });
  
    it('1. internalEnqueueJob deve garantir owner_user_id como DEV_USER_ID', async () => {
-     const mockInsert = vi.fn().mockReturnValue({
-       select: () => ({ single: () => Promise.resolve({ data: { id: 'job-1' }, error: null }) })
+     const chain = setupMockChain(null); // First call to check existing job
+     // Mock implementation to return null for first call and then the new job
+     mockFrom.mockReturnValueOnce({
+       select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null }) }) })
+     }).mockReturnValue({
+       insert: vi.fn().mockReturnValue({
+         select: () => ({ single: () => Promise.resolve({ data: { id: 'job-1' }, error: null }) })
+       })
      });
- 
-     const fromMock = {
-       select: vi.fn().mockImplementation(() => ({
-         eq: vi.fn().mockReturnValue({
-           single: vi.fn().mockResolvedValue({ data: null })
-         })
-       })),
-       insert: mockInsert
-     };
- 
-     (supabaseAdmin.from as any).mockReturnValue(fromMock);
  
      await internalEnqueueJob({
        tipo: 'test',
