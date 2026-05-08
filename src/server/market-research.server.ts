@@ -65,7 +65,7 @@
    errors?: string[];
  }): Promise<{ success: boolean; id?: string; error?: string }> {
    try {
-     const { data: inserted, error } = await supabase
+     const { data: inserted, error } = await (supabase as any)
        .from("market_research_reports")
        .insert({
          input: data.input,
