@@ -31,12 +31,20 @@
    });
  
    it('1. internalEnqueueJob deve garantir owner_user_id como DEV_USER_ID', async () => {
-     const mockInsert = vi.fn().mockResolvedValue({ data: { id: 'job-1' }, error: null });
-     (supabaseAdmin.from as any).mockReturnValue({
-       select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null }) }) }),
-       insert: mockInsert,
+     const mockInsert = vi.fn().mockReturnValue({
        select: () => ({ single: () => Promise.resolve({ data: { id: 'job-1' }, error: null }) })
      });
+ 
+     const fromMock = {
+       select: vi.fn().mockImplementation(() => ({
+         eq: vi.fn().mockReturnValue({
+           single: vi.fn().mockResolvedValue({ data: null })
+         })
+       })),
+       insert: mockInsert
+     };
+ 
+     (supabaseAdmin.from as any).mockReturnValue(fromMock);
  
      await internalEnqueueJob({
        tipo: 'test',
