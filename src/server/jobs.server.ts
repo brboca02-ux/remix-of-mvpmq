@@ -45,7 +45,7 @@ export async function internalEnqueueJob({
       status: "queued",
       max_attempts: maxAttempts,
       owner_user_id: ownerUserId,
-    })
+    } as any)
     .select()
     .single();
 
@@ -125,7 +125,7 @@ export async function internalAppendJobEvent({
       level,
       message,
       metadata: truncatedMetadata,
-    });
+    } as any);
 
   if (error) console.error("Erro ao salvar job event:", error);
 }
@@ -152,7 +152,7 @@ export async function internalRetryJob(jobId: string) {
       error: null,
       started_at: null,
       finished_at: null,
-    })
+    } as any)
     .eq("id", jobId)
     .select()
     .single();
