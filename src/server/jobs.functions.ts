@@ -1,5 +1,4 @@
-import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+ import { createServerFn } from "@tanstack/react-start";
 import { 
   internalEnqueueJob, 
   internalUpdateJobStatus, 
@@ -9,34 +8,33 @@ import {
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
+const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
+
 export const enqueueJob = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  // Removido requireSupabaseAuth para modo dev/single-user
   .inputValidator(z.object({
     tipo: z.string(),
     payload: z.any(),
     idempotencyKey: z.string(),
     maxAttempts: z.number().optional(),
   }))
-  .handler(async ({ data, context }) => {
-    const { userId } = context;
+  .handler(async ({ data }) => {
     return internalEnqueueJob({
       ...data,
-      ownerUserId: userId,
+      ownerUserId: DEV_USER_ID,
     });
   });
 
 export const getJob = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  // Removido requireSupabaseAuth para modo dev/single-user
   .inputValidator(z.object({
     jobId: z.string().uuid(),
   }))
-  .handler(async ({ data, context }) => {
-    const { userId } = context;
+  .handler(async ({ data }) => {
     const { data: job, error } = await supabaseAdmin
       .from("jobs")
       .select("*, job_events(*)")
       .eq("id", data.jobId)
-      // .eq("owner_user_id", userId) // Removido para suportar single-user sem owner rigoroso por enquanto
       .single();
 
     if (error) throw error;
@@ -44,19 +42,17 @@ export const getJob = createServerFn({ method: "GET" })
   });
 
 export const listJobs = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  // Removido requireSupabaseAuth para modo dev/single-user
   .inputValidator(z.object({
     status: z.string().optional(),
     tipo: z.string().optional(),
     limit: z.number().default(20),
     cursor: z.string().optional(),
   }))
-  .handler(async ({ data, context }) => {
-    const { userId } = context;
+  .handler(async ({ data }) => {
     let query = supabaseAdmin
       .from("jobs")
       .select("*")
-      // .eq("owner_user_id", userId)
       .order("created_at", { ascending: false })
       .limit(data.limit);
 
@@ -70,7 +66,7 @@ export const listJobs = createServerFn({ method: "GET" })
   });
 
 export const updateJobStatus = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  // Removido requireSupabaseAuth para modo dev/single-user
   .inputValidator(z.object({
     jobId: z.string().uuid(),
     status: z.enum(["queued", "running", "done", "failed", "queued_external"]),
@@ -82,7 +78,7 @@ export const updateJobStatus = createServerFn({ method: "POST" })
   });
 
 export const appendJobEvent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  // Removido requireSupabaseAuth para modo dev/single-user
   .inputValidator(z.object({
     jobId: z.string().uuid(),
     eventType: z.string(),
@@ -95,7 +91,7 @@ export const appendJobEvent = createServerFn({ method: "POST" })
   });
 
 export const retryJob = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  // Removido requireSupabaseAuth para modo dev/single-user
   .inputValidator(z.object({
     jobId: z.string().uuid(),
   }))

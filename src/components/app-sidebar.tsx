@@ -235,43 +235,24 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        {user ? (
-          <div
-            className={cn(
-              "flex items-center gap-2 rounded-md p-2",
-              collapsed ? "justify-center" : "justify-between",
-            )}
-          >
-            {!collapsed && (
-              <div className="flex flex-col min-w-0">
-                <span className="truncate text-xs font-semibold text-foreground">
-                  {(user.user_metadata?.display_name as string | undefined) || user.email}
-                </span>
-                <span className="text-[10px] text-muted-foreground">Logado</span>
-              </div>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={signOut}
-              title="Sair"
-              className="h-8 w-8 shrink-0"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        ) : (
-          <Link
-            to="/login"
-            search={{ redirect: pathname }}
-            className={cn(
-              "inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90",
-              collapsed && "px-0 w-9",
-            )}
-          >
-            {collapsed ? <Database className="h-4 w-4" /> : "Entrar"}
-          </Link>
-        )}
+       <div
+         className={cn(
+           "flex items-center gap-2 rounded-md p-2",
+           collapsed ? "justify-center" : "justify-between",
+         )}
+       >
+         {!collapsed && (
+           <div className="flex flex-col min-w-0">
+             <span className="truncate text-xs font-semibold text-foreground">
+               Modo Desenvolvedor
+             </span>
+             <span className="text-[10px] text-muted-foreground">Single User</span>
+           </div>
+         )}
+         <Badge variant="outline" className="h-5 text-[9px] bg-primary/5 border-primary/20">
+           DEV
+         </Badge>
+       </div>
       </SidebarFooter>
     </Sidebar>
   );

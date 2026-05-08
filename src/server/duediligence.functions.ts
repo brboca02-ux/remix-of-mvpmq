@@ -1,7 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestIP } from '@tanstack/react-start/server'
 import { z } from 'zod'
-import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+ import { supabaseAdmin } from '@/integrations/supabase/client.server'
+ 
+ const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
 import {
   onlyDigits,
   sha256Hex,
@@ -23,10 +25,10 @@ import { gravarAudit } from './dd/audit.server'
 
 // ============ Consulta PJ (CNPJ) ============
 export const consultarPJ = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ cnpj: z.string().min(14).max(20) }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context
+  .handler(async ({ data }) => {
+    const supabase = supabaseAdmin
+    const userId = DEV_USER_ID
     const cnpj = onlyDigits(data.cnpj)
     if (!validaCnpj(cnpj)) throw new Error('CNPJ inválido (dígito verificador).')
 
@@ -83,12 +85,12 @@ export const consultarPJ = createServerFn({ method: 'POST' })
 
 // ============ Consulta WHOIS ============
 export const consultarWhois = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({ dominio: z.string().min(3).max(253).regex(/^[a-z0-9.-]+$/i, 'Domínio inválido') }).parse(d)
   )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context
+  .handler(async ({ data }) => {
+    const supabase = supabaseAdmin
+    const userId = DEV_USER_ID
     const rl = checkRateLimit(userId)
     if (!rl.ok) throw new Error('Limite de consultas/hora atingido.')
 
@@ -117,10 +119,10 @@ export const consultarWhois = createServerFn({ method: 'POST' })
 
 // ============ Consulta site público ============
 export const consultarSitePublico = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ url: z.string().url().max(2048) }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context
+  .handler(async ({ data }) => {
+    const supabase = supabaseAdmin
+    const userId = DEV_USER_ID
     const rl = checkRateLimit(userId)
     if (!rl.ok) throw new Error('Limite de consultas/hora atingido.')
 
@@ -146,7 +148,6 @@ export const consultarSitePublico = createServerFn({ method: 'POST' })
 
 // ============ Registrar consentimento de PF ============
 export const registrarConsentimentoPF = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({
       cpf: z.string(),
@@ -157,8 +158,9 @@ export const registrarConsentimentoPF = createServerFn({ method: 'POST' })
       documento_url: z.string().url().max(2048).optional().nullable(),
     }).parse(d)
   )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context
+  .handler(async ({ data }) => {
+    const supabase = supabaseAdmin
+    const userId = DEV_USER_ID
     const cpf = onlyDigits(data.cpf)
     if (!validaCpf(cpf)) throw new Error('CPF inválido (dígito verificador).')
     const cpf_hash = sha256Hex(`cpf:${cpf}`)
@@ -184,9 +186,9 @@ export const registrarConsentimentoPF = createServerFn({ method: 'POST' })
 
 // ============ Listar meus consentimentos ============
 export const listarConsentimentos = createServerFn({ method: 'GET' })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context
+  .handler(async () => {
+    const supabase = supabaseAdmin
+    const userId = DEV_USER_ID
     const { data, error } = await supabase
       .from('consentimentos_pf')
       .select('*')
@@ -199,10 +201,9 @@ export const listarConsentimentos = createServerFn({ method: 'GET' })
 
 // ============ Revogar consentimento ============
 export const revogarConsentimento = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context
+  .handler(async ({ data }) => {
+    const supabase = supabaseAdmin
     const { error } = await supabase
       .from('consentimentos_pf')
       .update({ revogado_em: new Date().toISOString() })
@@ -213,12 +214,12 @@ export const revogarConsentimento = createServerFn({ method: 'POST' })
 
 // ============ Consultar PF (com consentimento) ============
 export const consultarPF = createServerFn({ method: 'POST' })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({ cpf: z.string(), consentimento_id: z.string().uuid() }).parse(d)
   )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context
+  .handler(async ({ data }) => {
+    const supabase = supabaseAdmin
+    const userId = DEV_USER_ID
     const cpf = onlyDigits(data.cpf)
     if (!validaCpf(cpf)) throw new Error('CPF inválido.')
 
@@ -271,9 +272,8 @@ export const consultarPF = createServerFn({ method: 'POST' })
 
 // ============ Auditoria ============
 export const listarAuditoria = createServerFn({ method: 'GET' })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase } = context
+  .handler(async () => {
+    const supabase = supabaseAdmin
     const { data, error } = await supabase
       .from('consultas_audit')
       .select('*')

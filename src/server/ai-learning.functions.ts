@@ -18,23 +18,24 @@ export interface UserSalesProfile {
   learning_paused: boolean;
 }
 
+ const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
+ 
 export const getUserSalesProfile = createServerFn({ method: "GET" })
   .handler(async () => {
     const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    const userId = DEV_USER_ID;
 
     let { data, error } = await supabase
       .from("user_sales_profile")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .maybeSingle();
 
     if (!data && !error) {
       // Create default profile if it doesn't exist
       const { data: newData, error: createError } = await supabase
         .from("user_sales_profile")
-        .insert({ user_id: user.id })
+        .insert({ user_id: userId })
         .select("*")
         .single();
       
@@ -52,12 +53,11 @@ export const updateUserSalesProfile = createServerFn({ method: "POST" })
   .inputValidator((input: Partial<UserSalesProfile>) => input)
   .handler(async ({ data: updates }) => {
     const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Unauthorized");
+    const userId = DEV_USER_ID;
 
     const { data, error } = await supabase
       .from("user_sales_profile")
-      .upsert({ ...updates, user_id: user.id, updated_at: new Date().toISOString() })
+      .upsert({ ...updates, user_id: userId, updated_at: new Date().toISOString() })
       .select("*")
       .single();
 
@@ -79,20 +79,19 @@ export const recordLearningAction = createServerFn({ method: "POST" })
   }) => input)
   .handler(async ({ data }) => {
     const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { success: false };
+    const userId = DEV_USER_ID;
 
     // Check if learning is paused
     const { data: profile } = await supabase
       .from("user_sales_profile")
       .select("learning_paused")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .maybeSingle();
     
     if (profile?.learning_paused) return { success: true, skipped: true };
 
     const { error } = await supabase.from("ai_adaptive_learning").insert({
-      user_id: user.id,
+      user_id: userId,
       ...data
     });
 
@@ -126,14 +125,13 @@ export const analyzeUserStyle = createServerFn({ method: "POST" })
     };
 
     const supabase = getSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase.from("user_style_references").insert({
-        user_id: user.id,
-        content,
-        analysis
-      });
-    }
+    const userId = DEV_USER_ID;
+    
+    await supabase.from("user_style_references").insert({
+      user_id: userId,
+      content,
+      analysis
+    });
 
     return analysis;
   });
