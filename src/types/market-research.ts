@@ -49,6 +49,6 @@
    report: MarketResearchReport;
    sources?: MarketResearchSource[];
    errors?: string[];
-   createdAt: string;
-   updatedAt: string;
+   createdAt: string | null;
+   updatedAt: string | null;
  }
