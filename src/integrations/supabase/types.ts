@@ -1509,6 +1509,42 @@ export type Database = {
         }
         Relationships: []
       }
+      market_research_reports: {
+        Row: {
+          created_at: string | null
+          errors: Json | null
+          id: string
+          input: string
+          normalized_intent: Json | null
+          owner_user_id: string | null
+          report: Json
+          sources: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          errors?: Json | null
+          id?: string
+          input: string
+          normalized_intent?: Json | null
+          owner_user_id?: string | null
+          report: Json
+          sources?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          errors?: Json | null
+          id?: string
+          input?: string
+          normalized_intent?: Json | null
+          owner_user_id?: string | null
+          report?: Json
+          sources?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       niche_evidence_logs: {
         Row: {
           created_at: string | null
