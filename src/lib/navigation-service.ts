@@ -34,14 +34,6 @@ export const navigationService = {
       // For now we log it and attempt a fetch to a hypothetical endpoint
       console.log('[Navigation Tracking]:', visit);
       
-      // We use a fire-and-forget pattern
-      fetch('/api/page-visit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(visit),
-      }).catch(() => {
-        // Silently fail if endpoint doesn't exist yet
-      });
     } catch (e) {
       // Ignore errors in tracking to not block navigation
     }
