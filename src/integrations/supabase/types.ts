@@ -729,6 +729,60 @@ export type Database = {
           },
         ]
       }
+      jobs: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          error: string | null
+          finished_at: string | null
+          id: string
+          idempotency_key: string
+          max_attempts: number | null
+          owner_user_id: string | null
+          payload: Json | null
+          result: Json | null
+          scheduled_at: string | null
+          started_at: string | null
+          status: string
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key: string
+          max_attempts?: number | null
+          owner_user_id?: string | null
+          payload?: Json | null
+          result?: Json | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status: string
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          idempotency_key?: string
+          max_attempts?: number | null
+          owner_user_id?: string | null
+          payload?: Json | null
+          result?: Json | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       lead_data_sources: {
         Row: {
           confidence_score: number | null
