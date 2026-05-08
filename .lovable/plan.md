@@ -1,116 +1,153 @@
-## Objetivo
 
-Reorganizar a relação entre **Funil de Vendas (Pipeline)** e **Buscador de Leads** sem remover nenhuma funcionalidade — apenas redistribuir e refinar.
+# Market Whisperer — Plano revisado (incorpora crítica)
 
-- **Pipeline** → Kanban minimalista, drag & drop puro, zero ações.
-- **Buscador** → centraliza toda inteligência e ações na nova seção **"Ações & Inteligência"** dentro do card.
-- **Ponte** → clicar num mini-card da pipeline abre o card completo do buscador num drawer.
+Plano aprovado conceitualmente, **reordenado** e com Onda 1 entregando UI visível desde o primeiro ciclo. Esta sessão executa **apenas a Onda 1**. Ondas 2–6 ficam documentadas para ciclos futuros, sem implementação agora.
 
 ---
 
-## 1. `src/modules/prospecting/LeadPipeline.tsx` — reescrito
+## Nova ordem de execução
 
-Reescrever o componente como Kanban minimalista:
-
-- **Remover** as sub-abas internas (`Funil de Vendas` / `Prospecção` / `Solicitações`) e o estado `pipelineView`.
-- Manter apenas 4 colunas fixas: `Novo`, `Qualificado`, `Interessado`, `Lead Fechado`.
-- Criar componente interno `PipelineMiniCard` contendo APENAS:
-  - Bolinha de prioridade (cor por `lead.opportunityLevel`: quente=rose+pulse, boa=emerald, média=amber, baixa=slate)
-  - Nome da empresa (truncate)
-  - Score numérico em chip pequeno colorido (≥80 rose, ≥60 amber, senão slate)
-- Sem botões, sem dropdowns, sem badges de canal, sem chips de contato, sem footer, sem ações.
-- Drag & drop continua funcionando (`onDragStart` setando `leadId`, drop chamando `onMoveLead`).
-- Click/Enter no mini-card → `onEditLead(lead, 'overview')`.
-- Props simplificadas: `{ leads, onMoveLead, onEditLead }` apenas.
-- Cabeçalhos de coluna com ícone + nome + contador.
+1. **Onda 1 — Jobs + feedback mínimo de estado** ← executar agora
+2. Onda 2 — n8n resiliente + idempotência
+3. Onda 3 — Performance CRM (10k+ leads)
+4. Onda 4 — Governança de consumo
+5. Onda 5 — UX/UI premium completa
+6. Onda 6 — Observabilidade avançada
 
 ---
 
-## 2. `src/modules/prospecting/LeadCard.tsx` — nova seção "Ações & Inteligência"
+## ONDA 1 — Camada de Jobs + UI de estado (escopo desta execução)
 
-Manter integralmente a variante `comfortable`: header com avatar/nome/nicho/cidade, botões de histórico/dropdown, chips de **Contato & Site**, badge de status, badge de oferta, badge de prioridade máxima e bloco **Potencial de Venda**.
+### 1.1 Banco (Lovable Cloud)
 
-### 2.1 Inserir nova seção entre "Contato & Site" e "Potencial de Venda"
+Migration única com:
 
-Card interno com aparência premium (`bg-slate-50/60 border border-slate-100 rounded-2xl p-4`) contendo, nesta ordem:
+**Tabela `jobs`**
+- `id uuid pk`, `tipo text`, `status text` (queued|running|done|failed|queued_external)
+- `payload jsonb`, `result jsonb` (truncado a ~32KB; payload bruto NÃO entra aqui)
+- `idempotency_key text UNIQUE NOT NULL`
+- `attempts int default 0`, `max_attempts int default 1` (default conservador — retry só quando seguro)
+- `owner_user_id uuid` (nullable; usa `MOCK_USER_ID` constante enquanto for single-user)
+- `error text`, `scheduled_at`, `started_at`, `finished_at`, `created_at`, `updated_at`
+- Índices: `(status, scheduled_at)`, `(owner_user_id, created_at desc)`, UNIQUE `(idempotency_key)`
 
-**(a) Cabeçalho discreto**
-- Label `AÇÕES & INTELIGÊNCIA` em font-black/uppercase/tracking-widest com ícone Sparkles.
+**Tabela `job_events`** (resumo técnico, não payload bruto)
+- `id`, `job_id`, `event_type text`, `level text` (info|warn|error)
+- `message text`, `metadata jsonb` (truncado a ~4KB)
+- `created_at`
+- Índice `(job_id, created_at desc)`
+- Eventos padronizados: `job_created`, `job_started`, `job_step_changed`, `job_retry_scheduled`, `job_failed`, `job_completed`, `external_call_started`, `external_call_failed`, `external_call_completed`
 
-**(b) Chips de inteligência (dados reais)**
-- **Análise IA**: `lead.socialDiscovery` existe → "Analisado" (emerald); senão → "Não analisado" (slate).
-- **Contato**: derivado de `lead.status` + `lead.updatedAt`:
-  - status em `['Novo','Lead Gerado']` → "Nunca contatado" (slate)
-  - última atualização < 24h e status de envio → "Recente (<24h)" (emerald)
-  - senão (status de envio/qualificado/etc) → "Contatado" (amber)
-- **Último envio**: filtra `lead.statusNotes` mais recente cujo `status` contenha `WhatsApp`/`Email`/`Instagram`/`Cold Mail`. Renderiza "WhatsApp enviado há 2h" usando `formatDistanceToNow` (pt-BR). Sem registro → "Nenhum envio registrado".
-- **Make**: existe nota com `kind: 'system'` cujo status seja de canal de envio → "Configurado" (violet); senão → "Não configurado" (slate).
+**RLS**
+- Modelo single-user atual: políticas permissivas (`USING (true)`) para reads/writes autenticados; estrutura preparada para multi-user depois (coluna `owner_user_id` já existe).
+- Quando login chegar, basta trocar policies para `owner_user_id = auth.uid()`.
 
-**(c) Banner "Próxima ação sugerida"**
-Função pura `suggestNextAction(lead)` no topo do arquivo, retornando `{ label, icon, action: 'site'|'social'|'make'|'pitch'|'diagnosis' }`:
-1. `!lead.websiteUrl` → "Gerar proposta de site" (Layout)
-2. `!lead.instagramHandle && !lead.socialDiscovery` → "Analisar Redes com IA" (SearchCode)
-3. `lead.opportunityScore >= 80` && nunca contatado → "Enviar via Make" (Send)
-4. `lead.socialDiscovery && !lead.generatedPitch` → "Criar Pitch" (MessageSquare)
-5. default → "Atualizar diagnóstico" (Sparkles)
+**`cost_ledger` NÃO entra na Onda 1** (Onda 4).
 
-Renderizado como banner destacado: gradiente violeta→índigo, ícone grande à esquerda, label + microcopy "Recomendado pela IA", CTA seta à direita. `onClick` despacha o handler correspondente (`onGenerateSite`/`onDiscoverSocial`/`setMakeOpen(true)`/`onGeneratePitch`/`onViewDiagnosis`).
+### 1.2 Server functions (`src/server/jobs.functions.ts` + `jobs.server.ts`)
 
-**(d) Ações secundárias** — barra horizontal com 3 botões-ícone (as 4 ações que não viraram principal). Cada um com tooltip via `title` e ícone colorido:
-- Diagnóstico (Sparkles violet)
-- Criar Pitch (MessageSquare primary)
-- Analisar Redes (SearchCode emerald)
-- Enviar via Make (Send violet)
+- `enqueueJob({ tipo, payload, idempotencyKey, maxAttempts? })`
+  - INSERT com `ON CONFLICT (idempotency_key) DO NOTHING RETURNING ...`; se conflitar, retorna o job existente. **Bloqueia duplo clique no servidor**.
+- `getJob(jobId)` — leitura pontual.
+- `listJobs({ status?, tipo?, limit, cursor })` — keyset pagination, default 20.
+- `updateJobStatus({ jobId, status, result?, error? })` — transição validada (queued→running→done|failed; running→queued_external).
+- `appendJobEvent({ jobId, eventType, level, message, metadata? })` — trunca metadata.
+- `retryJob(jobId)` — manual; apenas se `status in (failed, queued_external)`; incrementa attempts.
 
-Lógica: a ação que já é a "principal" não aparece duplicada; as outras 3 ficam na barra. Tudo respeita `e.stopPropagation()` para não abrir o drawer.
+Sem `runJob` que execute trabalho pesado dentro do app. **App é controlador e painel; n8n continua sendo o worker**. Para chamadas externas (Places, BrasilAPI, IA), wrappers continuam onde estão na Onda 1 — só passam a registrar `external_call_*` em `job_events` quando recebem `jobId` opcional.
 
-**(e) Histórico colapsável**
-`<details>` nativo (fechado por padrão). Summary "Histórico recente" + chevron.
-Conteúdo:
-- Últimas 3 entradas de `lead.statusNotes` (data formatada, canal/status, snippet de até 80 chars).
-- Última análise IA: `lead.socialDiscovery?.lastCheckedAt` (campo existente no tipo) formatado.
-- Vazio em ambos → "Nenhum histórico registrado".
+### 1.3 UI mínima (componentes reutilizáveis)
 
-### 2.2 Limpeza do `CardFooter`
+`src/components/jobs/`:
+- `JobStatusBadge` — chip semântico por status (queued/running/done/failed/queued_external) com ícone + cor de design token.
+- `JobProgressCard` — card padrão: status, tipo, último evento, timestamps, botão retry (quando aplicável).
+- `BackgroundJobBanner` — banner fixo (reaproveita layout do `ActiveJobsBanner` atual) que assina Realtime em `jobs` filtrado pelo usuário e mostra jobs em andamento. Substitui o polling atual por Supabase Realtime.
+- `RetryButton` — chama `retryJob` com confirmação quando `tipo` está marcado como **não-idempotente** (lista hardcoded por enquanto).
+- `JobErrorState` — bloco amigável com mensagem humana + "ver detalhes técnicos" (expande últimos 5 `job_events` level=error).
+- `JobHistoryList` — lista paginada para reuso em painéis.
 
-Remover do footer os 4 botões duplicados (Diagnóstico, Criar Pitch, Analisar Redes, Enviar via Make) + o divider "Ações Inteligentes". Funcionalidade preservada — todas migram para a nova seção.
+Realtime: `ALTER PUBLICATION supabase_realtime ADD TABLE public.jobs, public.job_events`.
 
-Manter no footer **apenas** a barra de meta (Negociações/Anexos/Score), agora como `CardFooter` mais enxuto.
+### 1.4 Integração com fluxos existentes (mínimo invasivo)
 
-### 2.3 Variantes preservadas
+Envolver as 3 chamadas mais críticas em `enqueueJob` + `updateJobStatus`, **sem mexer no n8n ainda**:
 
-`compact` e `ultra` permanecem como estão. A nova seção só renderiza na variante `comfortable`. Pipeline não usa mais `LeadCard` — passa a usar `PipelineMiniCard`.
+1. **Importação de leads** (`leads-import.functions.ts`) — já tem `lead_import_jobs`; adicionar gravação paralela em `jobs` (espelho) para que o novo banner unifique a experiência. Migração futura unifica as duas.
+2. **Places bulk** (`places-bulk.functions.ts`) — envolver em job.
+3. **Webhook Make atual** (`/api/public/make-callback`) — quando receber callback, atualizar job correspondente via `idempotency_key` enviado no request original.
+
+Demais fluxos (IA, due diligence, n8n direto) ficam como estão nesta onda — a infra já existe para serem migrados gradualmente.
+
+### 1.5 Proteções obrigatórias
+
+- **Anti-duplo-clique:** UNIQUE em `idempotency_key` no servidor + `disabled` no botão enquanto mutation está em flight no client.
+- **Persistência após refresh:** `BackgroundJobBanner` lê estado do banco via Realtime; refresh não perde nada.
+- **Erros amigáveis:** `JobErrorState` mapeia códigos comuns (`timeout`, `quota_exceeded`, `provider_unavailable`) para mensagens em pt-BR; detalhes técnicos ficam atrás de toggle.
+- **Truncamento:** `payload` e `result` truncados antes de salvar; debug flag `LOVABLE_JOBS_DEBUG=1` (env) permite gravar payload completo temporariamente.
+
+### 1.6 O que NÃO fazer nesta onda (importante)
+
+- Não criar `runJob` worker pesado.
+- Não fazer retry automático para nada (só `max_attempts=1` por default; retry só manual).
+- Não implementar circuit breaker (Onda 2).
+- Não criar `cost_ledger`, quotas, painel de consumo (Onda 4).
+- Não fazer redesign completo da UI (Onda 5).
+- Não criar `/ajustes/observabilidade` (Onda 6).
+- Não migrar todos os fluxos existentes — só os 3 listados em 1.4.
+- Não tocar no `n8n` além de aceitar `idempotencyKey` no callback.
+
+### 1.7 Entregáveis e validação manual
+
+Ao final da Onda 1, devolver:
+
+1. Migration aplicada (`jobs`, `job_events`, índices, RLS, publicação Realtime).
+2. Lista de arquivos alterados (server functions, componentes, integrações).
+3. Build limpo + testes existentes passando.
+4. Roteiro de teste manual:
+   - Disparar uma importação de leads → ver banner aparecer com status `running` → ver virar `done`.
+   - Clicar 3x rápido no botão → confirmar que só 1 job é criado.
+   - Refresh da página com job em andamento → banner reaparece com estado correto.
+   - Forçar erro (CSV inválido) → ver `JobErrorState` com mensagem amigável + detalhes expansíveis.
+   - Clicar retry em job falho → novo attempt registrado.
 
 ---
 
-## 3. `src/modules/prospecting/ProspectingPage.tsx` — pequenas adaptações
+## ONDA 2 (planejada, NÃO executar agora) — n8n resiliente
 
-**3.1 Chamada do `<LeadPipeline />`**: passar somente `leads`, `onMoveLead={handleMoveLead}` e `onEditLead={handleEditLead}`. Remover os outros props.
+- `callN8nWorkflow({ workflow, payload, jobId, idempotencyKey })` — sempre envia `jobId` e `idempotencyKey` no body; n8n deve checar antes de executar efeitos colaterais.
+- Timeout 25s + `AbortController`.
+- **Retry automático apenas para workflows marcados como `idempotent: true`** em registry. Demais: retry **somente manual** via `RetryButton`.
+- Endpoint `/api/public/hooks/n8n-callback`:
+  - HMAC obrigatório (header `x-mw-signature`)
+  - timestamp ±5min para evitar replay
+  - valida `jobId` existe e está em estado compatível
+  - status whitelist (`done|failed|progress`)
+  - sanitiza payload, ignora `owner_user_id` vindo do n8n
+- Circuit breaker mínimo: 3 falhas/5min → marca workflow `degraded`, novos jobs vão para `queued_external`, banner avisa, admin pode retry.
 
-**3.2 Aba "Visão Completa" no `LeadConfigDialog`**:
-- Adicionar nova `TabsTrigger value="overview"` como **primeira** aba do `TabsList` (passa de 4 para 5 colunas no grid).
-- Conteúdo da aba: renderiza `<LeadCard density="comfortable" lead={selectedLead} ... />` em modo "preview" — passa todos os handlers reais já existentes (`openSiteGen`, `openPitchGen`, `handleDiscoverSocial`, `moveLead`, `deleteLead`, `handleEditLead`) para que as ações continuem funcionando. Os campos editáveis das outras abas (Digital/Contato/Preview/Histórico) seguem inalterados.
-- O `handleEditLead` recebe `initialTab` opcional → quando vier da pipeline com `'overview'`, abre direto na nova aba.
+## ONDA 3 — Performance CRM
+RPC `crm_list_leads` keyset, `@tanstack/react-virtual`, React Query com `keepPreviousData`, debounce 300ms, materialized view para métricas.
+
+## ONDA 4 — Governança de consumo
+`external_cache` generalizado, middleware `withCostGuard`, `cost_ledger`, painel `/ajustes/consumo`, cron de limpeza (job_events info >30d, cache expirado, jobs done >90d arquivados).
+
+## ONDA 5 — UX/UI premium
+Design tokens revistos, shell consistente, skeletons dedicados, empty states, error/notFound boundaries em todas as rotas, ajustes mobile.
+
+## ONDA 6 — Observabilidade avançada
+`/ajustes/observabilidade` admin, health checks via cron, latência p50/p95, top erros, alerta persistente.
 
 ---
 
-## 4. Veracidade (sem mock)
+## Riscos endereçados (da crítica)
 
-Toda a inteligência lê estritamente de campos já existentes em `ProspectLead`:
-- `socialDiscovery` (existência + `lastCheckedAt`)
-- `statusNotes` (filtro por canal + `kind: 'system'` para detectar Make)
-- `status`, `updatedAt`, `websiteUrl`, `instagramHandle`, `opportunityScore`, `generatedPitch`
-
-Quando faltar dado: labels explícitos "Não configurado" / "Sem registro" / "Não analisado" / "Nenhum histórico registrado". Zero simulação.
-
----
-
-## 5. Arquivos afetados
-
-| Arquivo | Mudança |
+| Risco apontado | Mitigação no plano |
 |---|---|
-| `src/modules/prospecting/LeadPipeline.tsx` | Reescrito (Kanban minimalista + `PipelineMiniCard` interno) |
-| `src/modules/prospecting/LeadCard.tsx` | + `suggestNextAction()`, + seção "Ações & Inteligência", footer limpo |
-| `src/modules/prospecting/ProspectingPage.tsx` | Props da pipeline reduzidas, nova aba "Visão Completa" no dialog |
-
-Sem mudanças em store, schema, backend, tipos ou banco. Nenhuma funcionalidade removida — apenas reorganizada.
+| Retry duplica execução em n8n | Onda 1 default `max_attempts=1`; retry automático só Onda 2 e só p/ workflows marcados idempotentes |
+| Lovable virar worker pesado | Sem `runJob`; app só controla, n8n executa |
+| Observabilidade tarde demais | `job_events` nasce na Onda 1 com taxonomia padronizada |
+| `job_events` explodir storage | Truncamento de metadata (4KB) + result (32KB); cleanup só Onda 4 mas truncamento já protege |
+| Callback n8n inseguro | Onda 2 detalha HMAC + timestamp + whitelist + sanitização |
+| RLS ambígua single-user | Policies permissivas com `owner_user_id=MOCK_USER_ID`; estrutura pronta p/ multi-user |
+| UX continuar ruim | Onda 1 já entrega Badge + Banner + ErrorState + Retry visíveis |
+| Plano grande demais de uma vez | Esta sessão executa só Onda 1; demais ondas ficam na doc |
