@@ -442,7 +442,11 @@ export const getLeadDataSources = createServerFn({ method: "GET" })
 
 export const recoverStuckJobs = createServerFn({ method: "POST" })
   .handler(async () => {
-    await getSupabase().rpc("recover_stuck_import_jobs");
+    try {
+      await getSupabase().rpc("recover_stuck_import_jobs");
+    } catch (e) {
+      Logger.warn("Erro ao tentar recuperar jobs travados:", e);
+    }
     return { success: true };
   });
 
