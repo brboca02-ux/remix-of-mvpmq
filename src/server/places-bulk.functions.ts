@@ -108,6 +108,7 @@ export const searchPlacesIds = createServerFn({ method: "POST" })
      };
      
      // Create a persistent job for this search
+     const supabase = getSupabase();
      const { data: { user } } = await supabase.auth.getUser();
      await internalEnqueueJob({
        tipo: "places_search",
