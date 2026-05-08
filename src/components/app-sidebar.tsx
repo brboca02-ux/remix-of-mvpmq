@@ -110,12 +110,13 @@ const NEW_SERVICES_NAV_ITEMS: NavItem[] = [
 
 const ANALYSIS_ITEMS: NavItem[] = [
   { to: "/analyze", label: "Validar Ideia", icon: BarChart3 },
-  { to: "/history", label: "Histórico e Nichos", icon: History },
-  { to: "/", label: "Home Comercial", icon: Home, exact: true },
-   { to: "/ajustes/integracoes", label: "Integrações", icon: Zap },
-   { to: "/dev/jobs", label: "DEV Jobs", icon: Activity },
-   { to: "/agenda/ops", label: "Configurações", icon: Briefcase },
-];
+   { to: "/history", label: "Histórico e Nichos", icon: History },
+   { to: "/market-research", label: "Pesquisa de Mercado", icon: BarChart3 },
+   { to: "/", label: "Home Comercial", icon: Home, exact: true },
+    { to: "/ajustes/integracoes", label: "Integrações", icon: Zap },
+    { to: "/dev/jobs", label: "DEV Jobs", icon: Activity },
+    { to: "/agenda/ops", label: "Configurações", icon: Briefcase },
+ ];
 
 function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
   const { pathname } = useLocation();

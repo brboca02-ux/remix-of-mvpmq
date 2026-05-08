@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProspectingRouteImport } from './routes/prospecting'
 import { Route as ModelosDeSitesRouteImport } from './routes/modelos-de-sites'
+import { Route as MarketResearchRouteImport } from './routes/market-research'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IaVendasRouteImport } from './routes/ia-vendas'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -54,6 +55,11 @@ const ProspectingRoute = ProspectingRouteImport.update({
 const ModelosDeSitesRoute = ModelosDeSitesRouteImport.update({
   id: '/modelos-de-sites',
   path: '/modelos-de-sites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketResearchRoute = MarketResearchRouteImport.update({
+  id: '/market-research',
+  path: '/market-research',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/ia-vendas': typeof IaVendasRoute
   '/login': typeof LoginRoute
+  '/market-research': typeof MarketResearchRoute
   '/modelos-de-sites': typeof ModelosDeSitesRouteWithChildren
   '/prospecting': typeof ProspectingRoute
   '/agenda/ajustes': typeof AgendaAjustesRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/ia-vendas': typeof IaVendasRoute
   '/login': typeof LoginRoute
+  '/market-research': typeof MarketResearchRoute
   '/prospecting': typeof ProspectingRoute
   '/agenda/ajustes': typeof AgendaAjustesRoute
   '/agenda/debug': typeof AgendaDebugRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/ia-vendas': typeof IaVendasRoute
   '/login': typeof LoginRoute
+  '/market-research': typeof MarketResearchRoute
   '/modelos-de-sites': typeof ModelosDeSitesRouteWithChildren
   '/prospecting': typeof ProspectingRoute
   '/agenda/ajustes': typeof AgendaAjustesRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/ia-vendas'
     | '/login'
+    | '/market-research'
     | '/modelos-de-sites'
     | '/prospecting'
     | '/agenda/ajustes'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/ia-vendas'
     | '/login'
+    | '/market-research'
     | '/prospecting'
     | '/agenda/ajustes'
     | '/agenda/debug'
@@ -431,6 +442,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/ia-vendas'
     | '/login'
+    | '/market-research'
     | '/modelos-de-sites'
     | '/prospecting'
     | '/agenda/ajustes'
@@ -470,6 +482,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   IaVendasRoute: typeof IaVendasRoute
   LoginRoute: typeof LoginRoute
+  MarketResearchRoute: typeof MarketResearchRoute
   ModelosDeSitesRoute: typeof ModelosDeSitesRouteWithChildren
   ProspectingRoute: typeof ProspectingRoute
   AgendaAjustesRoute: typeof AgendaAjustesRoute
@@ -509,6 +522,13 @@ declare module '@tanstack/react-router' {
       path: '/modelos-de-sites'
       fullPath: '/modelos-de-sites'
       preLoaderRoute: typeof ModelosDeSitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market-research': {
+      id: '/market-research'
+      path: '/market-research'
+      fullPath: '/market-research'
+      preLoaderRoute: typeof MarketResearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -778,6 +798,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   IaVendasRoute: IaVendasRoute,
   LoginRoute: LoginRoute,
+  MarketResearchRoute: MarketResearchRoute,
   ModelosDeSitesRoute: ModelosDeSitesRouteWithChildren,
   ProspectingRoute: ProspectingRoute,
   AgendaAjustesRoute: AgendaAjustesRoute,
@@ -805,3 +826,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
