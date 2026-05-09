@@ -1,4 +1,6 @@
+ import { useState } from "react";
  import { MarketResearchSavedReport } from "@/types/market-research";
+ import { cn } from "@/lib/utils";
  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
  import { Button } from "@/components/ui/button";
  import { ScrollArea } from "@/components/ui/scroll-area";
