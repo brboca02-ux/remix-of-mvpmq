@@ -30,6 +30,11 @@
    summary: string;
    trendSignal: MarketResearchTrendSignal;
    confidenceLevel?: MarketResearchConfidenceLevel;
+   viabilityScore?: "low" | "medium" | "high";
+   positioningSuggestion?: string;
+   targetAudience?: string[];
+   differentiationAngles?: string[];
+   goToMarketIdeas?: string[];
    marketHypothesis: string[];
    competitors: MarketResearchCompetitor[];
    audienceQuestions: MarketResearchQuestion[];
