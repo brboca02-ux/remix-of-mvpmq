@@ -23,7 +23,26 @@
  function MarketResearchPage() {
    const [report, setReport] = useState<MarketResearchReport | null>(null);
    const [isLoading, setIsLoading] = useState(false);
+   const [loadingStep, setLoadingStep] = useState(0);
    const [history, setHistory] = useState<MarketResearchSavedReport[]>([]);
+   const loadingMessages = [
+     "Analisando mercado...",
+     "Buscando sinais de tendência...",
+     "Identificando concorrentes...",
+     "Sintetizando inteligência..."
+   ];
+ 
+   useEffect(() => {
+     let interval: any;
+     if (isLoading) {
+       setLoadingStep(0);
+       interval = setInterval(() => {
+         setLoadingStep(prev => (prev + 1) % loadingMessages.length);
+       }, 3000);
+     }
+     return () => clearInterval(interval);
+   }, [isLoading]);
+ 
    const [isHistoryLoading, setIsHistoryLoading] = useState(true);
  
    const generateReport = useServerFn(generateMarketResearchReport);
@@ -140,14 +159,17 @@
              {/* Result or Empty State */}
              <div className="pt-8">
                {report ? (
-                 <MarketResearchResult report={report} />
+                 <>
+                   {report.partial && (
+                     <div className="mb-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm font-medium flex items-center gap-3">
+                       <div className="h-2 w-2 rounded-full bg-yellow-500 animate-pulse" />
+                       A análise demorou mais que o esperado. Mostrando resultados parciais baseados nos dados disponíveis.
+                     </div>
+                   )}
+                   <MarketResearchResult report={report} />
+                 </>
                ) : isLoading ? (
-                 <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50 animate-pulse">
-                   <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-                   <p className="text-sm font-medium uppercase tracking-widest text-primary">
-                     Processando dados das fontes...
-                   </p>
-                 </div>
+                 <MarketResearchSkeleton message={loadingMessages[loadingStep]} />
                ) : (
                  <MarketResearchEmptyState />
                )}
@@ -160,14 +182,43 @@
                <History className="h-4 w-4" />
                Histórico Recente
              </div>
-             <MarketResearchHistory 
-               reports={history} 
-               onSelect={handleSelectFromHistory} 
-               onDelete={handleDeleteHistory}
-               isLoading={isHistoryLoading}
-             />
+               <MarketResearchHistory 
+                 reports={history} 
+                 onSelect={handleSelectFromHistory} 
+                 onDelete={handleDeleteHistory}
+                 isLoading={isHistoryLoading}
+                 activeId={report?.summary === history.find(h => h.report.summary === report?.summary)?.report.summary ? history.find(h => h.report.summary === report?.summary)?.id : undefined}
+               />
            </div>
          </div>
+       </div>
+     </div>
+   );
+ }
+ 
+ function MarketResearchSkeleton({ message }: { message: string }) {
+   return (
+     <div className="space-y-8 animate-pulse">
+       <div className="flex flex-col items-center justify-center py-6 gap-3">
+         <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+         <p className="text-xs font-bold uppercase tracking-widest text-primary animate-bounce">
+           {message}
+         </p>
+       </div>
+ 
+       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+         <div className="lg:col-span-2 h-48 bg-white/5 rounded-xl border border-white/5" />
+         <div className="h-48 bg-white/5 rounded-xl border border-white/5" />
+       </div>
+ 
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         <div className="h-40 bg-white/5 rounded-xl border border-white/5" />
+         <div className="h-40 bg-white/5 rounded-xl border border-white/5" />
+       </div>
+ 
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         <div className="h-64 bg-white/5 rounded-xl border border-white/5" />
+         <div className="h-64 bg-white/5 rounded-xl border border-white/5" />
        </div>
      </div>
    );
