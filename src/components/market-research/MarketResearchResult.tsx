@@ -11,6 +11,8 @@
  }
  
  export function MarketResearchResult({ report }: MarketResearchResultProps) {
+   const isLowConfidence = report.confidenceLevel === "low";
+ 
    const trendIcons = {
      growing: <TrendingUp className="h-4 w-4 text-green-500" />,
      declining: <TrendingDown className="h-4 w-4 text-red-500" />,
@@ -39,6 +41,83 @@
  
    return (
      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       {isLowConfidence && (
+         <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium flex items-center gap-3">
+           <AlertTriangle className="h-4 w-4 shrink-0" />
+           Dados limitados — use essa análise como direção inicial, não decisão final.
+         </div>
+       )}
+ 
+       {/* Proposta de Posicionamento - Nova Seção Principal */}
+       {report.positioningSuggestion && (
+         <Card className="bg-primary/5 border-primary/20 shadow-2xl relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+             <Sparkles className="h-24 w-24 text-primary" />
+           </div>
+           <CardHeader>
+             <div className="flex items-center justify-between gap-4 flex-wrap">
+               <CardTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-primary">
+                 <Zap className="h-6 w-6" />
+                 Proposta de Posicionamento
+               </CardTitle>
+               <div className="flex gap-2">
+                 <Badge variant="outline" className={cn("text-[10px] font-bold uppercase", 
+                   report.viabilityScore === 'high' ? "bg-green-500/10 text-green-500 border-green-500/20" :
+                   report.viabilityScore === 'low' ? "bg-red-500/10 text-red-500 border-red-500/20" :
+                   "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+                 )}>
+                   Viabilidade: {report.viabilityScore === 'high' ? 'Alta' : report.viabilityScore === 'low' ? 'Baixa' : 'Média'}
+                 </Badge>
+               </div>
+             </div>
+           </CardHeader>
+           <CardContent className="space-y-6">
+             <p className="text-xl font-medium leading-relaxed text-foreground">
+               "{report.positioningSuggestion}"
+             </p>
+ 
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-primary/10">
+               <div className="space-y-3">
+                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70 flex items-center gap-2">
+                   <Users className="h-3 w-3" /> Para quem
+                 </h4>
+                 <ul className="space-y-1">
+                   {report.targetAudience?.map((t, i) => (
+                     <li key={i} className="text-sm text-foreground flex items-center gap-2">
+                       <div className="h-1 w-1 rounded-full bg-primary/40" /> {t}
+                     </li>
+                   ))}
+                 </ul>
+               </div>
+               <div className="space-y-3">
+                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70 flex items-center gap-2">
+                   <Target className="h-3 w-3" /> Diferenciação
+                 </h4>
+                 <ul className="space-y-1">
+                   {report.differentiationAngles?.map((d, i) => (
+                     <li key={i} className="text-sm text-foreground flex items-center gap-2">
+                       <div className="h-1 w-1 rounded-full bg-primary/40" /> {d}
+                     </li>
+                   ))}
+                 </ul>
+               </div>
+               <div className="space-y-3">
+                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70 flex items-center gap-2">
+                   <ArrowRight className="h-3 w-3" /> Go-to-Market
+                 </h4>
+                 <ul className="space-y-1">
+                   {report.goToMarketIdeas?.map((g, i) => (
+                     <li key={i} className="text-sm text-foreground flex items-center gap-2">
+                       <div className="h-1 w-1 rounded-full bg-primary/40" /> {g}
+                     </li>
+                   ))}
+                 </ul>
+               </div>
+             </div>
+           </CardContent>
+         </Card>
+       )}
+ 
        {/* Sumário e Tendência */}
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
          <Card className="lg:col-span-2 bg-black/40 border-white/5 shadow-2xl">
