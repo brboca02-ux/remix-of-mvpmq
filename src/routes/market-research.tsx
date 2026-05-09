@@ -182,12 +182,13 @@
                <History className="h-4 w-4" />
                Histórico Recente
              </div>
-             <MarketResearchHistory 
-               reports={history} 
-               onSelect={handleSelectFromHistory} 
-               onDelete={handleDeleteHistory}
-               isLoading={isHistoryLoading}
-             />
+               <MarketResearchHistory 
+                 reports={history} 
+                 onSelect={handleSelectFromHistory} 
+                 onDelete={handleDeleteHistory}
+                 isLoading={isHistoryLoading}
+                 activeId={report?.summary === history.find(h => h.report.summary === report?.summary)?.report.summary ? history.find(h => h.report.summary === report?.summary)?.id : undefined}
+               />
            </div>
          </div>
        </div>
