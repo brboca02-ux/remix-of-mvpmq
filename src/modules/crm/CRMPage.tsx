@@ -83,7 +83,6 @@ import { useFollowupEvaluator } from "./useFollowupEvaluator";
 import { PerformanceReport } from '../prospecting/PerformanceReport';
 import { CRMSummaryBar } from "@/components/crm/CRMSummaryBar";
 import { WhatsappExportDialog } from "@/components/crm/WhatsappExportDialog";
-import { MessageSquare as WaIcon } from "lucide-react";
 
 const CRMPage: React.FC = () => {
   const { leads, moveLead, deleteLead, updateLead } = useProspectingStore();
@@ -202,7 +201,7 @@ const CRMPage: React.FC = () => {
             className="gap-2"
             disabled={leads.length === 0}
           >
-            <WaIcon className="h-4 w-4" />
+            <MessageSquare className="h-4 w-4" />
             Exportar para WhatsApp
           </Button>
           <Button variant="outline" onClick={() => setIsIntegrationOpen(true)} className="gap-2">
