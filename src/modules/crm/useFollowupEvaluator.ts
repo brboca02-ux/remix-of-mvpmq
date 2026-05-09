@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { useProspectingStore } from '../prospecting/prospecting-store';
 import { loadRules, loadTasks, evaluateRules, saveTasks } from './followup-rules';
 import { toast } from 'sonner';
+import { isCooling } from '@/lib/crm-sla';
 
 export function useFollowupEvaluator() {
-  const { leads, moveLead } = useProspectingStore();
+  const { leads, moveLead, updateLead } = useProspectingStore();
 
   useEffect(() => {
     const runEvaluation = () => {
@@ -27,6 +28,14 @@ export function useFollowupEvaluator() {
       statusMoves.forEach(({ leadId, to }) => {
         moveLead(leadId, to, 'system');
       });
+
+      // Recalcula coolingFlag — só persiste quando muda (evita re-render).
+      for (const l of leads) {
+        const next = isCooling(l);
+        if (Boolean(l.coolingFlag) !== next) {
+          updateLead(l.id, { coolingFlag: next }, 'system');
+        }
+      }
     };
 
     // Executa imediatamente e depois a cada 60s
@@ -34,5 +43,5 @@ export function useFollowupEvaluator() {
     const interval = setInterval(runEvaluation, 60000);
     
     return () => clearInterval(interval);
-  }, [leads, moveLead]);
+  }, [leads, moveLead, updateLead]);
 }

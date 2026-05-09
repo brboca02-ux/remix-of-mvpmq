@@ -1,0 +1,130 @@
+import { useProspectingStore } from '@/modules/prospecting/prospecting-store';
+import type { ProspectLead, LeadStatus } from '@/modules/prospecting/types';
+import { computeLeadScore } from './crm-temperature';
+import { applyStageChange, renewActionSla, type PipelineStage } from './crm-sla';
+
+export interface IncomingLead {
+  name: string;            // razão / nome fantasia / pessoa
+  phone?: string;
+  business_name?: string;  // nome da empresa
+  city?: string;
+  niche?: string;
+  instagram?: string;
+  source: 'buscador' | 'prospeccao' | 'manual' | 'import';
+  source_detail?: string;  // ex: 'google_places', 'cnpj', 'csv_import'
+  raw?: Record<string, any>;
+}
+
+export interface AddResult {
+  created: number;
+  skipped: number;
+  duplicates: { name: string; reason: 'no_name' | 'duplicate' }[];
+}
+
+function normPhone(phone?: string): string {
+  return (phone ?? '').replace(/\D/g, '');
+}
+function normKey(s?: string): string {
+  return (s ?? '').trim().toLowerCase();
+}
+
+/** Adiciona leads ao CRM (store Zustand). Função única — sem login, sem backend. */
+export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
+  const store = useProspectingStore.getState();
+  const existing = store.leads;
+
+  const phoneIndex = new Set(
+    existing.map((l) => normPhone(l.whatsapp)).filter((p) => p.length >= 10)
+  );
+  const businessIndex = new Set(
+    existing
+      .filter((l) => l.companyName)
+      .map((l) => `${normKey(l.companyName)}|${normKey(l.city)}`)
+  );
+
+  let created = 0;
+  let skipped = 0;
+  const duplicates: AddResult['duplicates'] = [];
+
+  for (const lead of leads) {
+    const name = (lead.name ?? lead.business_name ?? '').trim();
+    if (!name) {
+      skipped++;
+      duplicates.push({ name: lead.name || '(sem nome)', reason: 'no_name' });
+      continue;
+    }
+
+    const phone = normPhone(lead.phone);
+    const businessKey = `${normKey(lead.business_name ?? name)}|${normKey(lead.city)}`;
+
+    if (phone.length >= 10 && phoneIndex.has(phone)) {
+      skipped++;
+      duplicates.push({ name, reason: 'duplicate' });
+      continue;
+    }
+    if (businessIndex.has(businessKey)) {
+      skipped++;
+      duplicates.push({ name, reason: 'duplicate' });
+      continue;
+    }
+
+    const now = new Date().toISOString();
+    const score = computeLeadScore({
+      phone,
+      instagram: lead.instagram,
+      city: lead.city,
+      name,
+    });
+
+    const newLead: ProspectLead = {
+      id: crypto.randomUUID(),
+      companyName: lead.business_name ?? name,
+      niche: lead.niche ?? '',
+      city: lead.city ?? '',
+      whatsapp: lead.phone,
+      instagramHandle: lead.instagram,
+      source: lead.source,
+      opportunityScore: score,
+      opportunityLevel: score > 70 ? 'quente' : score >= 40 ? 'boa' : 'baixa',
+      diagnosis: '',
+      status: 'Novo' as LeadStatus,
+      createdAt: now,
+      updatedAt: now,
+      // CRM camada de conversão
+      leadScore: score,
+      crmSource: lead.source,
+      crmSourceDetail: lead.source_detail,
+      whatsappSent: false,
+      pipelineStage: 'novo',
+    };
+
+    // aplica SLA inicial (nextActionAt = +10min, lastInteractionAt = now)
+    Object.assign(newLead, applyStageChange(newLead, 'novo'));
+
+    store.addLead(newLead, 'manual');
+
+    if (phone.length >= 10) phoneIndex.add(phone);
+    businessIndex.add(businessKey);
+    created++;
+  }
+
+  return { created, skipped, duplicates };
+}
+
+/** Muda estágio do pipeline e renova SLA. */
+export function setPipelineStage(leadId: string, stage: PipelineStage): void {
+  const store = useProspectingStore.getState();
+  const lead = store.leads.find((l) => l.id === leadId);
+  if (!lead) return;
+  const patch = applyStageChange(lead, stage);
+  if (stage === 'contato') (patch as any).whatsappSent = true;
+  store.updateLead(leadId, patch, 'manual', `Estágio → ${stage}`);
+}
+
+/** Botão "Ação realizada": renova SLA mantendo o estágio. */
+export function markActionDone(leadId: string): void {
+  const store = useProspectingStore.getState();
+  const lead = store.leads.find((l) => l.id === leadId);
+  if (!lead) return;
+  store.updateLead(leadId, renewActionSla(lead), 'manual', 'Ação realizada');
+}

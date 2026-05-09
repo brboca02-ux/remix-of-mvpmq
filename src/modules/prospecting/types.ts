@@ -460,6 +460,23 @@ export interface ProspectLead {
   blockReason?: string;
   createdAt: string;
   updatedAt: string;
+  // ─── CRM Pipeline (camada de conversão) ────────────────────────────
+  /** Estágio simplificado do pipeline de vendas (independe de `status`). */
+  pipelineStage?: 'novo' | 'contato' | 'respondeu' | 'proposta' | 'fechado';
+  /** Score 0–100 calculado por `computeLeadScore` (independe de opportunityScore). */
+  leadScore?: number;
+  /** Origem amigável: 'buscador' | 'prospeccao' | 'manual' | 'import'. */
+  crmSource?: 'buscador' | 'prospeccao' | 'manual' | 'import';
+  /** Detalhe técnico da origem (ex: 'google_places', 'cnpj', 'csv_import'). */
+  crmSourceDetail?: string;
+  /** Marcador de envio de WhatsApp (manual/exportação). */
+  whatsappSent?: boolean;
+  /** Próxima ação prevista (ISO) — calculado por SLA do estágio. */
+  nextActionAt?: string;
+  /** Última interação registrada (ISO) — usado para SLA e "esfriando". */
+  lastInteractionAt?: string;
+  /** Cache: lead em estágio `contato` parado há > 3 dias. */
+  coolingFlag?: boolean;
   playbook?: Playbook;
   conversationStage?: ConversationStage;
   statusNotes?: StatusNote[];
