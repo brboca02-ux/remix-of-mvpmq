@@ -11,14 +11,29 @@
    onSelect: (report: MarketResearchSavedReport) => void;
    onDelete: (id: string) => void;
    isLoading?: boolean;
+   activeId?: string;
  }
  
  export function MarketResearchHistory({ 
    reports, 
    onSelect, 
    onDelete,
-   isLoading 
+   isLoading,
+   activeId
  }: MarketResearchHistoryProps) {
+   const [searchTerm, setSearchTerm] = useState("");
+ 
+   const filteredReports = reports
+     .filter(r => 
+       r.input.toLowerCase().includes(searchTerm.toLowerCase()) || 
+       r.report.summary.toLowerCase().includes(searchTerm.toLowerCase())
+     )
+     .sort((a, b) => {
+       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+       return dateB - dateA;
+     });
+ 
    if (isLoading) {
      return (
        <div className="space-y-4 animate-pulse">
@@ -41,13 +56,28 @@
    }
  
    return (
-     <ScrollArea className="h-[500px] pr-4">
-       <div className="space-y-4">
-         {reports.map((report) => (
-           <Card 
-             key={report.id} 
-             className="bg-black/40 border-white/5 hover:border-primary/30 transition-all group"
-           >
+     <div className="space-y-4">
+       <div className="relative">
+         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+         <input 
+           type="text"
+           placeholder="Buscar no histórico..."
+           className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-9 pr-4 text-xs focus:outline-none focus:border-primary/50 transition-all"
+           value={searchTerm}
+           onChange={(e) => setSearchTerm(e.target.value)}
+         />
+       </div>
+ 
+       <ScrollArea className="h-[500px] pr-4">
+         <div className="space-y-4">
+           {filteredReports.map((report) => (
+             <Card 
+               key={report.id} 
+               className={cn(
+                 "bg-black/40 border-white/5 hover:border-primary/30 transition-all group",
+                 activeId === report.id && "border-primary/50 bg-primary/5"
+               )}
+             >
              <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                <div className="space-y-1 flex-1 min-w-0">
                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-widest">
