@@ -86,12 +86,23 @@
                      <Calendar className="h-3 w-3" />
                      {report.createdAt ? format(new Date(report.createdAt), "dd 'de' MMMM, HH:mm", { locale: ptBR }) : 'Data desconhecida'}
                    </div>
-                   <h4 className="text-sm font-bold text-foreground truncate flex items-center gap-2">
-                     <Search className="h-3 w-3 text-primary opacity-50" />
-                     {report.input}
-                   </h4>
+                   <div className="flex items-center justify-between gap-2">
+                     <h4 className="text-sm font-bold text-foreground truncate flex items-center gap-2">
+                       <Search className="h-3 w-3 text-primary opacity-50" />
+                       {report.input}
+                     </h4>
+                     {report.report.viabilityScore && (
+                       <Badge variant="outline" className={cn("text-[8px] h-4 px-1 uppercase font-bold", 
+                         report.report.viabilityScore === 'high' ? "bg-green-500/10 text-green-500 border-green-500/20" :
+                         report.report.viabilityScore === 'low' ? "bg-red-500/10 text-red-500 border-red-500/20" :
+                         "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+                       )}>
+                         {report.report.viabilityScore}
+                       </Badge>
+                     )}
+                   </div>
                    <p className="text-[11px] text-muted-foreground line-clamp-1 italic">
-                     {report.report.summary}
+                     {report.report.positioningSuggestion || report.report.summary}
                    </p>
                  </div>
  
