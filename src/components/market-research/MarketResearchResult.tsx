@@ -2,7 +2,7 @@
  import { cn } from "@/lib/utils";
  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
  import { Badge } from "@/components/ui/badge";
- import { TrendingUp, TrendingDown, Minus, HelpCircle, Users, Lightbulb, AlertTriangle, ArrowRight } from "lucide-react";
+ import { TrendingUp, TrendingDown, Minus, HelpCircle, Users, Lightbulb, AlertTriangle, ArrowRight, Sparkles, Zap, Target } from "lucide-react";
  import { MarketResearchSources } from "./MarketResearchSources";
  import { MarketResearchCharts } from "./MarketResearchCharts";
  
