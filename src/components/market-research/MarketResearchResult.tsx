@@ -1,4 +1,5 @@
  import { MarketResearchReport } from "@/types/market-research";
+ import { cn } from "@/lib/utils";
  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
  import { Badge } from "@/components/ui/badge";
  import { TrendingUp, TrendingDown, Minus, HelpCircle, Users, Lightbulb, AlertTriangle, ArrowRight } from "lucide-react";
