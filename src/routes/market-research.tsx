@@ -173,33 +173,6 @@
                ) : (
                  <MarketResearchEmptyState />
                )}
- function MarketResearchSkeleton({ message }: { message: string }) {
-   return (
-     <div className="space-y-8 animate-pulse">
-       <div className="flex flex-col items-center justify-center py-6 gap-3">
-         <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-         <p className="text-xs font-bold uppercase tracking-widest text-primary animate-bounce">
-           {message}
-         </p>
-       </div>
- 
-       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-         <div className="lg:col-span-2 h-48 bg-white/5 rounded-xl border border-white/5" />
-         <div className="h-48 bg-white/5 rounded-xl border border-white/5" />
-       </div>
- 
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-         <div className="h-40 bg-white/5 rounded-xl border border-white/5" />
-         <div className="h-40 bg-white/5 rounded-xl border border-white/5" />
-       </div>
- 
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-         <div className="h-64 bg-white/5 rounded-xl border border-white/5" />
-         <div className="h-64 bg-white/5 rounded-xl border border-white/5" />
-       </div>
-     </div>
-   );
- }
              </div>
            </div>
  
