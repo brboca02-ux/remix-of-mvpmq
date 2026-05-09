@@ -81,6 +81,9 @@ import { BulkActions } from "./components/BulkActions";
 
 import { useFollowupEvaluator } from "./useFollowupEvaluator";
 import { PerformanceReport } from '../prospecting/PerformanceReport';
+import { CRMSummaryBar } from "@/components/crm/CRMSummaryBar";
+import { WhatsappExportDialog } from "@/components/crm/WhatsappExportDialog";
+import { MessageSquare as WaIcon } from "lucide-react";
 
 const CRMPage: React.FC = () => {
   const { leads, moveLead, deleteLead, updateLead } = useProspectingStore();
@@ -103,6 +106,7 @@ const CRMPage: React.FC = () => {
   }>({});
 
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
+  const [waExportOpen, setWaExportOpen] = useState(false);
 
   const filteredLeads = useMemo(() => {
     return leads.filter((l: ProspectLead) => {
@@ -192,6 +196,15 @@ const CRMPage: React.FC = () => {
           <p className="text-muted-foreground">Gerencie o ciclo de vida dos seus leads e acompanhe conversões.</p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setWaExportOpen(true)}
+            className="gap-2"
+            disabled={leads.length === 0}
+          >
+            <WaIcon className="h-4 w-4" />
+            Exportar para WhatsApp
+          </Button>
           <Button variant="outline" onClick={() => setIsIntegrationOpen(true)} className="gap-2">
             <ArrowRightLeft className="h-4 w-4" />
             Integrar CRM Externo
@@ -223,6 +236,14 @@ const CRMPage: React.FC = () => {
           </DropdownMenu>
         </div>
       </div>
+
+      <CRMSummaryBar leads={leads} />
+
+      <WhatsappExportDialog
+        open={waExportOpen}
+        onOpenChange={setWaExportOpen}
+        leads={selectedLeadIds.length > 0 ? leads.filter((l) => selectedLeadIds.includes(l.id)) : leads}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
         <Card className="bg-card border-white/5 glass-card shadow-lg hover:shadow-blue-500/5 transition-all group overflow-hidden relative">
