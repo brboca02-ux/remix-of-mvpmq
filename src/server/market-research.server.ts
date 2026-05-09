@@ -7,54 +7,105 @@
  
  const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
  
+ async function withTimeout<T>(promise: Promise<T>, ms: number, fallbackValue: T): Promise<T> {
+   let timeoutId: any;
+   const timeoutPromise = new Promise<T>((resolve) => {
+     timeoutId = setTimeout(() => {
+       console.warn(`[MarketResearch] Task timed out after ${ms}ms`);
+       resolve(fallbackValue);
+     }, ms);
+   });
+ 
+   const result = await Promise.race([promise, timeoutPromise]);
+   clearTimeout(timeoutId);
+   return result;
+ }
+ 
+ async function withRetry<T>(fn: () => Promise<T>, retries = 1): Promise<T> {
+   try {
+     return await fn();
+   } catch (error) {
+     if (retries > 0) {
+       console.log(`[MarketResearch] Retrying provider... (${retries} left)`);
+       return await withRetry(fn, retries - 1);
+     }
+     throw error;
+   }
+ }
+ 
  export async function internalGenerateMarketResearchReport(input: string): Promise<MarketResearchReport> {
    const errors: string[] = [];
    const sources: MarketResearchSource[] = [];
+   const TIMEOUT_MS = 15000;
  
-   // 1. Coleta paralela de fontes (atualmente configuradas como unavailable no MVP)
-   const [trendsResult, atpResult, compResult] = await Promise.all([
-     getGoogleTrendsData(input).catch(err => {
-       errors.push(`Google Trends: ${err.message}`);
-       return { source: { name: "Google Trends", status: "failed" as const, reason: err.message }, data: null };
-     }),
-     getAnswerThePublicData(input).catch(err => {
-       errors.push(`AnswerThePublic: ${err.message}`);
-       return { source: { name: "AnswerThePublic", status: "failed" as const, reason: err.message }, questions: [] };
-     }),
-     getCompetitorsData(input).catch(err => {
-       errors.push(`Competitors: ${err.message}`);
-       return { source: { name: "Market Search", status: "failed" as const, reason: err.message }, competitors: [] };
-     })
-   ]);
- 
-   sources.push(trendsResult.source, atpResult.source, compResult.source);
- 
-   // 2. Síntese via IA
-   const context = {
-     trends: trendsResult.data,
-     questions: atpResult.questions,
-     competitors: compResult.competitors
+   const emptyReport: MarketResearchReport = {
+     ok: false,
+     partial: true,
+     summary: "A análise demorou mais que o esperado. Mostrando resultados parciais.",
+     trendSignal: "unknown",
+     confidenceLevel: "low",
+     marketHypothesis: [],
+     competitors: [],
+     audienceQuestions: [],
+     opportunities: [],
+     risks: [],
+     nextSteps: [],
+     charts: [],
+     sources: [],
+     errors: ["Timeout na geração completa"]
    };
  
-   const aiSynthesis = await getAiSynthesis(input, context);
+   return await withTimeout(
+     (async () => {
+       // 1. Coleta paralela de fontes com retry
+       const [trendsResult, atpResult, compResult] = await Promise.all([
+         withRetry(() => getGoogleTrendsData(input)).catch(err => {
+           errors.push(`Google Trends: ${err.message}`);
+           return { source: { name: "Google Trends", status: "failed" as const, reason: err.message }, data: null };
+         }),
+         withRetry(() => getAnswerThePublicData(input)).catch(err => {
+           errors.push(`AnswerThePublic: ${err.message}`);
+           return { source: { name: "AnswerThePublic", status: "failed" as const, reason: err.message }, questions: [] };
+         }),
+         withRetry(() => getCompetitorsData(input)).catch(err => {
+           errors.push(`Competitors: ${err.message}`);
+           return { source: { name: "Market Search", status: "failed" as const, reason: err.message }, competitors: [] };
+         })
+       ]);
  
-   // 3. Montagem do relatório final
-   const report: MarketResearchReport = {
-     ok: true,
-     summary: aiSynthesis.summary || "Resumo indisponível.",
-     trendSignal: aiSynthesis.trendSignal || "unknown",
-     marketHypothesis: aiSynthesis.marketHypothesis || [],
-     competitors: aiSynthesis.competitors || compResult.competitors || [],
-     audienceQuestions: aiSynthesis.audienceQuestions || atpResult.questions || [],
-     opportunities: aiSynthesis.opportunities || [],
-     risks: aiSynthesis.risks || [],
-     nextSteps: aiSynthesis.nextSteps || [],
-     charts: aiSynthesis.charts || [],
-     sources,
-     errors: [...errors, ...(aiSynthesis.errors || [])]
-   };
+       sources.push(trendsResult.source, atpResult.source, compResult.source);
  
-   return report;
+       // 2. Síntese via IA
+       const context = {
+         trends: trendsResult.data,
+         questions: atpResult.questions,
+         competitors: compResult.competitors
+       };
+ 
+       const aiSynthesis = await withRetry(() => getAiSynthesis(input, context));
+ 
+       // 3. Montagem do relatório final
+       const report: MarketResearchReport = {
+         ok: true,
+         summary: aiSynthesis.summary || "Resumo indisponível.",
+         trendSignal: aiSynthesis.trendSignal || "unknown",
+         confidenceLevel: aiSynthesis.confidenceLevel || (errors.length > 0 ? "medium" : "high"),
+         marketHypothesis: aiSynthesis.marketHypothesis || [],
+         competitors: aiSynthesis.competitors || compResult.competitors || [],
+         audienceQuestions: aiSynthesis.audienceQuestions || atpResult.questions || [],
+         opportunities: aiSynthesis.opportunities || [],
+         risks: aiSynthesis.risks || [],
+         nextSteps: aiSynthesis.nextSteps || [],
+         charts: aiSynthesis.charts || [],
+         sources,
+         errors: [...errors, ...(aiSynthesis.errors || [])]
+       };
+ 
+       return report;
+     })(),
+     TIMEOUT_MS,
+     emptyReport
+   );
  }
  
  export async function internalSaveMarketResearchReport(data: {
