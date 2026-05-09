@@ -80,45 +80,46 @@
                  activeId === report.id && "border-primary/50 bg-primary/5"
                )}
              >
-             <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-               <div className="space-y-1 flex-1 min-w-0">
-                 <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-widest">
-                   <Calendar className="h-3 w-3" />
-                   {report.createdAt ? format(new Date(report.createdAt), "dd 'de' MMMM, HH:mm", { locale: ptBR }) : 'Data desconhecida'}
+               <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                 <div className="space-y-1 flex-1 min-w-0">
+                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-widest">
+                     <Calendar className="h-3 w-3" />
+                     {report.createdAt ? format(new Date(report.createdAt), "dd 'de' MMMM, HH:mm", { locale: ptBR }) : 'Data desconhecida'}
+                   </div>
+                   <h4 className="text-sm font-bold text-foreground truncate flex items-center gap-2">
+                     <Search className="h-3 w-3 text-primary opacity-50" />
+                     {report.input}
+                   </h4>
+                   <p className="text-[11px] text-muted-foreground line-clamp-1 italic">
+                     {report.report.summary}
+                   </p>
                  </div>
-                 <h4 className="text-sm font-bold text-foreground truncate flex items-center gap-2">
-                   <Search className="h-3 w-3 text-primary opacity-50" />
-                   {report.input}
-                 </h4>
-                 <p className="text-[11px] text-muted-foreground line-clamp-1 italic">
-                   {report.report.summary}
-                 </p>
-               </div>
  
-               <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
-                 <Button 
-                   variant="ghost" 
-                   size="sm" 
-                   className="h-8 text-[10px] font-bold uppercase tracking-tighter hover:bg-primary/10 hover:text-primary"
-                   onClick={() => onSelect(report)}
-                 >
-                   <ExternalLink className="h-3 w-3 mr-2" />
-                   Abrir
-                 </Button>
-                 <Button 
-                   variant="ghost" 
-                   size="sm" 
-                   className="h-8 text-[10px] font-bold uppercase tracking-tighter text-red-400 hover:bg-red-500/10 hover:text-red-500"
-                   onClick={() => onDelete(report.id)}
-                 >
-                   <Trash2 className="h-3 w-3 mr-2" />
-                   Excluir
-                 </Button>
-               </div>
-             </CardContent>
-           </Card>
-         ))}
-       </div>
-     </ScrollArea>
+                 <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                   <Button 
+                     variant="ghost" 
+                     size="sm" 
+                     className="h-8 text-[10px] font-bold uppercase tracking-tighter hover:bg-primary/10 hover:text-primary"
+                     onClick={() => onSelect(report)}
+                   >
+                     <ExternalLink className="h-3 w-3 mr-2" />
+                     Abrir
+                   </Button>
+                   <Button 
+                     variant="ghost" 
+                     size="sm" 
+                     className="h-8 text-[10px] font-bold uppercase tracking-tighter text-red-400 hover:bg-red-500/10 hover:text-red-500"
+                     onClick={() => onDelete(report.id)}
+                   >
+                     <Trash2 className="h-3 w-3 mr-2" />
+                     Excluir
+                   </Button>
+                 </div>
+               </CardContent>
+             </Card>
+           ))}
+         </div>
+       </ScrollArea>
+     </div>
    );
  }
