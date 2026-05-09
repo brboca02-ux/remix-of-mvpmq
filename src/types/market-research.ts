@@ -1,4 +1,5 @@
  export type MarketResearchTrendSignal = "growing" | "stable" | "declining" | "unknown";
+ export type MarketResearchConfidenceLevel = "high" | "medium" | "low";
  
  export interface MarketResearchSource {
    name: string;
@@ -25,8 +26,10 @@
  
  export interface MarketResearchReport {
    ok: boolean;
+   partial?: boolean;
    summary: string;
    trendSignal: MarketResearchTrendSignal;
+   confidenceLevel?: MarketResearchConfidenceLevel;
    marketHypothesis: string[];
    competitors: MarketResearchCompetitor[];
    audienceQuestions: MarketResearchQuestion[];
