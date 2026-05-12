@@ -38,7 +38,19 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 2. Run TypeScript type checking
+# 2. Check work log conflicts
+echo "📋 Checking work log for active conflicts..."
+STAGED_FILES=$(git diff --cached --name-only)
+if [ -n "$STAGED_FILES" ]; then
+  npm run work-log:check $STAGED_FILES
+  if [ $? -ne 0 ]; then
+    echo "❌ Work log conflict detected. Another tool is actively working on these files."
+    echo "   Update .kiro/coordination/work-log.md or wait for the other tool to complete."
+    exit 1
+  fi
+fi
+
+# 3. Run TypeScript type checking
 echo "🔷 Running TypeScript checks..."
 npm run typecheck
 if [ $? -ne 0 ]; then
@@ -46,7 +58,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 3. Run ESLint
+# 4. Run ESLint
 echo "🔍 Running ESLint..."
 npm run lint
 if [ $? -ne 0 ]; then
@@ -55,7 +67,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 4. Run tests
+# 5. Run tests
 echo "🧪 Running tests..."
 npm run test:quick
 if [ $? -ne 0 ]; then
