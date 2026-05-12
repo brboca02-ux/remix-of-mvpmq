@@ -1,4 +1,6 @@
 import { logger } from './logger';
+import type { ErrorCode } from './error-messages';
+import { formatError, isRecoverableError, getErrorSeverity } from './error-messages';
 
 /**
  * Standard error response structure for server functions
@@ -6,10 +8,14 @@ import { logger } from './logger';
 export interface ErrorResponse {
   success: false;
   error: {
-    code: string;
+    code: ErrorCode | string;
     message: string;
+    userMessage?: string; // User-friendly message
+    suggestions?: string[]; // Actionable suggestions
     details?: Record<string, unknown>;
     timestamp: string;
+    recoverable?: boolean;
+    severity?: 'low' | 'medium' | 'high' | 'critical';
   };
 }
 
@@ -282,4 +288,191 @@ export function validateDatabaseResponse<T>(
   }
 
   return data;
+}
+
+/**
+ * Create error response with user-friendly message
+ * Task 15.3 - Phase 3: Code Quality
+ */
+export function createUserFriendlyErrorResponse(
+  code: ErrorCode,
+  technicalMessage?: string,
+  details?: Record<string, unknown>
+): ErrorResponse {
+  const formattedError = formatError(code as ErrorCode, technicalMessage);
+  
+  return {
+    success: false,
+    error: {
+      code,
+      message: technicalMessage || formattedError.message,
+      userMessage: formattedError.message,
+      suggestions: formattedError.suggestions,
+      details: {
+        ...details,
+        technicalDetails: formattedError.technicalDetails,
+      },
+      timestamp: new Date().toISOString(),
+      recoverable: formattedError.recoverable,
+      severity: formattedError.severity,
+    },
+  };
+}
+
+/**
+ * Handle errors with user-friendly messages
+ * Task 15.3 - Phase 3: Code Quality
+ */
+export function handleServerErrorWithUserMessage(
+  error: unknown,
+  context?: Record<string, unknown>
+): ErrorResponse {
+  // Handle AppError instances
+  if (error instanceof AppError) {
+    logger.error(error.message, error, { ...context, code: error.code, ...error.details });
+    
+    // Try to map to user-friendly error code
+    const userFriendlyCode = mapToUserFriendlyCode(error.code);
+    if (userFriendlyCode) {
+      return createUserFriendlyErrorResponse(userFriendlyCode, error.message, error.details);
+    }
+    
+    return createErrorResponse(error.code, error.message, error.details);
+  }
+
+  // Handle standard Error instances with user-friendly messages
+  if (error instanceof Error) {
+    // Check for specific error patterns and map to user-friendly codes
+    if (error.message.includes('RATE_LIMIT')) {
+      logger.warn('Rate limit exceeded', { ...context, error: error.message });
+      return createUserFriendlyErrorResponse(
+        'NETWORK_RATE_LIMIT' as ErrorCode,
+        error.message
+      );
+    }
+
+    if (error.message.includes('PAYMENT_REQUIRED')) {
+      logger.warn('Payment required', { ...context, error: error.message });
+      return createUserFriendlyErrorResponse(
+        'API_QUOTA_EXCEEDED' as ErrorCode,
+        error.message
+      );
+    }
+
+    if (error.message.includes('timeout') || error.message.includes('TIMEOUT')) {
+      logger.error('Request timeout', error, context);
+      return createUserFriendlyErrorResponse(
+        'NETWORK_TIMEOUT' as ErrorCode,
+        error.message
+      );
+    }
+
+    if (error.message.includes('fetch') || error.message.includes('network')) {
+      logger.error('Network error', error, context);
+      return createUserFriendlyErrorResponse(
+        'NETWORK_SERVER_ERROR' as ErrorCode,
+        error.message
+      );
+    }
+
+    if (error.message.includes('not found') || error.message.includes('NOT_FOUND')) {
+      logger.warn('Resource not found', { ...context, error: error.message });
+      return createUserFriendlyErrorResponse(
+        'DATA_NOT_FOUND' as ErrorCode,
+        error.message
+      );
+    }
+
+    if (error.message.includes('validation') || error.message.includes('invalid')) {
+      logger.warn('Validation error', { ...context, error: error.message });
+      return createUserFriendlyErrorResponse(
+        'DATA_VALIDATION_ERROR' as ErrorCode,
+        error.message
+      );
+    }
+
+    if (error.message.includes('duplicate') || error.message.includes('already exists')) {
+      logger.warn('Duplicate data', { ...context, error: error.message });
+      return createUserFriendlyErrorResponse(
+        'DATA_DUPLICATE' as ErrorCode,
+        error.message
+      );
+    }
+
+    if (error.message.includes('unauthorized') || error.message.includes('UNAUTHORIZED')) {
+      logger.warn('Unauthorized access', { ...context, error: error.message });
+      return createUserFriendlyErrorResponse(
+        'AUTH_UNAUTHORIZED' as ErrorCode,
+        error.message
+      );
+    }
+
+    // Generic error
+    logger.error('Server error', error, context);
+    return createUserFriendlyErrorResponse(
+      'UNKNOWN_ERROR' as ErrorCode,
+      error.message
+    );
+  }
+
+  // Handle unknown error types
+  logger.error('Unknown error type', undefined, { ...context, error: String(error) });
+  return createUserFriendlyErrorResponse(
+    'UNKNOWN_ERROR' as ErrorCode,
+    String(error)
+  );
+}
+
+/**
+ * Map internal error codes to user-friendly error codes
+ */
+function mapToUserFriendlyCode(internalCode: string): ErrorCode | null {
+  const mapping: Record<string, ErrorCode> = {
+    'VALIDATION_ERROR': 'DATA_VALIDATION_ERROR' as ErrorCode,
+    'INVALID_INPUT': 'DATA_VALIDATION_ERROR' as ErrorCode,
+    'MISSING_REQUIRED_FIELD': 'DATA_VALIDATION_ERROR' as ErrorCode,
+    'UNAUTHORIZED': 'AUTH_UNAUTHORIZED' as ErrorCode,
+    'FORBIDDEN': 'PERMISSION_DENIED' as ErrorCode,
+    'INVALID_TOKEN': 'AUTH_SESSION_EXPIRED' as ErrorCode,
+    'NOT_FOUND': 'DATA_NOT_FOUND' as ErrorCode,
+    'RESOURCE_NOT_FOUND': 'DATA_NOT_FOUND' as ErrorCode,
+    'RATE_LIMIT_EXCEEDED': 'NETWORK_RATE_LIMIT' as ErrorCode,
+    'PAYMENT_REQUIRED': 'API_QUOTA_EXCEEDED' as ErrorCode,
+    'INSUFFICIENT_CREDITS': 'API_QUOTA_EXCEEDED' as ErrorCode,
+    'EXTERNAL_API_ERROR': 'NETWORK_SERVER_ERROR' as ErrorCode,
+    'SERVICE_UNAVAILABLE': 'NETWORK_SERVER_ERROR' as ErrorCode,
+    'TIMEOUT': 'NETWORK_TIMEOUT' as ErrorCode,
+    'DATABASE_ERROR': 'UNKNOWN_ERROR' as ErrorCode,
+    'QUERY_FAILED': 'UNKNOWN_ERROR' as ErrorCode,
+    'CONFIGURATION_ERROR': 'UNKNOWN_ERROR' as ErrorCode,
+    'MISSING_ENV_VAR': 'UNKNOWN_ERROR' as ErrorCode,
+    'INTERNAL_ERROR': 'UNKNOWN_ERROR' as ErrorCode,
+    'UNKNOWN_ERROR': 'UNKNOWN_ERROR' as ErrorCode,
+  };
+
+  return mapping[internalCode] || null;
+}
+
+/**
+ * Check if an error response is recoverable
+ */
+export function isErrorRecoverable(errorResponse: ErrorResponse): boolean {
+  if (errorResponse.error.recoverable !== undefined) {
+    return errorResponse.error.recoverable;
+  }
+  
+  // Fallback to checking the code
+  return isRecoverableError(errorResponse.error.code as ErrorCode);
+}
+
+/**
+ * Get error severity from response
+ */
+export function getResponseErrorSeverity(errorResponse: ErrorResponse): 'low' | 'medium' | 'high' | 'critical' {
+  if (errorResponse.error.severity) {
+    return errorResponse.error.severity;
+  }
+  
+  // Fallback to checking the code
+  return getErrorSeverity(errorResponse.error.code as ErrorCode);
 }

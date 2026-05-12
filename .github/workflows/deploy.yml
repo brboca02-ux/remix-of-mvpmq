@@ -1,0 +1,132 @@
+name: Deploy Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  # ============================================================================
+  # Deploy to Staging
+  # ============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || inputs.environment == 'staging'
+    environment: staging
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build for staging
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          VITE_SENTRY_DSN: ${{ secrets.STAGING_SENTRY_DSN }}
+          VITE_APP_VERSION: ${{ github.sha }}
+
+      - name: Deploy to staging
+        run: echo "Deploy to staging environment"
+        # TODO: Add actual deployment commands
+        # Example: cloudflare pages deploy, vercel deploy, etc.
+
+      - name: Run smoke tests
+        run: npm run test:e2e
+        env:
+          TEST_URL: ${{ secrets.STAGING_URL }}
+        continue-on-error: true
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "Deployment status: ${{ job.status }}"
+          echo "Environment: staging"
+          echo "Commit: ${{ github.sha }}"
+
+  # ============================================================================
+  # Deploy to Production (Manual approval required)
+  # ============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: inputs.environment == 'production'
+    environment: production
+    needs: [deploy-staging]
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run full test suite
+        run: npm run test
+
+      - name: Build for production
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+          VITE_SENTRY_DSN: ${{ secrets.PROD_SENTRY_DSN }}
+          VITE_APP_VERSION: ${{ github.sha }}
+          NODE_ENV: production
+
+      - name: Verify build
+        run: |
+          test -d dist
+          test -f dist/index.html
+          echo "✅ Build verified"
+
+      - name: Deploy to production
+        run: echo "Deploy to production environment"
+        # TODO: Add actual deployment commands
+
+      - name: Run production smoke tests
+        run: npm run test:e2e
+        env:
+          TEST_URL: ${{ secrets.PRODUCTION_URL }}
+
+      - name: Create release tag
+        if: success()
+        run: |
+          git tag "release-$(date +%Y%m%d-%H%M%S)"
+          git push --tags
+        continue-on-error: true
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "Deployment status: ${{ job.status }}"
+          echo "Environment: production"
+          echo "Commit: ${{ github.sha }}"

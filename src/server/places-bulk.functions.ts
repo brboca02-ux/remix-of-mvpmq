@@ -28,7 +28,21 @@ interface PlaceDetail {
   }>;
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
+// Google Places API response types
+interface GooglePlacesTextResponse {
+  status: string;
+  results?: PlaceTextResult[];
+  next_page_token?: string;
+  error_message?: string;
+}
+
+interface GooglePlacesDetailsResponse {
+  status: string;
+  result?: PlaceDetail;
+  error_message?: string;
+}
 
 /**
  * Enrichment via Google Places
@@ -44,7 +58,7 @@ async function textSearchPaged(query: string, key: string): Promise<PlaceTextRes
       if (pageToken) url.searchParams.set("pagetoken", pageToken);
 
       const res = await fetch(url.toString());
-      const json: any = await res.json();
+      const json = (await res.json()) as GooglePlacesTextResponse;
       if (json.status && json.status !== "OK") {
         Logger.warn("Places status", json.status);
         break;
@@ -65,8 +79,8 @@ async function fetchPlaceDetails(placeId: string, key: string): Promise<PlaceDet
     url.searchParams.set("fields", "place_id,name,formatted_phone_number,international_phone_number,website,formatted_address,rating,user_ratings_total,address_components");
     url.searchParams.set("key", key);
     const res = await fetch(url.toString());
-    const json: any = await res.json();
-    return json.status === "OK" ? json.result : null;
+    const json = (await res.json()) as GooglePlacesDetailsResponse;
+    return json.status === "OK" ? json.result ?? null : null;
   }, null, `Detalhes: ${placeId}`);
 }
 

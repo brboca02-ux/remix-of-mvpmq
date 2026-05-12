@@ -1,3 +1,14 @@
+/* eslint-disable no-console */
+/**
+ * Structured Logger
+ * 
+ * Provides structured logging with different log levels.
+ * In development: pretty-printed with emojis
+ * In production: JSON format for log aggregation
+ * 
+ * @module lib/logger
+ */
+
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogContext {
