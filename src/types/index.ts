@@ -19,5 +19,5 @@ export * from './jobs';
 // Integration Types
 export * from './integrations';
 
-// Market Research Types
+// Market Research Types (exported last to avoid conflicts)
 export * from './market-research';

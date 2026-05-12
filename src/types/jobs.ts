@@ -14,6 +14,9 @@
 
 import type { JobStatus, JobSourceStats } from './database';
 
+// Re-export types from database for convenience
+export type { JobStatus, JobSourceStats };
+
 // ============================================================================
 // Job Payload Types
 // ============================================================================
