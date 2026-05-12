@@ -1,4 +1,14 @@
+/**
+ * Leads Parser
+ * 
+ * Universal CSV parser for lead imports.
+ * Handles multiple formats including Google Maps exports.
+ * 
+ * @module server/leads-parser
+ */
+
 import { StandardLead, normalizeLead } from "./leads-core";
+import { smartParseCsv } from "@/lib/csv-smart-parser";
 
 /**
  * Utilitários para parsing inteligente de CSV e mapeamento dinâmico de cabeçalhos.
@@ -85,7 +95,30 @@ export function mapHeaders(headers: string[]): (keyof StandardLead | null)[] {
   });
 }
 
+/**
+ * Universal CSV Parser
+ * 
+ * Uses the smart parser to detect format automatically:
+ * - Standard CSV with headers
+ * - Google Maps exports (no headers, commas in data)
+ * - Mixed formats
+ */
 export function parseUniversalCsv(text: string, nicho = "geral"): StandardLead[] {
+  // Try smart parser first (handles complex cases like Google Maps exports)
+  const smartResult = smartParseCsv(text, nicho);
+  
+  if (smartResult.leads.length > 0) {
+    return smartResult.leads;
+  }
+  
+  // Fallback to original parser for simple cases
+  return parseSimpleCsv(text, nicho);
+}
+
+/**
+ * Simple CSV parser (legacy fallback)
+ */
+function parseSimpleCsv(text: string, nicho = "geral"): StandardLead[] {
   const separator = detectSeparator(text);
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (lines.length < 2) return [];
@@ -96,20 +129,24 @@ export function parseUniversalCsv(text: string, nicho = "geral"): StandardLead[]
   const out: StandardLead[] = [];
   for (let i = 1; i < lines.length; i++) {
     const cols = splitCsvLine(lines[i], separator);
-    const leadData: any = { nicho, source: "csv_import", raw: {} };
+    const leadData: Partial<StandardLead> & { raw: Record<string, unknown> } = { 
+      nicho, 
+      source: "csv_import", 
+      raw: {} 
+    };
     
     headerMapping.forEach((field, idx) => {
       if (field && cols[idx]) {
         if (field === "raw") {
           leadData.raw[rawHeaders[idx]] = cols[idx];
         } else {
-          leadData[field] = cols[idx];
+          (leadData as Record<string, unknown>)[field] = cols[idx];
         }
       }
     });
 
     if (leadData.nome || leadData.cnpj || leadData.telefone) {
-      out.push(normalizeLead(leadData));
+      out.push(normalizeLead(leadData as StandardLead));
     }
   }
   return out;

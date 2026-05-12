@@ -203,6 +203,37 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
       };
     }
 
+    // ============================================================================
+    // SMART DETECTION: Google Maps format (no headers, commas in data)
+    // ============================================================================
+    const firstLine = lines[0];
+    const hasPhonePattern = /\(\d{2,3}\)\s*[\d\s-]+/.test(firstLine);
+    const hasRatingPattern = /\d,\d\s*\(\d+\)/.test(firstLine);
+    const isGoogleMapsFormat = hasPhonePattern && hasRatingPattern;
+
+    if (isGoogleMapsFormat) {
+      // Google Maps format - no headers needed, first row is data
+      const warnings: string[] = [
+        "Formato Google Maps detectado - arquivo sem cabeçalhos. Usando parser inteligente.",
+        "Campos identificados automaticamente por posição: Nome, Telefone, Rating, Categoria, Endereço.",
+      ];
+
+      const previewRows = lines.slice(0, 3).map((l) => [l]);
+
+      return {
+        valid: true,
+        delimiter: ",",
+        delimiterLabel: "vírgula (,) - formato Google Maps",
+        encoding,
+        headers: ["Nome", "Telefone", "Rating", "Categoria", "Endereço"],
+        mappedHeaders: ["Nome", "Telefone", "Rating", "Categoria", "Endereço"],
+        unmappedHeaders: [],
+        rowCount: lines.length,
+        previewRows,
+        warnings,
+      };
+    }
+
     const delimiter = detectDelimiter(lines[0]);
     if (!delimiter) {
       return {
@@ -227,6 +258,31 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
 
     const headerCheck = validateHeaders(headers);
     if (!headerCheck.valid) {
+      // Before failing, check if this looks like data (not headers)
+      const firstLineLooksLikeData = /\(\d/.test(firstLine) || /\d,\d/.test(firstLine);
+      
+      if (firstLineLooksLikeData) {
+        // Treat as no-header CSV
+        const warnings: string[] = [
+          "CSV sem cabeçalhos detectado. Usando parser automático por posição.",
+        ];
+
+        const previewRows = lines.slice(0, 3).map((l) => splitCsvLine(l, delimiter));
+
+        return {
+          valid: true,
+          delimiter,
+          delimiterLabel,
+          encoding,
+          headers: headers.map((_, i) => `Campo ${i + 1}`),
+          mappedHeaders: headers.map((_, i) => `Campo ${i + 1}`),
+          unmappedHeaders: [],
+          rowCount: lines.length,
+          previewRows,
+          warnings,
+        };
+      }
+      
       return {
         valid: false,
         code: "MISSING_REQUIRED_HEADER",
@@ -244,14 +300,11 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
       if (Math.abs(cols.length - headers.length) > 1) inconsistentCount++;
     }
     if (inconsistentCount > sampleSize * 0.5) {
-      return {
-        valid: false,
-        code: "INCONSISTENT_COLUMNS",
-        message: "As linhas do CSV não têm o mesmo número de colunas que o cabeçalho.",
-        hint: `Esperado ${headers.length} colunas. Verifique se há aspas não fechadas ou vírgulas dentro de campos sem proteção.`,
-      };
-    }
-    if (inconsistentCount > 0) {
+      // Instead of failing, warn and proceed - smart parser can handle
+      warnings.push(
+        `${inconsistentCount} de ${sampleSize} linhas têm número de colunas diferente. Parser inteligente será usado.`
+      );
+    } else if (inconsistentCount > 0) {
       warnings.push(`${inconsistentCount} de ${sampleSize} linhas amostradas têm número de colunas diferente do cabeçalho.`);
     }
 
@@ -281,12 +334,12 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
       previewRows,
       warnings,
     };
-  } catch (e: any) {
+  } catch (e: unknown) {
     return {
       valid: false,
       code: "PARSE_ERROR",
       message: "Não foi possível ler o arquivo CSV.",
-      hint: e?.message || "Verifique o formato e tente novamente.",
+      hint: e instanceof Error ? e.message : "Verifique o formato e tente novamente.",
     };
   }
 }
