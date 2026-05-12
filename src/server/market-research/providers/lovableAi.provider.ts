@@ -1,5 +1,6 @@
  import { MARKET_RESEARCH_PROMPT } from "../marketResearchPrompt";
  import { MarketResearchReport } from "@/types/market-research";
+ import { logger } from "@/lib/logger";
  
  export async function getAiSynthesis(input: string, context: any): Promise<Partial<MarketResearchReport>> {
    try {
@@ -28,7 +29,7 @@
      const content = result.choices[0].message.content;
      return JSON.parse(content);
    } catch (error) {
-     console.error("Erro na síntese de IA:", error);
+     logger.error('AI synthesis failed', error as Error);
      return {
        summary: "Ocorreu um erro ao gerar a síntese da IA. O relatório abaixo contém apenas dados brutos das fontes (se disponíveis).",
        marketHypothesis: ["Falha na conexão com a IA"],

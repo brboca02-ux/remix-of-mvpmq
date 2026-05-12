@@ -584,3 +584,176 @@ export interface Playbook {
   rejectionRisk: number;
   lastAdaptedAt?: string;
 }
+
+// ============================================================================
+// Lead Import Types
+// ============================================================================
+
+/**
+ * Lead import job
+ * Extended job type specific to lead imports
+ * Used in: src/server/leads-import.functions.ts
+ */
+export interface LeadImportJob {
+  /** Job ID */
+  id: string;
+  /** Job type */
+  type: 'lead_import';
+  /** Job status */
+  status: 'pending' | 'running' | 'done' | 'failed' | 'cancelled';
+  /** Import payload */
+  payload: {
+    /** Source file or data */
+    source: string;
+    /** Source type */
+    sourceType: 'csv' | 'url' | 'api' | 'manual';
+    /** Import options */
+    options?: {
+      skipDuplicates?: boolean;
+      validate?: boolean;
+      updateExisting?: boolean;
+      fieldMapping?: Record<string, string>;
+    };
+  };
+  /** Import result */
+  result?: {
+    imported: number;
+    skipped: number;
+    failed: number;
+    duplicates: number;
+    leadIds?: string[];
+  };
+  /** Source statistics */
+  source_stats?: {
+    total?: number;
+    processed?: number;
+    failed?: number;
+    skipped?: number;
+    duplicates?: number;
+    validationErrors?: number;
+  };
+  /** User ID */
+  user_id?: string;
+  /** Job metadata */
+  metadata?: Record<string, unknown>;
+  /** Creation timestamp */
+  created_at: string;
+  /** Update timestamp */
+  updated_at: string;
+  /** Start timestamp */
+  started_at?: string;
+  /** Completion timestamp */
+  completed_at?: string;
+}
+
+/**
+ * Parsed lead data
+ * Intermediate representation of lead data during import
+ * Used in: src/server/leads-parser.ts
+ */
+export interface ParsedLeadData {
+  /** Company name */
+  companyName: string;
+  /** Business niche */
+  nicho: string;
+  /** City */
+  city?: string;
+  /** Neighborhood */
+  neighborhood?: string;
+  /** Full address */
+  address?: string;
+  /** Email address */
+  email?: string;
+  /** WhatsApp number */
+  whatsapp?: string;
+  /** Instagram handle */
+  instagramHandle?: string;
+  /** Instagram URL */
+  instagramUrl?: string;
+  /** Website URL */
+  websiteUrl?: string;
+  /** LinkedIn URL */
+  linkedinUrl?: string;
+  /** Phone number */
+  phone?: string;
+  /** Rating (1-5) */
+  rating?: number;
+  /** Price level */
+  priceLevel?: string;
+  /** Services offered */
+  services?: string[];
+  /** Notes */
+  notes?: string;
+  /** Data source */
+  source: string;
+  /** Search niche used */
+  searchNiche?: string;
+  /** Search location used */
+  searchLocation?: string;
+  /** Raw data from source */
+  raw?: Record<string, unknown>;
+  /** Validation errors */
+  validationErrors?: Array<{
+    field: string;
+    message: string;
+  }>;
+}
+
+/**
+ * Lead validation result
+ */
+export interface LeadValidationResult {
+  /** Validation status */
+  valid: boolean;
+  /** Validation errors */
+  errors: Array<{
+    field: string;
+    message: string;
+    code?: string;
+  }>;
+  /** Validation warnings */
+  warnings?: Array<{
+    field: string;
+    message: string;
+  }>;
+  /** Normalized lead data */
+  normalized?: ParsedLeadData;
+}
+
+/**
+ * Lead deduplication result
+ */
+export interface LeadDeduplicationResult {
+  /** Whether lead is a duplicate */
+  isDuplicate: boolean;
+  /** Existing lead ID if duplicate */
+  existingLeadId?: string;
+  /** Duplicate match score (0-1) */
+  matchScore?: number;
+  /** Fields that matched */
+  matchedFields?: string[];
+  /** Deduplication strategy used */
+  strategy?: 'exact' | 'fuzzy' | 'identity_hash';
+}
+
+/**
+ * Import statistics
+ */
+export interface ImportStatistics {
+  /** Total records processed */
+  total: number;
+  /** Successfully imported */
+  imported: number;
+  /** Skipped records */
+  skipped: number;
+  /** Failed records */
+  failed: number;
+  /** Duplicate records */
+  duplicates: number;
+  /** Validation errors */
+  validationErrors: number;
+  /** Processing time in milliseconds */
+  processingTimeMs: number;
+  /** Import rate (records per second) */
+  importRate?: number;
+}

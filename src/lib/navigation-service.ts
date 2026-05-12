@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/lib/logger";
 
 export interface PageVisit {
   url: string;
@@ -25,14 +26,14 @@ export const navigationService = {
       history.unshift(visit);
       localStorage.setItem('nav_history', JSON.stringify(history.slice(0, 50))); // Keep last 50
     } catch (e) {
-      console.warn('Failed to save nav history to localStorage', e);
+      logger.warn('Failed to save navigation history to localStorage', { error: e });
     }
 
     // Optional API call (non-blocking)
     try {
       // In a real scenario, this would be a table in Supabase or an Edge Function
       // For now we log it and attempt a fetch to a hypothetical endpoint
-      console.log('[Navigation Tracking]:', visit);
+      logger.debug('Navigation tracked', visit);
       
     } catch (e) {
       // Ignore errors in tracking to not block navigation
@@ -52,7 +53,7 @@ export const navigationService = {
    */
   async handleCTA(actionName: string, data: Record<string, any>, callback?: () => void | Promise<void>) {
     try {
-      console.log(`[CTA Clicked]: ${actionName}`, data);
+      logger.info('CTA clicked', { actionName, ...data });
       
       // Persist CTA event
       const events = JSON.parse(localStorage.getItem('cta_events') || '[]');
@@ -67,7 +68,7 @@ export const navigationService = {
         await callback();
       }
     } catch (error) {
-      console.error(`Error handling CTA ${actionName}:`, error);
+      logger.error('CTA handling failed', error as Error, { actionName, data });
       // Fallback or generic error handling could go here
     }
   }

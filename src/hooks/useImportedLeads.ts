@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { listImportedLeads } from "@/server/leads-import.functions";
 import { supabase } from "@/integrations/supabase/client";
 import type { Company, CompanyPorte } from "@/lib/company-types";
+import { logger } from "@/lib/logger";
 
 const CNAE_TO_NICHO: Record<string, string> = {
   "4321-5": "solar",
@@ -105,7 +106,12 @@ export function useImportedLeads(args: UseImportedLeadsArgs): UseImportedLeadsRe
       const companies = adapt(rows);
       setState({ companies, loading: false, total: companies.length });
     } catch (err) {
-      console.error("useImportedLeads error:", err);
+      logger.error("Failed to load imported leads", err instanceof Error ? err : undefined, {
+        cidade,
+        uf,
+        nicho,
+        filtro,
+      });
       setState({ companies: [], loading: false, total: 0 });
     }
   }, [cidade, uf, nicho, filtro]);

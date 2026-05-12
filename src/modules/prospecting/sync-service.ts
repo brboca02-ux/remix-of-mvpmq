@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProspectLead } from "./types";
 import { toast } from "sonner";
 import { AuditLog } from "@/hooks/useAuditStore";
+import { logger } from "@/lib/logger";
 
 /**
  * Service to handle synchronization between local state and Supabase backend
@@ -12,7 +13,7 @@ export const syncLeadToBackend = async (lead: ProspectLead) => {
     const user = session?.user;
     
     if (!user) {
-        console.warn("User not authenticated, skipping lead sync.");
+        logger.warn('Lead sync skipped - user not authenticated');
         return false;
     }
     
@@ -34,13 +35,13 @@ export const syncLeadToBackend = async (lead: ProspectLead) => {
       }, { onConflict: 'id' });
 
     if (error) {
-      console.warn("Lead sync failed:", error);
+      logger.warn('Lead sync failed', { error });
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error("Error in syncLeadToBackend:", err);
+    logger.error('Error syncing lead to backend', err as Error);
     return false;
   }
 };
@@ -68,13 +69,13 @@ export const syncAuditLogToBackend = async (log: AuditLog) => {
       });
 
     if (error) {
-      console.warn("Audit sync failed:", error);
+      logger.warn('Audit log sync failed', { error });
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error("Error in syncAuditLogToBackend:", err);
+    logger.error('Error syncing audit log to backend', err as Error);
     return false;
   }
 };

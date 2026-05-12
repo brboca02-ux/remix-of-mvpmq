@@ -1,15 +1,16 @@
 import Tesseract from 'tesseract.js';
+import { logger } from '@/lib/logger';
 
 export const extractTextFromImage = async (file: File): Promise<string> => {
   try {
     const result = await Tesseract.recognize(
       file,
       'por+eng',
-      { logger: m => console.log(m) }
+      { logger: m => logger.debug('OCR progress', { message: m }) }
     );
     return result.data.text;
   } catch (error) {
-    console.error("Error extracting text from image:", error);
+    logger.error('OCR text extraction failed', error as Error);
     throw new Error("Não foi possível ler a imagem.");
   }
 };

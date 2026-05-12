@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Company } from "@/lib/company-types";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/lib/logger";
 
 export type AuditAction = "add" | "update" | "upsert" | "delete";
 export type AuditSource = "manual" | "import" | "social" | "system";
@@ -58,7 +59,11 @@ export const useAuditStore = create<AuditStore>()(
                 timestamp: new Date(audit.timestamp).toISOString()
               });
             } catch (err) {
-              console.warn("Failed to sync audit log to backend:", err);
+              logger.warn("Failed to sync audit log to backend", {
+                leadId: audit.leadId,
+                action: audit.action,
+                error: err instanceof Error ? err.message : String(err),
+              });
             }
           };
 

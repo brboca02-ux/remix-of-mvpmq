@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { logger } from "@/lib/logger";
+import { AppError, ErrorCodes, withRetry } from "@/lib/error-handler";
 
 /**
  * Cache persistente de empresas:
@@ -56,10 +58,29 @@ function normalizeQuery(parts: { cidade?: string; uf?: string; nicho?: string })
 function getAdminClient() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase admin env vars missing");
-  return createClient<Database>(url, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  
+  if (!url || !key) {
+    throw new AppError(
+      ErrorCodes.CONFIGURATION_ERROR,
+      "Configuração do Supabase incompleta.",
+      { missingVars: { url: !url, key: !key } },
+      500
+    );
+  }
+
+  try {
+    return createClient<Database>(url, key, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  } catch (error) {
+    logger.error('Failed to create Supabase admin client', error as Error);
+    throw new AppError(
+      ErrorCodes.DATABASE_ERROR,
+      "Erro ao conectar com o banco de dados.",
+      { error: (error as Error).message },
+      500
+    );
+  }
 }
 
 interface PlaceResult {
@@ -87,27 +108,73 @@ interface PlaceDetails {
 async function placesTextSearch(apiKey: string, query: string): Promise<PlaceResult[]> {
   const all: PlaceResult[] = [];
   let pageToken: string | undefined;
+  
   for (let page = 0; page < 3; page++) {
-    const url = new URL(PLACES_TEXT_SEARCH);
-    url.searchParams.set("query", query);
-    url.searchParams.set("language", "pt-BR");
-    url.searchParams.set("region", "br");
-    url.searchParams.set("key", apiKey);
-    if (pageToken) url.searchParams.set("pagetoken", pageToken);
+    try {
+      const url = new URL(PLACES_TEXT_SEARCH);
+      url.searchParams.set("query", query);
+      url.searchParams.set("language", "pt-BR");
+      url.searchParams.set("region", "br");
+      url.searchParams.set("key", apiKey);
+      if (pageToken) url.searchParams.set("pagetoken", pageToken);
 
-    const res = await fetch(url.toString());
-    if (!res.ok) break;
-    const json: any = await res.json();
-    if (json.status === "OVER_QUERY_LIMIT" || json.status === "REQUEST_DENIED") {
-      console.error("Places error:", json.status, json.error_message);
+      const res = await fetch(url.toString(), {
+        signal: AbortSignal.timeout(15000)
+      });
+      
+      if (!res.ok) {
+        logger.warn('Google Places API request failed', { 
+          status: res.status,
+          page,
+          query 
+        });
+        break;
+      }
+
+      const json: any = await res.json();
+      
+      if (json.status === "OVER_QUERY_LIMIT") {
+        logger.error('Google Places API quota exceeded', undefined, { 
+          status: json.status,
+          message: json.error_message 
+        });
+        throw new AppError(
+          ErrorCodes.RATE_LIMIT_EXCEEDED,
+          "Limite de consultas do Google Places atingido.",
+          { status: json.status }
+        );
+      }
+
+      if (json.status === "REQUEST_DENIED") {
+        logger.error('Google Places API request denied', undefined, { 
+          status: json.status,
+          message: json.error_message 
+        });
+        throw new AppError(
+          ErrorCodes.EXTERNAL_API_ERROR,
+          "Acesso negado pela API do Google Places.",
+          { status: json.status, message: json.error_message }
+        );
+      }
+
+      if (Array.isArray(json.results)) {
+        all.push(...json.results);
+      }
+
+      pageToken = json.next_page_token;
+      if (!pageToken) break;
+      
+      // Google requer 2s antes de usar next_page_token
+      await new Promise((r) => setTimeout(r, 2100));
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      logger.error('Error in Places text search', error as Error, { page, query });
       break;
     }
-    if (Array.isArray(json.results)) all.push(...json.results);
-    pageToken = json.next_page_token;
-    if (!pageToken) break;
-    // Google requer 2s antes de usar next_page_token
-    await new Promise((r) => setTimeout(r, 2100));
   }
+
   return all;
 }
 
@@ -120,13 +187,36 @@ async function placeDetails(apiKey: string, placeId: string): Promise<PlaceDetai
     "fields",
     "place_id,name,formatted_address,formatted_phone_number,international_phone_number,website,rating,user_ratings_total,geometry,address_components",
   );
+  
   try {
-    const res = await fetch(url.toString());
-    if (!res.ok) return null;
+    const res = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(10000)
+    });
+    
+    if (!res.ok) {
+      logger.warn('Place details request failed', { 
+        status: res.status,
+        placeId 
+      });
+      return null;
+    }
+
     const json: any = await res.json();
-    if (json.status !== "OK") return null;
+    
+    if (json.status !== "OK") {
+      logger.warn('Place details returned non-OK status', { 
+        status: json.status,
+        placeId 
+      });
+      return null;
+    }
+
     return json.result as PlaceDetails;
-  } catch {
+  } catch (error) {
+    logger.warn('Error fetching place details', { 
+      error: (error as Error).message,
+      placeId 
+    });
     return null;
   }
 }
@@ -167,147 +257,222 @@ export const searchCompaniesCached = createServerFn({ method: "POST" })
     const cidade = (input?.cidade || "").trim().slice(0, 80);
     const uf = (input?.uf || "").trim().slice(0, 2).toUpperCase();
     const nicho = (input?.nicho || "").trim().slice(0, 80);
+    
     if (!nicho || (!cidade && !uf)) {
-      throw new Error("INVALID_QUERY: nicho + cidade ou uf são obrigatórios");
+      throw new AppError(
+        ErrorCodes.VALIDATION_ERROR,
+        "Nicho e cidade ou UF são obrigatórios.",
+        { hasNicho: !!nicho, hasCidade: !!cidade, hasUf: !!uf },
+        400
+      );
     }
+
     return { cidade, uf, nicho };
   })
   .handler(async ({ data }): Promise<CachedSearchResult> => {
-    const supabase = getAdminClient();
-    const queryHash = normalizeQuery(data);
-    const queryText = `${data.nicho} ${data.cidade} ${data.uf}`.trim();
+    try {
+      const supabase = getAdminClient();
+      const queryHash = normalizeQuery(data);
+      const queryText = `${data.nicho} ${data.cidade} ${data.uf}`.trim();
 
-    // 1) Lookup pesquisas_cache
-    const { data: cachedQuery } = await supabase
-      .from("pesquisas_cache")
-      .select("*")
-      .eq("query_hash", queryHash)
-      .maybeSingle();
+      // 1) Lookup pesquisas_cache
+      const { data: cachedQuery, error: cacheError } = await supabase
+        .from("pesquisas_cache")
+        .select("*")
+        .eq("query_hash", queryHash)
+        .maybeSingle();
 
-    if (cachedQuery) {
-      const lastHit = new Date(cachedQuery.last_hit_at).getTime();
-      const fresh = Date.now() - lastHit < CACHE_TTL_MS;
-      if (fresh && cachedQuery.result_place_ids.length > 0) {
-        const { data: rows } = await supabase
-          .from("empresas_cache")
-          .select("*")
-          .in("place_id", cachedQuery.result_place_ids);
-        // bump hit
-        await supabase
-          .from("pesquisas_cache")
-          .update({ hit_count: cachedQuery.hit_count + 1, last_hit_at: new Date().toISOString() })
-          .eq("id", cachedQuery.id);
+      if (cacheError) {
+        logger.error('Failed to query cache', cacheError, { queryHash });
+      }
+
+      if (cachedQuery && !cacheError) {
+        const lastHit = new Date(cachedQuery.last_hit_at).getTime();
+        const fresh = Date.now() - lastHit < CACHE_TTL_MS;
+        
+        if (fresh && cachedQuery.result_place_ids.length > 0) {
+          const { data: rows, error: rowsError } = await supabase
+            .from("empresas_cache")
+            .select("*")
+            .in("place_id", cachedQuery.result_place_ids);
+
+          if (rowsError) {
+            logger.error('Failed to fetch cached companies', rowsError, { queryHash });
+          } else {
+            // bump hit
+            await supabase
+              .from("pesquisas_cache")
+              .update({ 
+                hit_count: cachedQuery.hit_count + 1, 
+                last_hit_at: new Date().toISOString() 
+              })
+              .eq("id", cachedQuery.id);
+
+            logger.info('Cache hit', {
+              queryHash,
+              companyCount: rows?.length || 0,
+              hitCount: cachedQuery.hit_count + 1
+            });
+
+            return {
+              empresas: rowsToCompanies(rows ?? []),
+              fromCache: true,
+              freshCount: 0,
+              cachedCount: rows?.length ?? 0,
+              totalCount: rows?.length ?? 0,
+              lastFreshAt: cachedQuery.last_hit_at,
+              source: "cache",
+            };
+          }
+        }
+      }
+
+      // 2) Cache miss → Google Places
+      const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+      
+      if (!apiKey) {
+        logger.warn('Google Places API key not configured');
         return {
-          empresas: rowsToCompanies(rows ?? []),
-          fromCache: true,
+          empresas: [],
+          fromCache: false,
           freshCount: 0,
-          cachedCount: rows?.length ?? 0,
-          totalCount: rows?.length ?? 0,
-          lastFreshAt: cachedQuery.last_hit_at,
-          source: "cache",
+          cachedCount: 0,
+          totalCount: 0,
+          lastFreshAt: null,
+          source: "empty",
+          warning: "GOOGLE_PLACES_API_KEY não configurada",
         };
       }
-    }
 
-    // 2) Cache miss → Google Places
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    if (!apiKey) {
+      logger.info('Fetching from Google Places', { queryText });
+
+      const results = await placesTextSearch(apiKey, queryText);
+      
+      if (results.length === 0) {
+        logger.info('No results from Google Places', { queryText });
+        return {
+          empresas: [],
+          fromCache: false,
+          freshCount: 0,
+          cachedCount: 0,
+          totalCount: 0,
+          lastFreshAt: null,
+          source: "empty",
+          warning: "Sem resultados Places para esta consulta",
+        };
+      }
+
+      // 3) Enriquece com Place Details (paralelo em batches de 5)
+      const detailed: PlaceDetails[] = [];
+      const batchSize = 5;
+      
+      for (let i = 0; i < results.length; i += batchSize) {
+        const batch = results.slice(i, i + batchSize);
+        const got = await Promise.all(
+          batch.map((r) => placeDetails(apiKey, r.place_id))
+        );
+        for (const d of got) {
+          if (d) detailed.push(d);
+        }
+      }
+
+      logger.info('Enriched with place details', {
+        totalResults: results.length,
+        enrichedCount: detailed.length
+      });
+
+      // 4) Upsert em empresas_cache
+      const upsertRows = detailed.map((d) => {
+        const cidade = pickAddressComponent(d.address_components, "administrative_area_level_2");
+        const uf = pickAddressComponent(d.address_components, "administrative_area_level_1");
+        return {
+          place_id: d.place_id,
+          nome: d.name,
+          nome_fantasia: d.name,
+          site: d.website ?? null,
+          cidade: cidade ?? data.cidade ?? null,
+          uf: uf ?? data.uf ?? null,
+          nicho: data.nicho,
+          telefone: d.international_phone_number ?? d.formatted_phone_number ?? null,
+          email: null,
+          latitude: d.geometry?.location?.lat ?? null,
+          longitude: d.geometry?.location?.lng ?? null,
+          rating: d.rating ?? null,
+          user_ratings_total: d.user_ratings_total ?? null,
+          source: "places" as const,
+          data_fresh: new Date().toISOString(),
+          raw_places: d as any,
+        };
+      });
+
+      const { data: upserted, error: upsertErr } = await supabase
+        .from("empresas_cache")
+        .upsert(upsertRows, { onConflict: "place_id", ignoreDuplicates: false })
+        .select("*");
+
+      if (upsertErr) {
+        logger.error('Failed to upsert companies cache', upsertErr, {
+          rowCount: upsertRows.length
+        });
+      }
+
+      const empresas = rowsToCompanies(upserted ?? []);
+      const placeIds = empresas.map((e) => e.place_id).filter((x): x is string => !!x);
+      const cnpjs = empresas.map((e) => e.cnpj).filter((x): x is string => !!x);
+
+      // 5) Upsert pesquisas_cache
+      const { error: cacheUpsertError } = await supabase
+        .from("pesquisas_cache")
+        .upsert(
+          {
+            query_hash: queryHash,
+            query_text: queryText,
+            cidade: data.cidade || null,
+            uf: data.uf || null,
+            nicho: data.nicho,
+            result_cnpjs: cnpjs,
+            result_place_ids: placeIds,
+            total_count: empresas.length,
+            hit_count: cachedQuery ? cachedQuery.hit_count + 1 : 1,
+            last_hit_at: new Date().toISOString(),
+          },
+          { onConflict: "query_hash" },
+        );
+
+      if (cacheUpsertError) {
+        logger.error('Failed to upsert search cache', cacheUpsertError, { queryHash });
+      }
+
+      logger.info('Companies cached successfully', {
+        queryHash,
+        companyCount: empresas.length
+      });
+
       return {
-        empresas: [],
+        empresas,
         fromCache: false,
-        freshCount: 0,
+        freshCount: empresas.length,
         cachedCount: 0,
-        totalCount: 0,
-        lastFreshAt: null,
-        source: "empty",
-        warning: "GOOGLE_PLACES_API_KEY não configurada",
+        totalCount: empresas.length,
+        lastFreshAt: new Date().toISOString(),
+        source: "places",
       };
-    }
 
-    const results = await placesTextSearch(apiKey, queryText);
-    if (results.length === 0) {
-      return {
-        empresas: [],
-        fromCache: false,
-        freshCount: 0,
-        cachedCount: 0,
-        totalCount: 0,
-        lastFreshAt: null,
-        source: "empty",
-        warning: "Sem resultados Places para esta consulta",
-      };
-    }
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
 
-    // 3) Enriquece com Place Details (paralelo em batches de 5)
-    const detailed: PlaceDetails[] = [];
-    const batchSize = 5;
-    for (let i = 0; i < results.length; i += batchSize) {
-      const batch = results.slice(i, i + batchSize);
-      const got = await Promise.all(batch.map((r) => placeDetails(apiKey, r.place_id)));
-      for (const d of got) if (d) detailed.push(d);
-    }
-
-    // 4) Upsert em empresas_cache
-    const upsertRows = detailed.map((d) => {
-      const cidade = pickAddressComponent(d.address_components, "administrative_area_level_2");
-      const uf = pickAddressComponent(d.address_components, "administrative_area_level_1");
-      return {
-        place_id: d.place_id,
-        nome: d.name,
-        nome_fantasia: d.name,
-        site: d.website ?? null,
-        cidade: cidade ?? data.cidade ?? null,
-        uf: uf ?? data.uf ?? null,
+      logger.error('Company search failed', error as Error, {
         nicho: data.nicho,
-        telefone: d.international_phone_number ?? d.formatted_phone_number ?? null,
-        email: null,
-        latitude: d.geometry?.location?.lat ?? null,
-        longitude: d.geometry?.location?.lng ?? null,
-        rating: d.rating ?? null,
-        user_ratings_total: d.user_ratings_total ?? null,
-        source: "places" as const,
-        data_fresh: new Date().toISOString(),
-        raw_places: d as any,
-      };
-    });
+        cidade: data.cidade,
+        uf: data.uf
+      });
 
-    const { data: upserted, error: upsertErr } = await supabase
-      .from("empresas_cache")
-      .upsert(upsertRows, { onConflict: "place_id", ignoreDuplicates: false })
-      .select("*");
-
-    if (upsertErr) {
-      console.error("upsert empresas_cache error:", upsertErr);
+      throw new AppError(
+        ErrorCodes.INTERNAL_ERROR,
+        "Erro ao buscar empresas. Tente novamente.",
+        { error: (error as Error).message }
+      );
     }
-
-    const empresas = rowsToCompanies(upserted ?? []);
-    const placeIds = empresas.map((e) => e.place_id).filter((x): x is string => !!x);
-    const cnpjs = empresas.map((e) => e.cnpj).filter((x): x is string => !!x);
-
-    // 5) Upsert pesquisas_cache
-    await supabase.from("pesquisas_cache").upsert(
-      {
-        query_hash: queryHash,
-        query_text: queryText,
-        cidade: data.cidade || null,
-        uf: data.uf || null,
-        nicho: data.nicho,
-        result_cnpjs: cnpjs,
-        result_place_ids: placeIds,
-        total_count: empresas.length,
-        hit_count: cachedQuery ? cachedQuery.hit_count + 1 : 1,
-        last_hit_at: new Date().toISOString(),
-      },
-      { onConflict: "query_hash" },
-    );
-
-    return {
-      empresas,
-      fromCache: false,
-      freshCount: empresas.length,
-      cachedCount: 0,
-      totalCount: empresas.length,
-      lastFreshAt: new Date().toISOString(),
-      source: "places",
-    };
   });

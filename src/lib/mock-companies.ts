@@ -1,5 +1,6 @@
 import type { Company } from "./company-types";
 import { REAL_COMPANIES } from "./real-companies";
+import { logger } from "@/lib/logger";
 
 /**
  * Catálogo de empresas exibidas no /buscador.
@@ -15,6 +16,6 @@ let cache: Company[] | null = null;
 export function getMockCompanies(): Company[] {
   if (cache) return cache;
   cache = [...REAL_COMPANIES];
-  console.log(`Catálogo verificado: ${cache.length} empresas reais (sem demos).`);
+  logger.debug('Company catalog verified', { count: cache.length });
   return cache;
 }

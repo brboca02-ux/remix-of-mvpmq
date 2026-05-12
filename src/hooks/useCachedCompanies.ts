@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { searchCompaniesCached, type CachedSearchResult } from "@/server/companies-cache.functions";
 import type { Company, CompanyPorte } from "@/lib/company-types";
+import { logger } from "@/lib/logger";
 
 const CNAE_TO_NICHO: Record<string, string> = {
   "4321-5": "energia solar fotovoltaica",
@@ -166,7 +167,11 @@ export function useCachedCompanies(args: UseCachedCompaniesArgs): UseCachedCompa
       })
       .catch((err) => {
         if (cancelled) return;
-        console.error("useCachedCompanies error:", err);
+        logger.error("Failed to search cached companies", err instanceof Error ? err : undefined, {
+          nicho,
+          cidade,
+          uf,
+        });
         setState({
           companies: [],
           loading: false,

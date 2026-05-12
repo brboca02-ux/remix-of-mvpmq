@@ -4,6 +4,7 @@
  import { getCompetitorsData } from "./market-research/providers/competitors.provider";
  import { getAiSynthesis } from "./market-research/providers/lovableAi.provider";
  import { supabase } from "@/integrations/supabase/client";
+ import { logger } from "@/lib/logger";
  
  const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
  
@@ -11,7 +12,7 @@
    let timeoutId: any;
    const timeoutPromise = new Promise<T>((resolve) => {
      timeoutId = setTimeout(() => {
-       console.warn(`[MarketResearch] Task timed out after ${ms}ms`);
+       logger.warn('Market research task timed out', { timeoutMs: ms });
        resolve(fallbackValue);
      }, ms);
    });
@@ -26,7 +27,7 @@
      return await fn();
    } catch (error) {
      if (retries > 0) {
-       console.log(`[MarketResearch] Retrying provider... (${retries} left)`);
+       logger.debug('Retrying market research provider', { retriesLeft: retries });
        return await withRetry(fn, retries - 1);
      }
      throw error;
@@ -137,7 +138,7 @@
      if (error) throw error;
      return { success: true, id: inserted.id };
    } catch (error: any) {
-     console.error("[MarketResearch] Error saving report:", error);
+     logger.error('Failed to save market research report', error);
      return { success: false, error: error.message };
    }
  }
@@ -163,7 +164,7 @@
        updatedAt: item.updated_at
      }));
    } catch (error) {
-     console.error("[MarketResearch] Error listing reports:", error);
+     logger.error('Failed to list market research reports', error as Error);
      return [];
    }
  }
@@ -178,7 +179,7 @@
      if (error) throw error;
      return true;
    } catch (error) {
-     console.error("[MarketResearch] Error deleting report:", error);
+     logger.error('Failed to delete market research report', error as Error, { reportId: id });
      return false;
    }
  }
@@ -205,7 +206,7 @@
        updatedAt: data.updated_at
      };
    } catch (error) {
-     console.error("[MarketResearch] Error getting report:", error);
+     logger.error('Failed to get market research report', error as Error, { reportId: id });
      return null;
    }
  }

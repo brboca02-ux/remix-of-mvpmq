@@ -1,6 +1,7 @@
 // Append-only audit logger
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/integrations/supabase/types'
+import { logger } from '@/lib/logger'
 
 export type AuditTipo = 'pf_antecedentes' | 'pf_dados' | 'pj_cnpj' | 'whois' | 'social' | 'site_publico'
 export type AuditStatus = 'sucesso' | 'erro' | 'bloqueado_lgpd' | 'cache_hit'
@@ -34,5 +35,5 @@ export async function gravarAudit(
     response_summary: (params.response_summary as never) ?? null,
     ip_origem: params.ip_origem ?? null,
   })
-  if (error) console.error('[audit] insert failed', error)
+  if (error) logger.error('Audit log insert failed', error, params)
 }

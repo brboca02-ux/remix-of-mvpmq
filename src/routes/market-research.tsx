@@ -15,6 +15,7 @@
  import { BarChart3, ArrowLeft, History } from "lucide-react";
  import { Link } from "@tanstack/react-router";
  import { toast } from "sonner";
+ import { logger } from "@/lib/logger";
  
  export const Route = createFileRoute("/market-research")({
    component: MarketResearchPage,
@@ -56,7 +57,7 @@
        const data = await listReports({ data: { limit: 10 } });
        setHistory(data as MarketResearchSavedReport[]);
      } catch (err) {
-       console.error("Erro ao carregar histórico:", err);
+       logger.error("Failed to load market research history", err instanceof Error ? err : undefined);
      } finally {
        setIsHistoryLoading(false);
      }
@@ -87,7 +88,9 @@
            });
            fetchHistory();
          } catch (saveErr) {
-           console.error("Erro ao salvar no histórico:", saveErr);
+           logger.error("Failed to save market research report to history", saveErr instanceof Error ? saveErr : undefined, {
+             input,
+           });
            toast.warning("Relatório gerado, mas não foi possível salvar no histórico.");
          }
        } else {
@@ -95,7 +98,9 @@
          setReport(result as MarketResearchReport);
        }
      } catch (err) {
-       console.error(err);
+       logger.error("Critical error generating market research report", err instanceof Error ? err : undefined, {
+         input,
+       });
        toast.error("Erro crítico ao gerar relatório.");
      } finally {
        setIsLoading(false);
@@ -118,7 +123,9 @@
          toast.error("Erro ao excluir pesquisa.");
        }
      } catch (err) {
-       console.error(err);
+       logger.error("Failed to delete market research report", err instanceof Error ? err : undefined, {
+         reportId: id,
+       });
        toast.error("Falha ao excluir.");
      }
    };

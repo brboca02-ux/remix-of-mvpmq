@@ -50,10 +50,33 @@
    input: string;
  }
  
+ /**
+  * Normalized search intent
+  * Structured representation of user's search query
+  */
+ export interface NormalizedIntent {
+   /** Primary search topic */
+   topic: string;
+   /** Search category */
+   category?: string;
+   /** Geographic location */
+   location?: string;
+   /** Target audience */
+   audience?: string;
+   /** Time frame */
+   timeframe?: string;
+   /** Specific aspects to research */
+   aspects?: string[];
+   /** Search keywords */
+   keywords?: string[];
+   /** Confidence in normalization */
+   confidence?: number;
+ }
+ 
  export interface MarketResearchSavedReport {
    id: string;
    input: string;
-   normalizedIntent?: any;
+   normalizedIntent?: NormalizedIntent;
    report: MarketResearchReport;
    sources?: MarketResearchSource[];
    errors?: string[];

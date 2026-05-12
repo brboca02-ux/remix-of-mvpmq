@@ -6,6 +6,9 @@ import {
   maskMessagePreview,
   validateWebhookUrl,
 } from "./make-integration.server";
+import { logger } from "@/lib/logger";
+import { AppError, ErrorCodes, withRetry } from "@/lib/error-handler";
+import type { MakeWebhookPayload, OutreachStrategy, OutreachIntensity } from "@/types/integrations";
 
 const APP_BASE_URL = "https://market-whisperer-87.lovable.app";
 
@@ -52,7 +55,7 @@ export const getMakeSettings = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (error) {
-      console.error("getMakeSettings error", error);
+      logger.error('Failed to get Make integration settings', error);
       return { settings: null, error: "Falha ao carregar configurações." };
     }
     return { settings: data, error: null };
@@ -109,7 +112,7 @@ export const saveMakeSettings = createServerFn({ method: "POST" })
       .single();
 
     if (error) {
-      console.error("saveMakeSettings error", error);
+      logger.error('Failed to save Make integration settings', error);
       return { settings: null, error: "Falha ao salvar configurações." };
     }
     return { settings: saved, error: null };
@@ -176,13 +179,14 @@ export const testMakeWebhook = createServerFn({ method: "POST" })
         error: res.ok ? null : `HTTP ${res.status}`,
         response: text.slice(0, 500),
       };
-    } catch (err: any) {
+    } catch (err: unknown) {
       const latency = Date.now() - start;
+      const errorMessage = err instanceof Error ? err.message : "Falha de rede ao contatar o Make";
       return {
         ok: false,
         status: 0,
         latency_ms: latency,
-        error: err?.message || "Falha de rede ao contatar o Make",
+        error: errorMessage,
         response: null,
       };
     }
@@ -246,11 +250,11 @@ export const sendLeadToMake = createServerFn({ method: "POST" })
       .single();
 
     if (logErr) {
-      console.error("create log err", logErr);
+      logger.error('Failed to create Make send log', logErr);
       return { ok: false, status: "failed" as const, error: "Falha ao registrar envio.", log_id: null };
     }
 
-    const messages: Record<string, any> = {};
+    const messages: Record<string, string | { subject: string; body: string }> = {};
     if (data.channels.includes("whatsapp")) messages.whatsapp = data.message;
     if (data.channels.includes("email"))
       messages.email = {
@@ -329,12 +333,12 @@ export const sendLeadToMake = createServerFn({ method: "POST" })
       await supabase.from("make_send_queue").insert({
         log_id: log.id,
         user_id: userId,
-        payload: payload as any,
+        payload: payload,
         next_attempt_at: nextAt.toISOString(),
         attempts: 1,
         status: "pending",
         last_error: errorMsg,
-      } as any);
+      });
 
       return {
         ok: false,
@@ -342,8 +346,8 @@ export const sendLeadToMake = createServerFn({ method: "POST" })
         error: `${errorMsg} — reenvio agendado em ${settings.retry_interval_sec || 30}s`,
         log_id: log.id,
       };
-    } catch (err: any) {
-      const errorMsg = err?.message || "Falha de rede";
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Falha de rede";
       await supabase
         .from("make_send_log")
         .update({
@@ -357,12 +361,12 @@ export const sendLeadToMake = createServerFn({ method: "POST" })
       await supabase.from("make_send_queue").insert({
         log_id: log.id,
         user_id: userId,
-        payload: payload as any,
+        payload: payload,
         next_attempt_at: nextAt.toISOString(),
         attempts: 1,
         status: "pending",
         last_error: errorMsg,
-      } as any);
+      });
 
       return {
         ok: false,
@@ -393,8 +397,8 @@ export const generateMakeVariants = createServerFn({ method: "POST" })
     const channel = data.channel || "whatsapp";
     const type = data.type || "first";
     const objective = data.objective || "open_conversation";
-    const strategy = (data as any).strategy || "neutro";
-    const intensity = (data as any).intensity || "leve";
+    const strategy = (data as Record<string, unknown>).strategy as OutreachStrategy || "neutro";
+    const intensity = (data as Record<string, unknown>).intensity as OutreachIntensity || "leve";
     const behaviorContext = data.behaviorContext || "";
 
     if (!apiKey) {
@@ -560,7 +564,7 @@ export const listMakeSendLogs = createServerFn({ method: "GET" })
     if (data.lead_id) q = q.eq("lead_id", data.lead_id);
     const { data: logs, error } = await q;
     if (error) {
-      console.error("listMakeSendLogs", error);
+      logger.error('Failed to list Make send logs', error);
       return { logs: [], error: "Falha ao carregar histórico." };
     }
     return { logs: logs || [], error: null };

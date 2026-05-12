@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
  import { signPayload } from "@/server/make-integration.server";
  import { internalUpdateJobStatus } from "@/server/jobs.server";
+import { logger } from "@/lib/logger";
 
 // Public callback that Make can call to confirm delivery / replies.
 // Security: HMAC-SHA256 signature using the user's secret_token (looked up via request_id).
@@ -98,7 +99,9 @@ export const Route = createFileRoute("/api/public/make-callback")({
 
           return jsonRes({ ok: true }, 200);
         } catch (err: any) {
-          console.error("make-callback error", err);
+          logger.error("Make callback error", err instanceof Error ? err : undefined, {
+            requestId: (err as any)?.requestId,
+          });
           return jsonRes({ error: "internal_error" }, 500);
         }
       },

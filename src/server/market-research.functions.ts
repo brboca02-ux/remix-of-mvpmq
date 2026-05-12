@@ -7,6 +7,7 @@
    internalGetMarketResearchReport,
    internalDeleteMarketResearchReport
  } from "./market-research.server";
+ import { logger } from "@/lib/logger";
  
  const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
  
@@ -16,12 +17,12 @@
    }).parse(data))
    .handler(async ({ data }) => {
      // Registramos o uso para o DEV_USER_ID (embora no MVP não estejamos persistindo em DB ainda)
-     console.log(`[MarketResearch] Processando para user ${DEV_USER_ID}: ${data.input}`);
+     logger.info('Processing market research request', { userId: DEV_USER_ID, input: data.input });
      
      try {
        return await internalGenerateMarketResearchReport(data.input);
      } catch (error) {
-       console.error("Erro fatal no market research:", error);
+       logger.error('Fatal error in market research', error as Error, { input: data.input });
        return {
          ok: false,
          summary: "Falha crítica ao processar a pesquisa.",

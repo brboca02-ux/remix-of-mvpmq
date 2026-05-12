@@ -3,6 +3,10 @@
 import { getSupabase, normalizeLead, Logger, type StandardLead } from "./leads-core";
 import { processCnpjEnrichment } from "./leads-cnpj-enrichment";
 import { parseUniversalCsv } from "./leads-parser";
+import { logger } from "@/lib/logger";
+import type { ImportError, JobSourceStats, FollowupHistoryItem, HealthCheck } from "@/types/database";
+import type { LeadUpdate } from "@/modules/crm/types";
+import type { JobStatus } from "@/types/jobs";
 
 export const startImportJob = createServerFn({ method: "POST" })
 // ... keep existing code
@@ -22,7 +26,7 @@ export const startImportJob = createServerFn({ method: "POST" })
     }).select().single();
 
      if (error) {
-       console.error("Erro ao iniciar job:", error);
+       logger.error('Failed to start import job', error);
        throw new Error("Falha ao iniciar processamento.");
      }
  
@@ -50,7 +54,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
     const supabase = getSupabase();
     const now = new Date().toISOString();
     let successCount = 0, failedCount = 0, duplicateCount = 0;
-    const errors: any[] = [];
+    const errors: Array<{ job_id: string; error_message: string; raw_payload: Record<string, unknown> }> = [];
     const sourceStats: Record<string, number> = {};
 
     const { data: job } = await supabase.from("lead_import_jobs").select("*").eq("id", data.job_id).single();
@@ -64,12 +68,12 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
         currentLeads.map(lead => ({
           ...lead,
           raw: { ...(lead.raw || {}), job_id: data.job_id }
-        })) as any, 
+        })), 
         { onConflict: "identity_hash", ignoreDuplicates: false }
       ).select("id, created_at, identity_hash, source, confidence_score");
 
       if (upsertError) {
-        console.error("Erro no batch upsert:", upsertError);
+        logger.error('Batch upsert failed', upsertError, { batchSize: currentLeads.length });
         failedCount += currentLeads.length;
         upsertError.message && errors.push({ 
           job_id: data.job_id, 
@@ -95,7 +99,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
             if (res.identity_hash?.startsWith("cnpj:")) {
               const cnpj = res.identity_hash.split(":")[1];
               // Não aguardamos para não travar o loop de importação
-              processCnpjEnrichment(res.id, cnpj).catch(e => console.error("Enrichment error:", e));
+              processCnpjEnrichment(res.id, cnpj).catch(e => logger.error('CNPJ enrichment failed', e as Error, { leadId: res.id, cnpj }));
             }
           } else {
           duplicateCount++;
@@ -103,15 +107,15 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
           if (duplicateCount < 10) { 
             await supabase.from("lead_dedupe_audit").insert({
               job_id: data.job_id,
-              user_id: (job?.user_id as any) || "00000000-0000-0000-0000-000000000000",
+              user_id: (job?.user_id as string) || "00000000-0000-0000-0000-000000000000",
               original_lead_id: res.id,
               lead_identifier: res.identity_hash || "N/A",
               reason: "duplicate_identity_hash",
               confidence_score: 1.0,
               similarity_score: 1.0,
               action_taken: 'skipped',
-              normalized_values: { identity_hash: res.identity_hash } as any,
-              incoming_data: {} as any
+              normalized_values: { identity_hash: res.identity_hash },
+              incoming_data: {}
             });
           }
         }
@@ -123,7 +127,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
 
      if (job) {
        const isFinished = ((job.processed_rows || 0) + data.leads.length) >= (job.total_rows || 0) || data.is_sampling;
-       const currentStats = (job.source_stats as any) || {};
+       const currentStats = (job.source_stats as JobSourceStats) || {};
        for (const [s, c] of Object.entries(sourceStats)) currentStats[s] = (currentStats[s] || 0) + c;
  
          const newStatus = isFinished ? (failedCount > 0 && successCount === 0 ? "failed" : (failedCount > 0 ? "partial" : "completed")) : "processing";
@@ -143,7 +147,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
          const mirrorJobId = `import_${data.job_id}`;
          const { data: mirrorJob } = await getSupabase().from("jobs").select("id").eq("idempotency_key", mirrorJobId).maybeSingle();
          if (mirrorJob) {
-           const statusMap: any = { processing: "running", completed: "done", failed: "failed", partial: "done" };
+           const statusMap: Record<string, JobStatus> = { processing: "running", completed: "done", failed: "failed", partial: "done" };
            await internalUpdateJobStatus({
              jobId: mirrorJob.id,
              status: statusMap[newStatus] || "running",
@@ -217,7 +221,7 @@ export const generateJobReport = createServerFn({ method: "POST" })
       insights 
     };
     
-    const { data: report } = await supabase.from("lead_job_reports").upsert(reportData as any, { onConflict: "job_id" }).select().single();
+    const { data: report } = await supabase.from("lead_job_reports").upsert(reportData, { onConflict: "job_id" }).select().single();
     return report;
   });
 
@@ -270,7 +274,7 @@ export const updateLeadOperation = createServerFn({ method: "POST" })
       is_discarded?: boolean;
       discard_reason?: string;
       lead_operation_status?: string;
-      followup_history_item?: any;
+      followup_history_item?: Partial<FollowupHistoryItem>;
       interaction_outcome?: string;
     }
   }) => input)
@@ -279,16 +283,16 @@ export const updateLeadOperation = createServerFn({ method: "POST" })
     const id = data.lead_id.startsWith("lead_") ? data.lead_id.substring(5) : data.lead_id;
     const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
     
-    const { data: lead } = await supabase.from("leads_import").select("followup_history, niche, confidence_score").eq("id", id).single() as any;
+    const { data: lead } = await supabase.from("leads_import").select("followup_history, niche, confidence_score").eq("id", id).single();
     
-    const updates: any = { ...data.updates };
-    delete updates.followup_history_item;
+    const updates: LeadUpdate = { ...data.updates };
+    delete (updates as Record<string, unknown>).followup_history_item;
     
     if (data.updates.followup_history_item) {
-      const history = (lead?.followup_history as any[]) || [];
+      const history = (lead?.followup_history as FollowupHistoryItem[]) || [];
       const historyId = crypto.randomUUID();
       const newItem = { ...data.updates.followup_history_item, id: historyId };
-      updates.followup_history = [...history, newItem];
+      (updates as Record<string, unknown>).followup_history = [...history, newItem];
 
       // Learning logic if outcome is present
       if (data.updates.interaction_outcome) {
@@ -317,7 +321,7 @@ export const processEnrichmentQueue = createServerFn({ method: "POST" })
     const { data: queueItems } = await supabase.from("lead_enrichment_queue").select("*, leads_import(*)").eq("status", "pending").limit(data.limit || 5);
     if (!queueItems) return { processed: 0 };
     for (const item of queueItems) {
-      await supabase.from("leads_import").update({ last_enriched_at: new Date().toISOString() }).eq("id", (item as any).lead_id);
+      await supabase.from("leads_import").update({ last_enriched_at: new Date().toISOString() }).eq("id", (item as Record<string, unknown>).lead_id as string);
       await supabase.from("lead_enrichment_queue").update({ status: "completed" }).eq("id", item.id);
     }
     return { success: true, processed: queueItems.length };
@@ -327,7 +331,7 @@ export const checkImportHealth = createServerFn({ method: "GET" })
   .handler(async () => {
     const supabase = getSupabase();
     const now = new Date();
-    const checks: any[] = [];
+    const checks: HealthCheck[] = [];
     
     const { data: stuckJobs } = await supabase.from("lead_import_jobs")
       .select("id")
@@ -335,25 +339,35 @@ export const checkImportHealth = createServerFn({ method: "GET" })
       .lt("last_heartbeat", new Date(now.getTime() - 10 * 60000).toISOString());
     
     const jobsStatus = (stuckJobs?.length || 0) > 0 ? "degraded" : "healthy";
-    checks.push({ component: "jobs", status: jobsStatus, metrics: { stuck_count: stuckJobs?.length || 0 } });
+    checks.push({ 
+      name: "jobs", 
+      status: jobsStatus, 
+      details: { stuck_count: stuckJobs?.length || 0 },
+      timestamp: now.toISOString()
+    });
 
     const { count: recentErrors } = await supabase.from("lead_import_errors")
       .select("*", { count: "exact", head: true })
       .gt("created_at", new Date(now.getTime() - 30 * 60000).toISOString());
     
-    const errorsStatus = (recentErrors || 0) > 50 ? "critical" : (recentErrors || 0) > 10 ? "degraded" : "healthy";
-    checks.push({ component: "public_api", status: errorsStatus, metrics: { error_count: recentErrors || 0 } });
+    const errorsStatus = (recentErrors || 0) > 50 ? "unhealthy" : (recentErrors || 0) > 10 ? "degraded" : "healthy";
+    checks.push({ 
+      name: "public_api", 
+      status: errorsStatus, 
+      details: { error_count: recentErrors || 0 },
+      timestamp: now.toISOString()
+    });
 
     for (const check of checks) {
       await supabase.from("system_health_status").upsert({
-        component: check.component,
+        component: check.name,
         status: check.status,
-        metrics: check.metrics,
+        metrics: check.details,
         last_check: now.toISOString()
       }, { onConflict: 'component' });
     }
 
-    return { checks, overall: checks.some(c => c.status === 'critical') ? 'critical' : checks.some(c => c.status === 'degraded') ? 'degraded' : 'healthy' };
+    return { checks, overall: checks.some(c => c.status === 'unhealthy') ? 'unhealthy' : checks.some(c => c.status === 'degraded') ? 'degraded' : 'healthy' };
   });
 
 export const getDedupeAudit = createServerFn({ method: "GET" })
@@ -412,20 +426,21 @@ export const getBuscadorMetrics = createServerFn({ method: "POST" })
         p_job_id: data.job_id || undefined
       });
 
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise<never>((_, reject) => 
         setTimeout(() => reject(new Error("RPC Timeout")), 10000)
       );
 
-      const { data: metrics, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
+      const result = await Promise.race([rpcPromise, timeoutPromise]);
+      const { data: metrics, error } = result as { data: typeof fallbackMetrics | null; error: unknown };
 
       if (error) {
-        console.error("Erro RPC métricas:", error);
+        logger.error('Failed to fetch metrics via RPC', error);
         return fallbackMetrics;
       }
 
       return metrics || fallbackMetrics;
     } catch (e) {
-      console.error("Erro crítico ao buscar métricas:", e);
+      logger.error('Critical error fetching metrics', e as Error);
       return fallbackMetrics;
     }
   });

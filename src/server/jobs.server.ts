@@ -1,10 +1,12 @@
  import { supabaseAdmin } from "@/integrations/supabase/client.server";
+ import { logger } from "@/lib/logger";
+ import type { JobMetadata } from "@/types/jobs";
  
  const LOVABLE_JOBS_DEBUG = process.env.LOVABLE_JOBS_DEBUG === "1";
  
- function debugLog(message: string, ...args: any[]) {
+ function debugLog(message: string, ...args: unknown[]) {
    if (LOVABLE_JOBS_DEBUG) {
-     console.log(`[JOBS-DEBUG] ${message}`, ...args);
+     logger.debug(message, { args });
    }
  }
 import { Database } from "@/integrations/supabase/types";
@@ -23,7 +25,7 @@ export type Job = Database["public"]["Tables"]["jobs"]["Row"];
      throw new Error("Job já finalizado ou cancelado.");
    }
  
-   const updateData: any = { 
+   const updateData: Partial<Job> = { 
      status: "cancelled", 
      cancel_requested: true,
      cancelled_at: new Date().toISOString(),
@@ -52,7 +54,7 @@ export type Job = Database["public"]["Tables"]["jobs"]["Row"];
 const MAX_PAYLOAD_SIZE = 32 * 1024; // 32KB
 const MAX_METADATA_SIZE = 4 * 1024; // 4KB
 
-function truncate(obj: any, maxSize: number): any {
+function truncate<T>(obj: T, maxSize: number): T | { _truncated: true; _original_size: number; [key: string]: unknown } {
   const str = JSON.stringify(obj);
   if (str.length <= maxSize) return obj;
   return { _truncated: true, _original_size: str.length, ...JSON.parse(str.substring(0, maxSize / 2)) };
@@ -66,7 +68,7 @@ export async function internalEnqueueJob({
   ownerUserId = null,
 }: {
   tipo: string;
-  payload: any;
+  payload: Record<string, unknown>;
   idempotencyKey: string;
   maxAttempts?: number;
   ownerUserId?: string | null;
@@ -90,7 +92,7 @@ export async function internalEnqueueJob({
       status: "queued",
       max_attempts: maxAttempts,
       owner_user_id: ownerUserId,
-    } as any)
+    })
     .select()
     .single();
 
@@ -114,7 +116,7 @@ export async function internalUpdateJobStatus({
 }: {
   jobId: string;
   status: JobStatus;
-  result?: any;
+  result?: Record<string, unknown>;
   error?: string;
 }) {
   // Guard: nunca sobrescrever um job já cancelado/finalizado com novo status
@@ -144,8 +146,8 @@ export async function internalUpdateJobStatus({
     return current;
   }
 
-  const updateData: any = { status, updated_at: new Date().toISOString() };
-  if (result !== undefined) updateData.result = truncate(result, MAX_PAYLOAD_SIZE);
+  const updateData: Partial<Job> = { status, updated_at: new Date().toISOString() };
+  if (result !== undefined) updateData.result = truncate(result, MAX_PAYLOAD_SIZE) as typeof updateData.result;
   if (error !== undefined) updateData.error = error;
 
   if (status === "running") updateData.started_at = new Date().toISOString();
@@ -188,7 +190,7 @@ export async function internalAppendJobEvent({
   eventType: string;
   level: "info" | "warn" | "error";
   message: string;
-  metadata?: any;
+  metadata?: JobMetadata;
 }) {
   const truncatedMetadata = metadata ? truncate(metadata, MAX_METADATA_SIZE) : {};
 
@@ -200,12 +202,12 @@ export async function internalAppendJobEvent({
       level,
       message,
       metadata: truncatedMetadata,
-    } as any);
+    });
 
    if (error) {
      debugLog("Erro ao salvar job event:", error);
      if (LOVABLE_JOBS_DEBUG) {
-       console.error("Erro crítico ao salvar evento no DB:", error);
+       logger.error('Critical error saving job event to database', error);
      }
    }
 }
@@ -232,7 +234,7 @@ export async function internalRetryJob(jobId: string) {
       error: null,
       started_at: null,
       finished_at: null,
-    } as any)
+    })
     .eq("id", jobId)
     .select()
     .single();

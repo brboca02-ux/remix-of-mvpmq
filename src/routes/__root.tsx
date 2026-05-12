@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { IconSecurityMonitor } from "@/lib/icons";
  import { AppShell } from "@/components/app-shell";
  import { BackgroundJobBanner } from "@/components/jobs/BackgroundJobBanner";
+import { logger } from "@/lib/logger";
 
 
 interface RouterContext {
@@ -19,7 +20,7 @@ function NotFoundComponent() {
   const location = useRouterState({ select: (s) => s.location });
   
   useEffect(() => {
-    console.warn(`[404] Page not found: ${location.pathname}`);
+    logger.warn("Page not found", { pathname: location.pathname });
   }, [location.pathname]);
 
   return (

@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { logger } from "@/lib/logger";
+import { AppError, ErrorCodes } from "@/lib/error-handler";
 
 /**
  * Arquitetura de 4 Camadas para Processamento de Leads
@@ -10,11 +12,7 @@ import type { Database } from "@/integrations/supabase/types";
  * 4. IA: Análise qualitativa e scoring avançado (opcional, final).
  */
 
-export const Logger = {
-  info: (msg: string, context?: any) => console.log(`[INFO] ${msg}`, context || ""),
-  warn: (msg: string, context?: any) => console.warn(`[WARN] ${msg}`, context || ""),
-  error: (msg: string, error: any) => console.error(`[ERROR] ${msg}`, error),
-};
+export const Logger = logger;
 
 export function getSupabase() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -24,16 +22,31 @@ export function getSupabase() {
     process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
   
   if (!url || !key) {
-    throw new Error("Configuração do banco de dados incompleta.");
+    throw new AppError(
+      ErrorCodes.CONFIGURATION_ERROR,
+      "Configuração do banco de dados incompleta.",
+      { missingVars: { url: !url, key: !key } },
+      500
+    );
   }
 
-  return createClient<Database>(url, key, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false
-    },
-  });
+  try {
+    return createClient<Database>(url, key, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      },
+    });
+  } catch (error) {
+    logger.error('Failed to create Supabase client', error as Error);
+    throw new AppError(
+      ErrorCodes.DATABASE_ERROR,
+      "Erro ao conectar com o banco de dados.",
+      { error: (error as Error).message },
+      500
+    );
+  }
 }
 
 /**
@@ -47,7 +60,11 @@ export async function withFallback<T>(
   try {
     return await fn();
   } catch (err) {
-    Logger.warn(`Fallback acionado para ${label}`, err);
+    const error = err as Error;
+    logger.warn(`Fallback acionado para ${label}`, { 
+      error: error.message,
+      stack: error.stack 
+    });
     return fallbackValue;
   }
 }

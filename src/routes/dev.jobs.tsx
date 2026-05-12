@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { JobProgressCard } from "@/components/jobs/JobProgressCard";
 import { Activity, History, ShieldAlert } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { logger } from "@/lib/logger";
 
  const IS_DEBUG = typeof window !== 'undefined' && 
    ((window as any).LOVABLE_JOBS_DEBUG === "1" || import.meta.env.VITE_LOVABLE_JOBS_DEBUG === "1");
@@ -23,7 +24,9 @@ function DevJobsPage() {
       const data = await fetchActive();
       setActiveJobs(Array.isArray(data) ? data : []);
      } catch (err) {
-       if (IS_DEBUG) console.error(err);
+       if (IS_DEBUG) {
+         logger.error("Failed to load active jobs", err instanceof Error ? err : undefined);
+       }
      }
   };
 

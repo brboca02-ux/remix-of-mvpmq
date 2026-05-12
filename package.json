@@ -10,8 +10,18 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "test": "vitest run",
+    "test:quick": "vitest run --reporter=dot",
     "test:e2e": "vitest run src/tests/smoke.test.ts",
-    "test:e2e:ui": "vitest src/tests/smoke.test.ts"
+    "test:e2e:ui": "vitest src/tests/smoke.test.ts",
+    "typecheck": "tsc --noEmit",
+    "setup-hooks": "node scripts/setup-git-hooks.js",
+    "work-log:status": "tsx scripts/check-work-log.ts --status",
+    "work-log:check": "tsx scripts/check-work-log.ts",
+    "check-ownership": "tsx scripts/check-ownership.ts",
+    "check-ownership:staged": "tsx scripts/check-ownership.ts --staged",
+    "check-conflicts": "tsx scripts/check-recent-changes.ts",
+    "check-recent-changes": "tsx scripts/check-recent-changes.ts"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -99,6 +109,7 @@
     "globals": "^15.15.0",
     "jsdom": "^29.1.0",
     "prettier": "^3.7.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",

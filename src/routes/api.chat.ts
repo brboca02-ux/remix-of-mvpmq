@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { MarketAnalysis, ChatMessage } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
@@ -86,7 +87,10 @@ export const Route = createFileRoute("/api/chat")({
           }
           if (!upstream.ok || !upstream.body) {
             const t = await upstream.text();
-            console.error("Gateway error:", upstream.status, t);
+            logger.error("AI Gateway error", undefined, {
+              status: upstream.status,
+              response: t,
+            });
             return new Response(JSON.stringify({ error: "Falha no gateway" }), {
               status: 500,
               headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -97,7 +101,7 @@ export const Route = createFileRoute("/api/chat")({
             headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
           });
         } catch (e) {
-          console.error("/api/chat error", e);
+          logger.error("Chat API error", e instanceof Error ? e : undefined);
           return new Response(
             JSON.stringify({ error: e instanceof Error ? e.message : "Erro" }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },

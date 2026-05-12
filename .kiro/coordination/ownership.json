@@ -1,0 +1,142 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-15T10:00:00Z",
+  "ownership": {
+    "kiro": [
+      {
+        "pattern": "src/server/**/*",
+        "description": "All server-side functions and API endpoints",
+        "rationale": "Kiro handles complex backend logic and integrations",
+        "examples": [
+          "src/server/auth.ts",
+          "src/server/api/leads.ts",
+          "src/server/offers.functions.ts"
+        ]
+      },
+      {
+        "pattern": "src/lib/**/*",
+        "description": "Utility libraries and helper functions",
+        "rationale": "Kiro manages reusable logic and algorithms",
+        "examples": [
+          "src/lib/logger.ts",
+          "src/lib/utils.ts"
+        ]
+      },
+      {
+        "pattern": "src/modules/*/types.ts",
+        "description": "TypeScript type definitions for modules",
+        "rationale": "Kiro defines and maintains type system",
+        "examples": [
+          "src/modules/prospecting/types.ts",
+          "src/modules/crm/types.ts"
+        ]
+      },
+      {
+        "pattern": "src/integrations/supabase/**/*",
+        "description": "Supabase integration and database logic",
+        "rationale": "Kiro handles database operations and queries",
+        "examples": [
+          "src/integrations/supabase/client.ts",
+          "src/integrations/supabase/auth-client.ts"
+        ]
+      },
+      {
+        "pattern": "src/**/__tests__/**/*",
+        "description": "Test files and test utilities",
+        "rationale": "Kiro creates comprehensive test suites",
+        "examples": [
+          "src/__tests__/server/auth.test.ts",
+          "src/components/integrations/__tests__/SendToMakeDialog.test.tsx"
+        ]
+      },
+      {
+        "pattern": "src/tests/**/*",
+        "description": "Additional test files and test utilities",
+        "rationale": "Kiro creates comprehensive test suites",
+        "examples": [
+          "src/tests/unit/utils.test.ts"
+        ]
+      }
+    ],
+    "lovable": [
+      {
+        "pattern": "src/components/ui/**/*",
+        "description": "shadcn/ui component library",
+        "rationale": "Lovable manages design system components",
+        "examples": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/card.tsx",
+          "src/components/ui/dialog.tsx"
+        ]
+      },
+      {
+        "pattern": "src/components/templates/**/*",
+        "description": "Page templates and layouts",
+        "rationale": "Lovable creates visual templates",
+        "examples": [
+          "src/components/templates/BarberPremiumTemplate.tsx",
+          "src/components/templates/SolarPremiumTemplate.tsx"
+        ]
+      },
+      {
+        "pattern": "src/components/**/*.tsx",
+        "description": "React components (excluding ui and templates subdirectories)",
+        "rationale": "Lovable builds user interface components",
+        "examples": [
+          "src/components/app-shell.tsx",
+          "src/components/crm/CRMSummaryBar.tsx",
+          "src/components/buscador/results-table.tsx"
+        ],
+        "exceptions": [
+          "src/components/ui/**/*",
+          "src/components/templates/**/*"
+        ]
+      },
+      {
+        "pattern": "src/styles.css",
+        "description": "Global styles",
+        "rationale": "Lovable manages styling"
+      },
+      {
+        "pattern": "tailwind.config.*",
+        "description": "Tailwind configuration",
+        "rationale": "Lovable configures design tokens",
+        "examples": [
+          "tailwind.config.js",
+          "tailwind.config.ts"
+        ]
+      }
+    ],
+    "shared": [
+      {
+        "pattern": "src/routes/**/*.tsx",
+        "description": "TanStack Router route definitions",
+        "rationale": "Routes connect UI (Lovable) with data (Kiro)",
+        "examples": [
+          "src/routes/index.tsx",
+          "src/routes/crm.tsx",
+          "src/routes/buscador.tsx"
+        ]
+      },
+      {
+        "pattern": "src/hooks/**/*",
+        "description": "React hooks",
+        "rationale": "Hooks bridge UI logic and business logic",
+        "examples": [
+          "src/hooks/useLeads.ts",
+          "src/hooks/useAuth.ts"
+        ]
+      },
+      {
+        "pattern": "package.json",
+        "description": "Project dependencies",
+        "rationale": "Both tools add dependencies"
+      },
+      {
+        "pattern": "tsconfig.json",
+        "description": "TypeScript configuration",
+        "rationale": "Affects both tools' code"
+      }
+    ]
+  }
+}

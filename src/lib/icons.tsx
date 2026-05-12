@@ -17,6 +17,7 @@ import {
   UserMinus, Ban,
   type LucideProps,
 } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 /**
  * Registro global de monitoramento de ícones (telemetria de UI)
@@ -58,7 +59,7 @@ export const SafeIcon = ({ name, fallback: Fallback, ...props }: SafeIconProps) 
   useEffect(() => {
     iconRegistry.track(name, !!IconComponent);
     if (!IconComponent && process.env.NODE_ENV !== "production") {
-      console.warn(`[IconSystem] Ícone solicitado não encontrado: ${name}`);
+      logger.warn('Icon not found', { iconName: name });
     }
   }, [name, IconComponent]);
 
