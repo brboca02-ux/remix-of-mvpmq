@@ -103,17 +103,27 @@ export function mapHeaders(headers: string[]): (keyof StandardLead | null)[] {
  * - Google Maps exports (no headers, commas in data)
  * - Mixed formats
  */
-export function parseUniversalCsv(text: string, nicho = "geral"): StandardLead[] {
+export function parseUniversalCsv(text: string, nicho = "geral") {
   // Try smart parser first (handles complex cases like Google Maps exports)
   const smartResult = smartParseCsv(text, nicho);
   
-  if (smartResult.leads.length > 0) {
+  if (smartResult.leads.length > 0 || smartResult.errors.length > 0) {
     // IMPORTANTE: Sempre normalizar os leads vindos do smart parser para garantir CNPJ (TEMP:) e identity_hash
-    return smartResult.leads.map(lead => normalizeLead(lead));
+    return {
+      ...smartResult,
+      leads: smartResult.leads.map(lead => normalizeLead(lead))
+    };
   }
   
-  // Fallback to original parser for simple cases (já normaliza internamente)
-  return parseSimpleCsv(text, nicho);
+  // Fallback to original parser for simple cases
+  const legacyLeads = parseSimpleCsv(text, nicho);
+  return {
+    leads: legacyLeads,
+    errors: [],
+    warnings: [],
+    format: { hasHeaders: true, delimiter: ",", columnPattern: "standard", encoding: "utf-8" },
+    totalRows: legacyLeads.length
+  };
 }
 
 /**

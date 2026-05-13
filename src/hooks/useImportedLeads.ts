@@ -33,7 +33,7 @@ function adapt(rows: any[]): Company[] {
     email: r.email ?? undefined,
     telefone: r.telefone ?? undefined,
     site: r.site ?? undefined,
-    status: (r.status || "").toLowerCase().includes("ativ") || !r.status ? "ativa" : "inativa",
+    status: (r.status || "").toLowerCase().includes("ativ") || !r.status || r.status === "unknown" ? "ativa" : "inativa",
     faturamentoEstimado: 0,
     funcionarios: 0,
     capitalSocial: Number(r.capital_social) || 0,
@@ -75,7 +75,7 @@ export function useImportedLeads(args: UseImportedLeadsArgs): UseImportedLeadsRe
   const { cnaeCodes, cidades, estados, text, jobId } = args;
   const cidade = cidades[0] || "";
   const uf = estados[0] || "";
-  const nicho = cnaeCodes.find((c) => CNAE_TO_NICHO[c]) ? "solar" : undefined;
+  const nicho = cnaeCodes.length > 0 ? (CNAE_TO_NICHO[cnaeCodes[0]] || undefined) : undefined;
   const filtro = (text || "").trim();
 
   const [state, setState] = useState<{ companies: Company[]; loading: boolean; total: number }>({
@@ -88,23 +88,28 @@ export function useImportedLeads(args: UseImportedLeadsArgs): UseImportedLeadsRe
     try {
       setState((s) => ({ ...s, loading: true }));
       let rows: any[] = [];
+      
+      const res = await listImportedLeads({ 
+        data: { 
+          cidade, 
+          uf, 
+          nicho, 
+          jobId, 
+          page: 1, 
+          pageSize: 2000 // Aumentado para 2 mil conforme solicitado
+        } 
+      });
+      rows = res.rows ?? [];
+
       if (filtro.length >= 2) {
-        const { data, error } = await supabase.rpc("buscar_empresas" as never, {
-          filtro,
-        } as never);
-        if (error) throw error;
-        rows = (data as any[]) ?? [];
-        if (cidade) rows = rows.filter((r) => (r.cidade || "").toLowerCase().includes(cidade.toLowerCase()));
-        if (uf) rows = rows.filter((r) => (r.uf || "").toUpperCase() === uf.toUpperCase());
-      } else {
-        const res = await listImportedLeads({ data: { cidade, uf, nicho, jobId, page: 1, pageSize: 100 } });
-        rows = res.rows ?? [];
-        const companies = adapt(rows);
-        setState({ companies, loading: false, total: res.total ?? companies.length });
-        return; // Early return for the else branch
+        rows = rows.filter(r => {
+          const hay = `${r.nome} ${r.cnpj} ${r.cidade} ${r.uf} ${r.atividade} ${r.nicho}`.toLowerCase();
+          return hay.includes(filtro.toLowerCase());
+        });
       }
+
       const companies = adapt(rows);
-      setState({ companies, loading: false, total: companies.length });
+      setState({ companies, loading: false, total: res.total || companies.length });
     } catch (err) {
       logger.error("Failed to load imported leads", err instanceof Error ? err : undefined, {
         cidade,

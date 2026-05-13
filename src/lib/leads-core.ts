@@ -94,6 +94,7 @@ export interface StandardLead {
   nicho: string;
   source: string;
   confidence_score: number;
+  socios?: any[] | null;
   raw?: any;
 }
 
@@ -167,7 +168,7 @@ export function normalizeLead(lead: Partial<StandardLead>): StandardLead {
     normalized.identity_hash = `tel:${cleanPhone}`;
   } else {
     const hashPayload = `${normalized.nome.toLowerCase()}|${(normalized.cidade || "").toLowerCase()}`;
-    normalized.identity_hash = `name_city:${hashPayload}`;
+    normalized.identity_hash = `name_city:${hashPayload.replace(/[^a-z0-9|]/g, '')}`;
   }
 
   const { score } = calculateConfidenceScore(normalized);

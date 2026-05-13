@@ -1,5 +1,9 @@
 import { useCallback, useState, useRef, useEffect } from "react";
-import { Upload, FileUp, Loader2, CheckCircle2, AlertCircle, FileText, LayoutList, ClipboardPaste, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { 
+  Upload, FileUp, Loader2, CheckCircle2, AlertCircle, FileText, 
+  LayoutList, ClipboardPaste, X, ArrowRight, ShieldCheck, ShieldAlert 
+} from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -35,14 +39,17 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("");
   const [eta, setEta] = useState<number | null>(null);
-  const [jobStats, setJobStats] = useState<{ success: number; failed: number; total: number; duplicates: number } | null>(null);
+  const [jobStats, setJobStats] = useState<{ success: number; failed: number; total: number; duplicates: number; errors?: any[] } | null>(null);
   const [previewLeads, setPreviewLeads] = useState<any[]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [errorHint, setErrorHint] = useState<string | null>(null);
+  const [parserErrors, setParserErrors] = useState<any[]>([]);
   const [existingCount, setExistingCount] = useState<number | null>(null);
   const [validation, setValidation] = useState<Extract<CsvValidationResult, { valid: true }> | null>(null);
+
+  const router = useRouter();
 
   const resetState = useCallback(() => {
     setFile(null);
@@ -55,6 +62,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     setStatusText("");
     setErrorDetails(null);
     setErrorHint(null);
+    setParserErrors([]);
     setExistingCount(null);
     setValidation(null);
   }, []);
@@ -106,9 +114,9 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
       }),
     );
     
-    // Quick Duplicate Check (first 20 rows)
+    // Comprehensive Duplicate Check
     try {
-      const sampleLeads = result.previewRows.map((cols) => {
+      const allLeads = result.previewRows.map((cols) => {
         const obj: any = {};
         result.headers.forEach((h, i) => (obj[h] = cols[i] ?? ""));
         return normalizeLead({
@@ -117,13 +125,33 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
           cnpj: obj.cnpj
         });
       });
-      const hashes = sampleLeads.map(l => l.identity_hash).filter((h): h is string => !!h);
-      if (hashes.length > 0) {
-        const { existingCount: count } = await checkExistingLeads({ data: { hashes } });
-        setExistingCount(count);
+      
+      const hashes = allLeads.map(l => l.identity_hash).filter((h): h is string => !!h);
+      const cnpjs = allLeads.map(l => l.cnpj).filter(c => c && !c.startsWith("TEMP:"));
+      const phones = allLeads.map(l => l.telefone).filter((p): p is string => !!p);
+
+      if (hashes.length > 0 || cnpjs.length > 0 || phones.length > 0) {
+        // Chunk to avoid too large query parameters
+        const chunkSize = 50;
+        let totalExisting = 0;
+        for (let i = 0; i < Math.max(hashes.length, cnpjs.length, phones.length); i += chunkSize) {
+          const chunkHashes = hashes.slice(i, i + chunkSize);
+          const chunkCnpjs = cnpjs.slice(i, i + chunkSize);
+          const chunkPhones = phones.slice(i, i + chunkSize);
+          
+          const { existingCount: count } = await checkExistingLeads({ 
+            data: { 
+              hashes: chunkHashes,
+              cnpjs: chunkCnpjs,
+              phones: chunkPhones
+            } 
+          });
+          totalExisting += count;
+        }
+        setExistingCount(totalExisting);
       }
     } catch (e) {
-      console.warn("Dedupe pre-check failed", e);
+      console.warn("Dedupe check failed", e);
     }
 
     if (result.warnings.length > 0) {
@@ -149,15 +177,21 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     
     setLoading(true);
     setErrorDetails(null);
-    setStatusText("Processando...");
+    setStatusText("Analisando arquivo...");
     
     try {
       const text = file ? await file.text() : pastedText;
       const result = await importLeadsCsv({ data: { csv: text, nicho } });
       const leads = result.leads;
+      
+      // Store parser errors for display
+      if (result.errors && result.errors.length > 0) {
+        setParserErrors(result.errors);
+      }
 
       if (leads.length === 0) {
-        throw new Error("Nenhum lead válido encontrado no arquivo.");
+        const firstError = result.errors?.[0]?.reason || "Nenhum lead válido encontrado no arquivo.";
+        throw new Error(firstError);
       }
 
       setStatusText(`Iniciando importação de ${leads.length} leads...`);
@@ -170,7 +204,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
         } 
       });
 
-      let currentChunkSize = 50;
+      let currentChunkSize = 200; // Aumentado para otimizar importações de mais de 2k leads
       let totalProcessed = 0;
       
       for (let i = 0; i < leads.length; i += currentChunkSize) {
@@ -194,8 +228,11 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
 
     } catch (e: any) {
       console.error("Import error:", e);
-      setErrorDetails(e?.message || "Não foi possível ler o arquivo CSV. Verifique o formato e tente novamente.");
-      toast.error("Falha na importação");
+      const errorMsg = e?.message || "Não foi possível ler o arquivo CSV. Verifique o formato e tente novamente.";
+      setErrorDetails(errorMsg);
+      // Ensure the error is visible to the user even if they are in the "loading" state
+      setStatusText(`Erro: ${errorMsg}`);
+      toast.error("Falha na importação", { description: errorMsg });
     } finally {
       setLoading(false);
     }
@@ -316,7 +353,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                      <div className="flex-1">
                        <p className="text-xs font-bold text-blue-900 uppercase">Aviso de Duplicados</p>
                        <p className="text-[10px] text-blue-800/80 leading-relaxed">
-                         Detectamos que <strong>{existingCount} dos {previewLeads.length}</strong> primeiros leads já existem na base. 
+                         Detectamos que <strong>{existingCount} dos {rowCount}</strong> leads já existem na base. 
                          Eles serão atualizados automaticamente durante a importação.
                        </p>
                      </div>
@@ -444,16 +481,45 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
             {loading && (
               <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-8 animate-pulse">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-bold flex items-center gap-3 text-primary">
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className={cn(
+                    "text-sm font-bold flex items-center gap-3",
+                    errorDetails ? "text-destructive" : "text-primary"
+                  )}>
+                    {errorDetails ? (
+                      <AlertCircle className="h-5 w-5" />
+                    ) : (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    )}
                     {statusText}
                   </span>
-                  <span className="text-sm font-black text-primary">{progress}%</span>
+                  <span className={cn(
+                    "text-sm font-black",
+                    errorDetails ? "text-destructive" : "text-primary"
+                  )}>{progress}%</span>
                 </div>
-                <Progress value={progress} className="h-3" />
-                <p className="text-[11px] text-center text-muted-foreground italic">
-                  Aguarde enquanto processamos os dados. Isso pode levar alguns segundos.
-                </p>
+                <Progress value={progress} className={cn("h-3", errorDetails && "bg-destructive/20")} />
+                {errorDetails ? (
+                  <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20 mt-4">
+                    <p className="text-xs text-destructive font-semibold mb-1">Detalhes do erro:</p>
+                    <p className="text-[11px] text-destructive leading-relaxed">{errorDetails}</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-3 w-full h-8 text-[10px] border-destructive/30 hover:bg-destructive/10"
+                      onClick={() => {
+                        setLoading(false);
+                        setErrorDetails(null);
+                        setProgress(0);
+                      }}
+                    >
+                      Tentar Novamente
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-center text-muted-foreground italic">
+                    Aguarde enquanto processamos os dados. Isso pode levar alguns segundos.
+                  </p>
+                )}
               </div>
             )}
 
@@ -481,6 +547,42 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                     </div>
                   ))}
                 </div>
+
+                {/* Parser Errors Rescuing Section */}
+                {parserErrors.length > 0 && (
+                  <div className="mt-4 space-y-3 bg-white p-4 rounded-xl border border-destructive/20 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      <h5 className="text-xs font-black uppercase text-destructive tracking-tight">Falhas Detectadas no Parser ({parserErrors.length})</h5>
+                    </div>
+                    <ScrollArea className="h-[120px] pr-2">
+                      <div className="space-y-2">
+                        {parserErrors.slice(0, 50).map((err, idx) => (
+                          <div key={idx} className="p-2 rounded bg-destructive/5 border border-destructive/10 text-[10px]">
+                            <div className="flex justify-between font-bold text-destructive mb-1">
+                              <span>Linha {err.line}</span>
+                              <span className="opacity-70">{err.reason}</span>
+                            </div>
+                            <code className="block truncate opacity-60 font-mono bg-white/50 p-1 rounded">{err.content}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 text-[10px] h-7 gap-1 border-destructive/20 text-destructive hover:bg-destructive/5"
+                        onClick={() => {
+                          onOpenChange(false);
+                          router.navigate({ to: "/agenda/ops", search: { tab: 'auditoria' } });
+                        }}
+                      >
+                        <ShieldAlert className="h-3 w-3" /> Abrir Painel de Auditoria
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 <Button variant="outline" className="w-full font-bold h-12" onClick={() => onOpenChange(false)}>
                   Fechar e Ver Leads

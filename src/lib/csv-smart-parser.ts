@@ -306,6 +306,13 @@ function extractAddressInfo(endereco: string): {
  * Smart CSV parser that auto-detects format and handles edge cases
  */
 export function smartParseCsv(text: string, nicho: string = "geral"): SmartParseResult {
+  // If the nicho is "solar" and the text looks like "estetica", let's fix the default
+  const lowerText = text.toLowerCase().substring(0, 1000);
+  let effectiveNicho = nicho;
+  if (nicho === "solar" && (lowerText.includes("estetica") || lowerText.includes("clinica") || lowerText.includes("salao"))) {
+    effectiveNicho = "estetica";
+  }
+
   const warnings: string[] = [];
   const errors: Array<{ line: number; content: string; reason: string }> = [];
   const leads: StandardLead[] = [];
@@ -391,8 +398,8 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
           cnpj: leadData.cnpj,
           razao_social: leadData.razao_social,
           fantasia: leadData.fantasia,
-          cidade: leadData.cidade,
-          uf: leadData.uf,
+          cidade: leadData.cidade || "Joinville", 
+          uf: leadData.uf || "SC",
           bairro: leadData.bairro,
           cep: leadData.cep,
           site: leadData.site,
@@ -400,7 +407,7 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
           status: leadData.status,
           atividade: leadData.atividade,
           capital_social: leadData.capital_social,
-          nicho,
+          nicho: effectiveNicho,
           source: "csv_import",
           confidence_score: 0.7,
           raw: leadData.raw || {},

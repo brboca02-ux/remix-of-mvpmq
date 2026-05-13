@@ -74,6 +74,7 @@ export interface Company {
   discardReason?: string;
   leadOperationStatus?: string;
   instagramHandle?: string;
+  is_enriched?: boolean;
 }
 
 export interface CompanyFilter {

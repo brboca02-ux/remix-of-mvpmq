@@ -1,6 +1,6 @@
 // @ts-nocheck
- import { createServerFn } from "@tanstack/react-start";
- import { internalEnqueueJob, internalUpdateJobStatus } from "@/lib/jobs.server";
+import { createServerFn } from "@tanstack/react-start";
+import { internalEnqueueJob, internalUpdateJobStatus } from "@/lib/jobs.server";
 import { normalizeLead, type StandardLead } from "@/lib/leads-shared";
 import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
 import { logger as Logger } from "@/lib/logger";
@@ -62,26 +62,84 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
 
     const { data: job } = await supabase.from("lead_import_jobs").select("*").eq("id", data.job_id).single();
 
-    const CHUNK_SIZE_LIMIT = 20; // Reduzido para evitar timeouts de rede
+    const CHUNK_SIZE_LIMIT = 100; // Aumentado para lidar melhor com listas grandes (>2k) sem fragmentar demais
     for (let i = 0; i < data.leads.length; i += CHUNK_SIZE_LIMIT) {
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
+
+      // Deduplicação intra-chunk e saneamento de identity_hash
+      const seen = new Set<string>();
+      const uniqueLeads = currentLeads.map(l => normalizeLead(l)).filter(l => {
+        if (!l.identity_hash) return true;
+        if (seen.has(l.identity_hash)) {
+          duplicateCount++;
+          return false;
+        }
+        seen.add(l.identity_hash);
+        return true;
+      });
+
+      // Inteligência de Enriquecimento: Busca leads existentes para mesclar dados
+      const hashes = uniqueLeads.map(l => l.identity_hash).filter(Boolean);
+      const { data: existingLeads } = await supabase.from("leads_import")
+        .select("*")
+        .in("identity_hash", hashes.length ? hashes : ['_non_existent_']);
       
-      // Batch upsert leads para maior performance e menos requests
+      const existingMap = new Map(existingLeads?.map(l => [l.identity_hash, l]) || []);
+
+      const leadsToUpsert = uniqueLeads.map(incoming => {
+        const existing = existingMap.get(incoming.identity_hash);
+        if (!existing) {
+          const { id: _, created_at: __, updated_at: ___, ...cleanIncoming } = incoming as any;
+          return { 
+            ...cleanIncoming, 
+            raw: { ...(cleanIncoming.raw || {}), job_id: data.job_id } 
+          };
+        }
+
+        // Enriquecimento Inteligente: Preenche apenas o que está vazio
+        const merged = { ...existing };
+        let enrichedCount = 0;
+        
+        const fieldsToEnrich = [
+          'telefone', 'email', 'site', 'instagram_handle', 'cidade', 'uf', 
+          'bairro', 'cep', 'logradouro', 'numero', 'complemento', 
+          'cnpj', 'razao_social', 'atividade', 'porte', 'nicho'
+        ];
+
+        fieldsToEnrich.forEach(field => {
+          if (incoming[field] && (!existing[field] || existing[field] === '')) {
+             merged[field] = incoming[field];
+             enrichedCount++;
+          }
+        });
+
+        // Atualiza metadados de enriquecimento
+        return { 
+          ...merged, 
+          raw: { 
+            ...(merged.raw || {}), 
+            last_job_id: data.job_id,
+            enriched_fields_count: (merged.raw?.enriched_fields_count || 0) + enrichedCount,
+            last_enrichment_at: now
+          } 
+        };
+      });
+
       const { data: upserted, error: upsertError } = await supabase.from("leads_import").upsert(
-        currentLeads.map(lead => ({
-          ...lead,
-          raw: { ...(lead.raw || {}), job_id: data.job_id }
-        })), 
+        leadsToUpsert.map(l => {
+          const { id, created_at, updated_at, ...clean } = l as any;
+          return clean;
+        }), 
         { onConflict: "identity_hash", ignoreDuplicates: false }
       ).select("id, created_at, identity_hash, source, confidence_score");
 
       if (upsertError) {
-        logger.error('Batch upsert failed', upsertError, { batchSize: currentLeads.length });
+        logger.error('Batch upsert with enrichment failed', upsertError, { batchSize: currentLeads.length });
         failedCount += currentLeads.length;
         upsertError.message && errors.push({ 
           job_id: data.job_id, 
           error_message: upsertError.message, 
-          raw_payload: { count: currentLeads.length } 
+          raw_payload: { count: currentLeads.length, first_lead: currentLeads[0]?.nome } 
         });
         continue;
       }
@@ -126,7 +184,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
         sourceStats[src] = (sourceStats[src] || 0) + 1;
       }
     }
-    if (errors.length > 0) await supabase.from("lead_import_errors").insert(errors);
+    if (errors.length > 0) {
+      await supabase.from("lead_import_errors").insert(errors);
+      failedCount += errors.length;
+    }
 
      if (job) {
        const isFinished = ((job.processed_rows || 0) + data.leads.length) >= (job.total_rows || 0) || data.is_sampling;
@@ -194,7 +255,9 @@ export const getActiveImportJobs = createServerFn({ method: "GET" })
 export const importLeadsCsv = createServerFn({ method: "POST" })
   .inputValidator((input: { csv: string; nicho?: string }) => input)
   .handler(async ({ data }) => {
-    return { leads: parseUniversalCsv(data.csv, data.nicho) };
+    const result = parseUniversalCsv(data.csv, data.nicho);
+    // parseUniversalCsv now returns { leads, errors, ... } because it uses smartParseCsv
+    return result;
   });
 
 /**
@@ -296,15 +359,18 @@ export const listImportedLeads = createServerFn({ method: "GET" })
   }) => input)
   .handler(async ({ data }) => {
     const supabase = getSupabase;
-    const page = data.page || 1, pageSize = data.pageSize || 20;
+    const page = data.page || 1, pageSize = data.pageSize || 2000;
     const from = (page - 1) * pageSize, to = from + pageSize - 1;
     let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
     
-    if (data.cidade) q = q.ilike("cidade", `%${data.cidade}%`);
-    if (data.uf) q = q.eq("uf", data.uf);
-    if (data.nicho) q = q.eq("nicho", data.nicho);
-    if (data.jobId) {
-      q = q.filter("raw->>job_id", "eq", data.jobId);
+    // Filtros de importação e saneamento
+    if (data.jobId && data.jobId !== "") {
+      q = q.or(`raw->>job_id.eq.${data.jobId},raw->>last_job_id.eq.${data.jobId}`);
+    } else {
+      // Se não houver jobId, aplica filtros geográficos/nicho normalmente
+      if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
+      if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
+      if (data.nicho && data.nicho !== "") q = q.eq("nicho", data.nicho);
     }
     if (data.contactStatus && data.contactStatus.length > 0) {
       q = q.in("followup_status", data.contactStatus);
@@ -316,13 +382,29 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     }
     
     const { data: rows, count } = await q;
-    return { rows: (rows || []).map(r => ({ ...r, score: r.confidence_score })), total: count || 0, page, pageSize };
+    return { 
+      rows: (rows || []).map(r => ({ 
+        ...r, 
+        score: r.confidence_score,
+        // Adicionando flags de enriquecimento para a UI
+        is_enriched: !!r.last_enriched_at || (r.raw?.enriched_fields_count > 0),
+        socios: r.socios || []
+      })), 
+      total: count || 0, 
+      page, 
+      pageSize 
+    };
   });
 
 export const updateLeadOperation = createServerFn({ method: "POST" })
   .inputValidator((input: { 
     lead_id: string; 
     updates: {
+      cnpj?: string;
+      nome?: string;
+      telefone?: string;
+      email?: string;
+      site?: string;
       followup_status?: string;
       last_contact_at?: string;
       next_followup_at?: string;
@@ -524,12 +606,70 @@ export const recoverStuckJobs = createServerFn({ method: "POST" })
   });
 
 export const checkExistingLeads = createServerFn({ method: "POST" })
-  .inputValidator((input: { hashes: string[] }) => input)
+  .inputValidator((input: { hashes?: string[]; cnpjs?: string[]; phones?: string[]; }) => input)
   .handler(async ({ data }) => {
-    if (!data.hashes.length) return { existingCount: 0 };
-    const { count } = await getSupabase
-      .from("leads_import")
-      .select("*", { count: "exact", head: true })
-      .in("identity_hash", data.hashes);
+    const supabase = getSupabase;
+    const { hashes = [], cnpjs = [], phones = [] } = data;
+    
+    if (!hashes.length && !cnpjs.length && !phones.length) return { existingCount: 0 };
+    
+    let q = supabase.from("leads_import").select("id", { count: "exact", head: true });
+    
+    const conditions = [];
+    if (hashes.length) {
+      // Escape parentheses for PostgREST .or() filter
+      const escapedHashes = hashes.map(h => h.replace(/[()]/g, '\\$&'));
+      conditions.push(`identity_hash.in.(${escapedHashes.join(',')})`);
+    }
+    if (cnpjs.length) {
+      const cleanCnpjs = cnpjs.map(c => c.replace(/\D/g, '')).filter(c => c.length === 14);
+      if (cleanCnpjs.length) conditions.push(`cnpj.in.(${cleanCnpjs.join(',')})`);
+    }
+    if (phones.length) {
+      const cleanPhones = phones.map(p => p.replace(/\D/g, '')).filter(p => p.length >= 10);
+      if (cleanPhones.length) conditions.push(`telefone.in.(${cleanPhones.join(',')})`);
+    }
+    
+    if (conditions.length === 0) return { existingCount: 0 };
+    
+    const { count, error } = await q.or(conditions.join(','));
+    
+    if (error) {
+       // Fallback to identity_hash only if OR query fails (e.g. too complex)
+       const { count: fallbackCount } = await supabase
+         .from("leads_import")
+         .select("id", { count: "exact", head: true })
+         .in("identity_hash", hashes);
+       return { existingCount: fallbackCount || 0 };
+    }
+    
     return { existingCount: count || 0 };
+  });
+
+export const listImportErrors = createServerFn({ method: "GET" })
+  .inputValidator((input: { job_id?: string; limit?: number }) => input)
+  .handler(async ({ data }) => {
+    const supabase = getSupabase;
+    let q = supabase.from("lead_import_errors").select("*").order("created_at", { ascending: false });
+    if (data.job_id) q = q.eq("job_id", data.job_id);
+    if (data.limit) q = q.limit(data.limit);
+    
+    const { data: errors } = await q;
+    return errors || [];
+  });
+
+export const deleteImportError = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const { error } = await getSupabase.from("lead_import_errors").delete().eq("id", data.id);
+    if (error) throw error;
+    return { success: true };
+  });
+
+export const updateLeadManual = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string; updates: Partial<StandardLead> }) => input)
+  .handler(async ({ data }) => {
+    const { error } = await getSupabase.from("leads_import").update(data.updates as any).eq("id", data.id);
+    if (error) throw error;
+    return { success: true };
   });

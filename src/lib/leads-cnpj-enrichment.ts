@@ -49,6 +49,7 @@ export async function getCnpjPublicData(cnpj: string): Promise<Partial<StandardL
         uf: data.uf,
         cnae_principal: String(data.cnae_fiscal),
         status: data.descricao_situacao_cadastral,
+        socios: data.qsa || [],
         source: "brasil_api"
       };
     }
@@ -146,6 +147,7 @@ export async function processCnpjEnrichment(leadId: string, cnpj: string) {
     uf: newData.uf || currentLead?.uf,
     cnae_principal: newData.cnae_principal || currentLead?.cnae_principal,
     status: newData.status || currentLead?.status,
+    socios: newData.socios || currentLead?.socios || [],
     last_enriched_at: new Date().toISOString()
   }).eq("id", leadId);
 }

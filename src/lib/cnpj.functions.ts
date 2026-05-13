@@ -330,7 +330,7 @@ export const lookupCnpj = createServerFn({ method: "POST" })
           },
           telefone: "",
           email: "",
-          socios: [],
+          socios: localData.socios || [],
           fonte: localData.source === "receita_federal_local" ? "OpenCNPJ" : (localData.source === "brasil_api" ? "BrasilAPI" : "ReceitaWS") as any
         };
         await setApiCacheData(api_key, details.fonte, details);
