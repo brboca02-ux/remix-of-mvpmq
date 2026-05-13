@@ -33,7 +33,7 @@ function adapt(rows: any[]): Company[] {
     email: r.email ?? undefined,
     telefone: r.telefone ?? undefined,
     site: r.site ?? undefined,
-    status: (r.status || "").toLowerCase().includes("ativ") || !r.status ? "ativa" : "inativa",
+    status: (r.status || "").toLowerCase().includes("ativ") || !r.status || r.status === "unknown" ? "ativa" : "inativa",
     faturamentoEstimado: 0,
     funcionarios: 0,
     capitalSocial: Number(r.capital_social) || 0,
