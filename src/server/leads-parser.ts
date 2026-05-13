@@ -108,10 +108,11 @@ export function parseUniversalCsv(text: string, nicho = "geral"): StandardLead[]
   const smartResult = smartParseCsv(text, nicho);
   
   if (smartResult.leads.length > 0) {
-    return smartResult.leads;
+    // IMPORTANTE: Sempre normalizar os leads vindos do smart parser para garantir CNPJ (TEMP:) e identity_hash
+    return smartResult.leads.map(lead => normalizeLead(lead));
   }
   
-  // Fallback to original parser for simple cases
+  // Fallback to original parser for simple cases (já normaliza internamente)
   return parseSimpleCsv(text, nicho);
 }
 
