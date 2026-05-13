@@ -41,7 +41,7 @@ import { whatsappLink } from "@/lib/whatsapp";
 import { generateCreative } from "@/server/creative-engine.functions";
 import { cn } from "@/lib/utils";
 import type { Company } from "@/lib/company-types";
-import { getSupabase } from "@/server/leads-core";
+import { supabase } from "@/integrations/supabase/client";
 import type { ProspectLead } from "@/modules/prospecting/types";
 import { useFollowupStore } from "@/modules/followup/followup-store";
 
@@ -126,7 +126,6 @@ export function CompanyDetailDialog({
   const { data: leadAnalysis } = useQuery({
     queryKey: ['lead-analysis', company?.id],
     queryFn: async () => {
-      const supabase = getSupabase();
       const { data } = await supabase
         .from("leads_analysis")
         .select("*")
