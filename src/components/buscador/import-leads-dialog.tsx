@@ -56,6 +56,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     setStatusText("");
     setErrorDetails(null);
     setErrorHint(null);
+    setParserErrors([]);
     setExistingCount(null);
     setValidation(null);
   }, []);
