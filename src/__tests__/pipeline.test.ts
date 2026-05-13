@@ -2,7 +2,7 @@ import { expect, test, describe } from "vitest";
 import { 
   innerDetectWeakDigitalPresence, 
   innerGenerateSalesMessage 
-} from "../server/cnpj.functions";
+} from "../lib/cnpj.functions";
 
 describe("Pipeline de Vendas e Presença Digital", () => {
   
