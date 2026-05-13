@@ -9,6 +9,15 @@ vi.mock("@/lib/make-integration.functions", () => ({
   sendLeadToMake: vi.fn(),
 }));
 
+vi.mock("@/lib/leads-import.functions", () => ({
+  updateLeadOperation: vi.fn(),
+}));
+
+vi.mock("@/lib/ai-learning.functions", () => ({
+  recordLearningAction: vi.fn(),
+  analyzeUserStyle: vi.fn(),
+}));
+
 // Mock useServerFn and createServerFn
 vi.mock("@tanstack/react-start", () => ({
   useServerFn: (fn: any) => fn,
