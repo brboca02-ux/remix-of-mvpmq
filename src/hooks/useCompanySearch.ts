@@ -53,7 +53,7 @@ export function useCompanySearch(
     };
     const out = companies.filter((c) => {
       if (filter.onlyAtivas && c.status !== "ativa") return false;
-      if (filter.cnaeCodes.length && !filter.cnaeCodes.includes(c.cnaeCode)) return false;
+      if (filter.cnaeCodes.length && !filter.cnaeCodes.includes(c.cnaeCode) && !filter.cnaeCodes.some(code => c.sector?.toLowerCase().includes(code.toLowerCase()))) return false;
       if (filter.portes.length && !filter.portes.includes(c.porte)) return false;
       if (filter.estados.length && !filter.estados.includes(c.estado)) return false;
       if (filter.cidades.length && !filter.cidades.includes(c.cidade)) return false;
