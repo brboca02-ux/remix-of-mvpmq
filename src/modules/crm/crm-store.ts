@@ -295,29 +295,79 @@ export const useCRMStore = create<CRMState>()(
           set({ pipelineLoading: true });
           logger.debug('Loading pipeline statistics');
           
-          // TODO: Integrate with Supabase
-          // For now, return mock data
-          const mockStats: PipelineStatistics = {
-            byStage: {
-              novo: { count: 10, value: 50000, conversionRate: 0.3 },
-              contato: { count: 8, value: 40000, conversionRate: 0.5 },
-              respondeu: { count: 5, value: 25000, conversionRate: 0.6 },
-              proposta: { count: 3, value: 15000, conversionRate: 0.7 },
-              fechado: { count: 2, value: 10000, conversionRate: 1.0 },
-            },
-            totalLeads: 28,
-            totalValue: 140000,
-            conversionRate: 0.071,
-            avgDealSize: 5000,
-            winRate: 0.4,
+          // Buscar dados reais do Supabase
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { data: leads, error } = await supabase
+            .from('leads_import')
+            .select('status, opportunity_score, estimated_value')
+            .limit(1000);
+          
+          if (error) {
+            logger.warn('Failed to load pipeline stats from Supabase, using local data', { error });
+            set({ pipelineLoading: false });
+            return;
+          }
+          
+          // Calcular stats reais
+          const byStage: Record<string, { count: number; value: number }> = {
+            novo: { count: 0, value: 0 },
+            contato: { count: 0, value: 0 },
+            respondeu: { count: 0, value: 0 },
+            proposta: { count: 0, value: 0 },
+            fechado: { count: 0, value: 0 },
           };
           
-          set({ pipelineStats: mockStats, pipelineLoading: false });
-          logger.debug('Pipeline statistics loaded', { stats: mockStats });
+          const statusToStage: Record<string, string> = {
+            'Novo': 'novo',
+            'Lead Gerado': 'novo',
+            'Qualificado': 'contato',
+            'Contatado': 'contato',
+            'Cold Mail Enviado': 'contato',
+            'WhatsApp Enviado': 'contato',
+            'Instagram Enviado': 'contato',
+            'LinkedIn Enviado': 'contato',
+            'Follow-Up': 'respondeu',
+            'Interessado': 'respondeu',
+            'Em Diagnóstico': 'proposta',
+            'Proposta Enviada': 'proposta',
+            'Agendado': 'proposta',
+            'Lead Fechado': 'fechado',
+          };
+          
+          let totalValue = 0;
+          (leads || []).forEach((lead) => {
+            const stage = statusToStage[lead.status || 'Novo'] || 'novo';
+            if (byStage[stage]) {
+              byStage[stage].count++;
+              const value = lead.estimated_value || 0;
+              byStage[stage].value += value;
+              totalValue += value;
+            }
+          });
+          
+          const totalLeads = leads?.length || 0;
+          const closedCount = byStage.fechado.count;
+          
+          const realStats: PipelineStatistics = {
+            byStage: {
+              novo: { count: byStage.novo.count, value: byStage.novo.value, conversionRate: totalLeads > 0 ? byStage.contato.count / totalLeads : 0 },
+              contato: { count: byStage.contato.count, value: byStage.contato.value, conversionRate: byStage.contato.count > 0 ? byStage.respondeu.count / byStage.contato.count : 0 },
+              respondeu: { count: byStage.respondeu.count, value: byStage.respondeu.value, conversionRate: byStage.respondeu.count > 0 ? byStage.proposta.count / byStage.respondeu.count : 0 },
+              proposta: { count: byStage.proposta.count, value: byStage.proposta.value, conversionRate: byStage.proposta.count > 0 ? closedCount / byStage.proposta.count : 0 },
+              fechado: { count: closedCount, value: byStage.fechado.value, conversionRate: 1.0 },
+            },
+            totalLeads,
+            totalValue,
+            conversionRate: totalLeads > 0 ? closedCount / totalLeads : 0,
+            avgDealSize: closedCount > 0 ? byStage.fechado.value / closedCount : 0,
+            winRate: totalLeads > 0 ? closedCount / totalLeads : 0,
+          };
+          
+          set({ pipelineStats: realStats, pipelineLoading: false });
+          logger.debug('Pipeline statistics loaded from Supabase', { totalLeads });
         } catch (error) {
           logger.error('Failed to load pipeline statistics', error as Error);
           set({ pipelineLoading: false });
-          throw error;
         }
       },
       

@@ -166,11 +166,10 @@ const CRMPage: React.FC = () => {
   };
 
   const handleBulkProposal = () => {
-    toast.info(`Iniciando geração de proposta para ${selectedLeadIds.length} leads...`);
-    setTimeout(() => {
-      toast.success(`Propostas enviadas com sucesso para ${selectedLeadIds.length} leads!`);
-      setSelectedLeadIds([]);
-    }, 2000);
+    toast.info(`Geração de propostas em massa será implementada em breve.`, {
+      description: `${selectedLeadIds.length} leads selecionados. Funcionalidade em desenvolvimento.`,
+      icon: '🚧',
+    });
   };
 
   const handleFilterChange = (type: string, value: any) => {
@@ -255,9 +254,11 @@ const CRMPage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black">{totalLeads}</div>
-            <div className="flex items-center gap-1 mt-1 text-[10px] text-emerald-500 font-bold bg-emerald-500/10 w-fit px-2 py-0.5 rounded-full">
-              <TrendingUp className="h-3 w-3" /> +12% este mês
-            </div>
+            {totalLeads > 0 && (
+              <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground font-medium bg-muted w-fit px-2 py-0.5 rounded-full">
+                Total no pipeline
+              </div>
+            )}
           </CardContent>
         </Card>
 

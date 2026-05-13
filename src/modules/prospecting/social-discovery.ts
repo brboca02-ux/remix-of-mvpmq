@@ -1,11 +1,17 @@
 import { ProspectLead, SocialDiscoveryData, SocialDiscoveryStatus } from './types';
 
 /**
- * Simulates a social discovery search using web queries and data matching.
- * In a real environment, this could call an enrichment API or a search tool.
+ * Social Discovery Service
+ * 
+ * NOTA: Esta é uma versão SIMULADA para demonstração.
+ * Em produção, deve ser substituída por APIs reais de enriquecimento
+ * (ex: Snov.io, Hunter.io, Apollo.io, ou scraping autorizado).
+ * 
+ * Os dados retornados são ESTIMATIVAS baseadas no nome da empresa,
+ * NÃO são dados verificados.
  */
 export const discoverSocialMedia = async (lead: ProspectLead): Promise<SocialDiscoveryData> => {
-  // Simulate API delay
+  // Simulate API delay (em produção, seria uma chamada real)
   await new Promise(resolve => setTimeout(resolve, 1500));
 
   let confidence = 0;
