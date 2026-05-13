@@ -66,9 +66,9 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
     for (let i = 0; i < data.leads.length; i += CHUNK_SIZE_LIMIT) {
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
 
-      // Deduplicação intra-chunk por identity_hash
+      // Deduplicação intra-chunk e saneamento de identity_hash
       const seen = new Set<string>();
-      const uniqueLeads = currentLeads.filter(l => {
+      const uniqueLeads = currentLeads.map(l => normalizeLead(l)).filter(l => {
         if (!l.identity_hash) return true;
         if (seen.has(l.identity_hash)) {
           duplicateCount++;
