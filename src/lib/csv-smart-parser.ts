@@ -384,7 +384,7 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
         }
         
         // Set defaults
-        const finalLead: StandardLead = {
+        const finalLead: any = {
           nome: leadData.nome,
           telefone: leadData.telefone,
           email: leadData.email,
