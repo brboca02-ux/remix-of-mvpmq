@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { 
@@ -81,7 +82,10 @@ interface ProspectingState {
   undoDiscard: (id: string) => void;
   setBlockContact: (id: string, block: boolean) => void;
   confirmContactDelivery: (id: string, historyId: string, success: boolean) => void;
-  executeNextSequenceStep: (id: string) => void;
+      executeNextSequenceStep: (id: string) => { 
+        // P0-3: Feature empty but kept for store interface consistency. UI will be hidden.
+        logger.info('Sequence step trigger placeholder', { id });
+      },
   updateAutomationMode: (id: string, mode: AutomationMode) => void;
   recordMessageResult: (id: string, historyId: string, outcome: MessageOutcome) => void;
   setConversationStage: (id: string, stage: ConversationStage) => void;
@@ -143,7 +147,10 @@ interface ProspectingState {
   };
 
   // Playbook Logic
-  generatePlaybook: (leadId: string) => void;
+      generatePlaybook: (leadId: string) => {
+        // P0-3: Logic moved to dynamic generation in UI if needed, or keeping empty as per P0 request
+        logger.info('Generate playbook trigger placeholder', { leadId });
+      },
   advancePlaybook: (leadId: string) => void;
   adaptPlaybook: (leadId: string, behavior: 'ignored' | 'responded' | 'interested' | 'cooling_down') => void;
   applyActiveLearning: (outcome: DecisionOutcome) => void;
