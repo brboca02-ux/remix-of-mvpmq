@@ -5,8 +5,9 @@ import {
   Settings, HeartPulse, Terminal, Wrench, 
   Download, Copy, Search, ShieldAlert, Lock,
   FileJson, FileSpreadsheet, CheckCircle2, XCircle,
-  Target, Instagram, Layout
+  Target, Instagram, Layout, ShieldClose
 } from "lucide-react";
+import { ImportErrorAudit } from "@/components/ops/ImportErrorAudit";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
