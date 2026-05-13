@@ -365,7 +365,8 @@ export const listImportedLeads = createServerFn({ method: "GET" })
         ...r, 
         score: r.confidence_score,
         // Adicionando flags de enriquecimento para a UI
-        is_enriched: !!r.last_enriched_at || (r.raw?.enriched_fields_count > 0)
+        is_enriched: !!r.last_enriched_at || (r.raw?.enriched_fields_count > 0),
+        socios: r.socios || []
       })), 
       total: count || 0, 
       page, 
