@@ -306,6 +306,13 @@ function extractAddressInfo(endereco: string): {
  * Smart CSV parser that auto-detects format and handles edge cases
  */
 export function smartParseCsv(text: string, nicho: string = "geral"): SmartParseResult {
+  // If the nicho is "solar" and the text looks like "estetica", let's fix the default
+  const lowerText = text.toLowerCase().substring(0, 1000);
+  let effectiveNicho = nicho;
+  if (nicho === "solar" && (lowerText.includes("estetica") || lowerText.includes("clinica") || lowerText.includes("salao"))) {
+    effectiveNicho = "estetica";
+  }
+
   const warnings: string[] = [];
   const errors: Array<{ line: number; content: string; reason: string }> = [];
   const leads: StandardLead[] = [];
