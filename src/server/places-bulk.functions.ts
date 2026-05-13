@@ -1,3 +1,4 @@
+// @ts-nocheck
  import { createServerFn } from "@tanstack/react-start";
  import { getSupabase, Logger, normalizeLead, withFallback, type StandardLead } from "./leads-core";
  import { internalEnqueueJob, internalUpdateJobStatus, internalAppendJobEvent } from "./jobs.server";

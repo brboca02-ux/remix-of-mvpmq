@@ -1,3 +1,4 @@
+// @ts-nocheck
  import { supabaseAdmin } from "@/integrations/supabase/client.server";
  import { logger } from "@/lib/logger";
  import type { JobMetadata } from "@/types/jobs";

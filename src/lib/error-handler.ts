@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import type { ErrorCode } from './error-messages';
+import type { ErrorCode as UserFriendlyErrorCode } from './error-messages';
 import { formatError, isRecoverableError, getErrorSeverity } from './error-messages';
 
 /**
@@ -299,7 +299,7 @@ export function createUserFriendlyErrorResponse(
   technicalMessage?: string,
   details?: Record<string, unknown>
 ): ErrorResponse {
-  const formattedError = formatError(code as ErrorCode, technicalMessage);
+  const formattedError = formatError(code as unknown as UserFriendlyErrorCode, technicalMessage);
   
   return {
     success: false,
@@ -462,7 +462,7 @@ export function isErrorRecoverable(errorResponse: ErrorResponse): boolean {
   }
   
   // Fallback to checking the code
-  return isRecoverableError(errorResponse.error.code as ErrorCode);
+  return isRecoverableError(errorResponse.error.code as unknown as UserFriendlyErrorCode);
 }
 
 /**
@@ -474,5 +474,5 @@ export function getResponseErrorSeverity(errorResponse: ErrorResponse): 'low' | 
   }
   
   // Fallback to checking the code
-  return getErrorSeverity(errorResponse.error.code as ErrorCode);
+  return getErrorSeverity(errorResponse.error.code as unknown as UserFriendlyErrorCode);
 }

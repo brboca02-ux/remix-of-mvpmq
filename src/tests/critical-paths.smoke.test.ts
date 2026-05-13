@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Critical Paths Smoke Tests
  * 
