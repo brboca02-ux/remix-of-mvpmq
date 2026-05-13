@@ -180,7 +180,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
         sourceStats[src] = (sourceStats[src] || 0) + 1;
       }
     }
-    if (errors.length > 0) await supabase.from("lead_import_errors").insert(errors);
+    if (errors.length > 0) {
+      await supabase.from("lead_import_errors").insert(errors);
+      failedCount += errors.length;
+    }
 
      if (job) {
        const isFinished = ((job.processed_rows || 0) + data.leads.length) >= (job.total_rows || 0) || data.is_sampling;
