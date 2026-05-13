@@ -6,7 +6,7 @@
    saveMarketResearchReport, 
    listMarketResearchReports,
    deleteMarketResearchReport
- } from "@/server/market-research.functions";
+ } from "@/lib/market-research.functions";
  import { MarketResearchInput } from "@/components/market-research/MarketResearchInput";
  import { MarketResearchResult } from "@/components/market-research/MarketResearchResult";
  import { MarketResearchEmptyState } from "@/components/market-research/MarketResearchEmptyState";
