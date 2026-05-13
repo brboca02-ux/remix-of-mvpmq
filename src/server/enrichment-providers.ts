@@ -94,7 +94,7 @@ export interface CnpjWsResult {
 export interface EnrichmentResult {
   source: string;
   success: boolean;
-  data: Record<string, unknown>;
+  data: Record<string, any>;
   confidence: number;
   timestamp: string;
   error?: string;
