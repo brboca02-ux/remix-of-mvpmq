@@ -38,7 +38,7 @@ export const syncLeadToBackend = async (lead: ProspectLead): Promise<boolean> =>
         source: lead.source || 'manual',
         confidence_score: (lead.opportunityScore || 0) / 100,
         atividade: lead.diagnosis || '',
-      } as Record<string, unknown>, { onConflict: 'id' });
+      } as never, { onConflict: 'id' });
 
     if (error) {
       logger.warn('Lead sync to leads_import failed', { error: error.message, leadId: lead.id });
