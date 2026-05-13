@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin as supabase } from "@/integrations/supabase/client.server";
-import { Logger } from "@/server/leads-core";
+import { logger as Logger } from "@/lib/logger";
 
 export interface Socio {
   nome: string;

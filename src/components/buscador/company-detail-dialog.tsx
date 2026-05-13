@@ -8,9 +8,9 @@ import {
   TrendingUp, Calendar, Layout, Save, RefreshCw, PenTool, Star, ArrowRight, FileDown,
   Instagram, ListChecks, CheckCircle, ShieldAlert, UserMinus, Ban
 } from "@/lib/icons";
-import { getLeadDataSources, updateLeadOperation } from "@/server/leads-import.functions";
+import { getLeadDataSources, updateLeadOperation } from "@/lib/leads-import.functions";
 import { lookupCnpj, searchCompanyPresence, detectWeakDigitalPresence, generateSalesMessage, generateFollowUpSequence, type CnpjDetails } from "@/lib/cnpj.functions";
-import { analyzeLeadSiteData, generateLeadSiteSections, updateLeadSiteSection, type SiteSection, type ExtractedFeatures } from "@/server/site-generator.functions";
+import { analyzeLeadSiteData, generateLeadSiteSections, updateLeadSiteSection, type SiteSection, type ExtractedFeatures } from "@/lib/site-generator.functions";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import {
@@ -32,16 +32,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { analyzePageSpeed, type PageSpeedResult } from "@/server/pagespeed.functions";
+import { analyzePageSpeed, type PageSpeedResult } from "@/lib/pagespeed.functions";
 import { computeDigitalScore, digitalLevelEmoji, digitalLevelLabel } from "@/lib/digital-score";
 import { formatCurrency } from "@/lib/format";
 import { isRealCompany } from "@/lib/real-companies";
 import { downloadVCard } from "@/lib/vcard";
 import { whatsappLink } from "@/lib/whatsapp";
-import { generateCreative } from "@/server/creative-engine.functions";
+import { generateCreative } from "@/lib/creative-engine.functions";
 import { cn } from "@/lib/utils";
 import type { Company } from "@/lib/company-types";
-import { getSupabase } from "@/server/leads-core";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
 import type { ProspectLead } from "@/modules/prospecting/types";
 import { useFollowupStore } from "@/modules/followup/followup-store";
 
@@ -126,7 +126,7 @@ export function CompanyDetailDialog({
   const { data: leadAnalysis } = useQuery({
     queryKey: ['lead-analysis', company?.id],
     queryFn: async () => {
-      const supabase = getSupabase();
+      const supabase = getSupabase;
       const { data } = await supabase
         .from("leads_analysis")
         .select("*")
