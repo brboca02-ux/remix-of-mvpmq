@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getActiveImportJobs, generateJobReport, recoverStuckJobs } from "@/server/leads-import.functions";
+import { getActiveImportJobs, generateJobReport, recoverStuckJobs } from "@/lib/leads-import.functions";
 import { toast } from "sonner";
 import { AuditLogPanel } from "@/components/ops/AuditLogPanel";
 

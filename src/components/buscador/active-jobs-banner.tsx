@@ -3,7 +3,7 @@ import { Loader2, CheckCircle2, AlertCircle, X, RefreshCw, ChevronDown, ChevronU
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { getActiveImportJobs } from "@/server/leads-import.functions";
+import { getActiveImportJobs } from "@/lib/leads-import.functions";
 import { getSupabase } from "@/server/leads-core";
 import { toast } from "sonner";
 

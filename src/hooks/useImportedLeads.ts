@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { listImportedLeads } from "@/server/leads-import.functions";
+import { listImportedLeads } from "@/lib/leads-import.functions";
 import { supabase } from "@/integrations/supabase/client";
 import type { Company, CompanyPorte } from "@/lib/company-types";
 import { logger } from "@/lib/logger";
