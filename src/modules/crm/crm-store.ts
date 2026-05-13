@@ -300,7 +300,7 @@ export const useCRMStore = create<CRMState>()(
           const { supabase } = await import('@/integrations/supabase/client');
           const { data: leads, error } = await supabase
             .from('leads_import')
-            .select('status, opportunity_score, estimated_value')
+            .select('status, confidence_score')
             .limit(1000);
           
           if (error) {
