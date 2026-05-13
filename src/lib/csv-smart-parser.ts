@@ -323,7 +323,7 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
     cleanText = cleanText.slice(1); // Remove BOM
   }
   
-  const lines = cleanText.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const lines = cleanText.split(/\r?\n|\r/).filter(l => l.trim().length > 0);
   
   if (lines.length === 0) {
     return {
