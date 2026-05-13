@@ -96,7 +96,7 @@ export function useImportedLeads(args: UseImportedLeadsArgs): UseImportedLeadsRe
           nicho, 
           jobId, 
           page: 1, 
-          pageSize: 1000 // Aumentado para ver mais leads de uma vez
+          pageSize: 2000 // Aumentado para 2 mil conforme solicitado
         } 
       });
       rows = res.rows ?? [];
