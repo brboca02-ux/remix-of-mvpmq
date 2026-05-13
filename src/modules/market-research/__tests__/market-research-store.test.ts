@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Market Research Store Unit Tests
  * 

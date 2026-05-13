@@ -77,7 +77,7 @@ export async function getCnpjPublicData(cnpj: string): Promise<Partial<StandardL
       }
     }
   } catch (err) {
-    Logger.error("ReceitaWS falhou", err);
+    Logger.error("ReceitaWS falhou", err as Error);
   }
 
   return null;
