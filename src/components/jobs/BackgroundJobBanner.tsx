@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
-import { listJobs } from "@/server/jobs.functions";
 import { JobStatusBadge, JobStatus } from "./JobStatusBadge";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ChevronUp, ChevronDown } from "lucide-react";
@@ -12,7 +10,27 @@ import { X, ChevronUp, ChevronDown } from "lucide-react";
  export function BackgroundJobBanner() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const fetchJobs = useServerFn(listJobs);
+
+  // Fetch jobs directly from Supabase client (avoids server import protection issue)
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .in('status', ['queued', 'running', 'queued_external'])
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (error) {
+        if (IS_DEBUG) console.warn("Falha ao buscar jobs:", error);
+        return [];
+      }
+      return data || [];
+    } catch (err) {
+      if (IS_DEBUG) console.error("Erro crítico ao buscar jobs:", err);
+      return [];
+    }
+  };
 
    const activeJobs = Array.isArray(jobs) ? jobs.filter(j => ['queued', 'running', 'queued_external'].includes(j.status)) : [];
 
@@ -20,28 +38,10 @@ import { X, ChevronUp, ChevronDown } from "lucide-react";
     let cancelled = false;
     const init = async () => {
       try {
-        // Busca jobs independentemente de sessão (modo single-user/dev)
-        const [runningJobs, queuedJobs, extJobs] = await Promise.all([
-           fetchJobs({ data: { status: 'running' } }).catch(err => {
-             if (IS_DEBUG) console.warn("Falha ao buscar jobs running:", err);
-             return [];
-           }),
-          fetchJobs({ data: { status: 'queued' } }).catch(err => {
-            console.warn("Falha ao buscar jobs queued:", err);
-            return [];
-          }),
-          fetchJobs({ data: { status: 'queued_external' } }).catch(err => {
-            console.warn("Falha ao buscar jobs queued_external:", err);
-            return [];
-          }),
-        ]);
+        // Busca jobs diretamente do Supabase
+        const allJobs = await fetchJobs();
         if (cancelled) return;
-        
-        // Garantia absoluta de que lidamos com arrays
-        const runningList = Array.isArray(runningJobs) ? runningJobs : [];
-        const queuedList = Array.isArray(queuedJobs) ? queuedJobs : [];
-        const extList = Array.isArray(extJobs) ? extJobs : [];
-        setJobs([...runningList, ...queuedList, ...extList]);
+        setJobs(allJobs);
        } catch (err) {
          if (IS_DEBUG) console.error("Erro crítico ao buscar jobs iniciais:", err);
          setJobs([]);
