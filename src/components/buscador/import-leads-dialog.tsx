@@ -35,12 +35,13 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("");
   const [eta, setEta] = useState<number | null>(null);
-  const [jobStats, setJobStats] = useState<{ success: number; failed: number; total: number; duplicates: number } | null>(null);
+  const [jobStats, setJobStats] = useState<{ success: number; failed: number; total: number; duplicates: number; errors?: any[] } | null>(null);
   const [previewLeads, setPreviewLeads] = useState<any[]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [errorHint, setErrorHint] = useState<string | null>(null);
+  const [parserErrors, setParserErrors] = useState<any[]>([]);
   const [existingCount, setExistingCount] = useState<number | null>(null);
   const [validation, setValidation] = useState<Extract<CsvValidationResult, { valid: true }> | null>(null);
 
