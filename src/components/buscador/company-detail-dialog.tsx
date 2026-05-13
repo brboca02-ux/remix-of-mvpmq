@@ -126,7 +126,7 @@ export function CompanyDetailDialog({
   const { data: leadAnalysis } = useQuery({
     queryKey: ['lead-analysis', company?.id],
     queryFn: async () => {
-      const supabase = getSupabase();
+      const supabase = getSupabase;
       const { data } = await supabase
         .from("leads_analysis")
         .select("*")

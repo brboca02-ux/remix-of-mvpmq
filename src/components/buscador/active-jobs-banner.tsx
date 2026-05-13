@@ -28,7 +28,7 @@ export function ActiveJobsBanner() {
   };
 
   const fetchErrors = async (jobId: string) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const { data } = await supabase
       .from("lead_import_errors")
       .select("*")
