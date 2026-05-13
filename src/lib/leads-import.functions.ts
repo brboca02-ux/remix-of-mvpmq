@@ -62,7 +62,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
 
     const { data: job } = await supabase.from("lead_import_jobs").select("*").eq("id", data.job_id).single();
 
-    const CHUNK_SIZE_LIMIT = 20; // Reduzido para evitar timeouts de rede
+    const CHUNK_SIZE_LIMIT = 100; // Aumentado para lidar melhor com listas grandes (>2k) sem fragmentar demais
     for (let i = 0; i < data.leads.length; i += CHUNK_SIZE_LIMIT) {
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
 
