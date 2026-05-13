@@ -19,7 +19,7 @@ export function removeAccents(str: string): string {
 }
 
 export function detectSeparator(text: string): string {
-  const firstLine = text.split(/\r?\n/)[0] || "";
+  const firstLine = text.split(/\r?\n|\r/)[0] || "";
   const counts = {
     ",": (firstLine.match(/,/g) || []).length,
     ";": (firstLine.match(/;/g) || []).length,

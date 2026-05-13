@@ -180,11 +180,26 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     setStatusText("Analisando arquivo...");
     
     try {
-      const text = file ? await file.text() : pastedText;
+      let text: string;
+      if (file) {
+        // Usa o mesmo método de detecção de encoding do validador
+        const buf = await file.arrayBuffer();
+        // Detecção manual básica simplificada aqui para não duplicar toda a lógica do validador, 
+        // mas idealmente deveríamos exportar o decoder
+        try {
+          text = new TextDecoder("utf-8", { fatal: true }).decode(buf);
+        } catch {
+          text = new TextDecoder("iso-8859-1").decode(buf);
+        }
+      } else {
+        text = pastedText;
+      }
+
+      if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+
       const result = await importLeadsCsv({ data: { csv: text, nicho } });
       const leads = result.leads;
       
-      // Store parser errors for display
       if (result.errors && result.errors.length > 0) {
         setParserErrors(result.errors);
       }
@@ -204,7 +219,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
         } 
       });
 
-      let currentChunkSize = 200; // Aumentado para otimizar importações de mais de 2k leads
+      let currentChunkSize = 500; // Aumentado para 500 para melhor performance em listas grandes
       let totalProcessed = 0;
       
       for (let i = 0; i < leads.length; i += currentChunkSize) {
