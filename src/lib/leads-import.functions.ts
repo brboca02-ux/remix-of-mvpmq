@@ -126,7 +126,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       });
 
       const { data: upserted, error: upsertError } = await supabase.from("leads_import").upsert(
-        leadsToUpsert, 
+        leadsToUpsert.map(l => {
+          const { id, created_at, updated_at, ...clean } = l as any;
+          return clean;
+        }), 
         { onConflict: "identity_hash", ignoreDuplicates: false }
       ).select("id, created_at, identity_hash, source, confidence_score");
 
