@@ -153,7 +153,7 @@ function parseGoogleMapsLine(line: string): Partial<StandardLead> | null {
   // Position 5+: Endereço (pode ter vírgulas)
   
   const nome = cleanParts[0]?.trim();
-  if (!nome) return null;
+  if (!nome || nome.length < 2) return null;
   
   // Position 1: phone (may be empty)
   // Position 2: rating
@@ -371,6 +371,22 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
       
       if (isGoogleMapsFormat) {
         leadData = parseGoogleMapsLine(line);
+        
+        // Fallback: se o parser Google Maps falhou, tentar extrair pelo menos o nome
+        if (!leadData) {
+          const parts = line.split(",").map(p => p.trim());
+          const nome = parts[0];
+          if (nome && nome.length > 2) {
+            // Extrair telefone se presente em qualquer posição
+            const phoneInLine = line.match(/\(\d{2,3}\)\s*[\d\s-]+/);
+            leadData = {
+              nome,
+              telefone: phoneInLine ? phoneInLine[0].trim() : undefined,
+              atividade: undefined,
+              raw: { original_line: line, parse_method: 'fallback' },
+            };
+          }
+        }
       } else if (hasHeaders && headers) {
         // Parse with headers (standard CSV)
         const cols = parseStandardLine(line, ",");
