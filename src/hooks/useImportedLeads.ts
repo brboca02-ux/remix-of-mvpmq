@@ -109,7 +109,7 @@ export function useImportedLeads(args: UseImportedLeadsArgs): UseImportedLeadsRe
       }
 
       const companies = adapt(rows);
-      setState({ companies, loading: false, total: res.total ?? companies.length });
+      setState({ companies, loading: false, total: res.total || companies.length });
     } catch (err) {
       logger.error("Failed to load imported leads", err instanceof Error ? err : undefined, {
         cidade,

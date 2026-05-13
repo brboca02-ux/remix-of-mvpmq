@@ -1,6 +1,6 @@
 // @ts-nocheck
- import { createServerFn } from "@tanstack/react-start";
- import { internalEnqueueJob, internalUpdateJobStatus } from "@/lib/jobs.server";
+import { createServerFn } from "@tanstack/react-start";
+import { internalEnqueueJob, internalUpdateJobStatus } from "@/lib/jobs.server";
 import { normalizeLead, type StandardLead } from "@/lib/leads-shared";
 import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
 import { logger as Logger } from "@/lib/logger";
@@ -66,9 +66,9 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
     for (let i = 0; i < data.leads.length; i += CHUNK_SIZE_LIMIT) {
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
 
-      // Deduplicação intra-chunk por identity_hash
+      // Deduplicação intra-chunk e saneamento de identity_hash
       const seen = new Set<string>();
-      const uniqueLeads = currentLeads.filter(l => {
+      const uniqueLeads = currentLeads.map(l => normalizeLead(l)).filter(l => {
         if (!l.identity_hash) return true;
         if (seen.has(l.identity_hash)) {
           duplicateCount++;
@@ -89,7 +89,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       const leadsToUpsert = uniqueLeads.map(incoming => {
         const existing = existingMap.get(incoming.identity_hash);
         if (!existing) {
-          const { id, created_at, updated_at, ...cleanIncoming } = incoming as any;
+          const { id: _, created_at: __, updated_at: ___, ...cleanIncoming } = incoming as any;
           return { 
             ...cleanIncoming, 
             raw: { ...(cleanIncoming.raw || {}), job_id: data.job_id } 
@@ -126,7 +126,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       });
 
       const { data: upserted, error: upsertError } = await supabase.from("leads_import").upsert(
-        leadsToUpsert, 
+        leadsToUpsert.map(l => {
+          const { id, created_at, updated_at, ...clean } = l as any;
+          return clean;
+        }), 
         { onConflict: "identity_hash", ignoreDuplicates: false }
       ).select("id, created_at, identity_hash, source, confidence_score");
 
@@ -136,7 +139,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
         upsertError.message && errors.push({ 
           job_id: data.job_id, 
           error_message: upsertError.message, 
-          raw_payload: { count: currentLeads.length } 
+          raw_payload: { count: currentLeads.length, first_lead: currentLeads[0]?.nome } 
         });
         continue;
       }
@@ -360,14 +363,15 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     const from = (page - 1) * pageSize, to = from + pageSize - 1;
     let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
     
-    // Se estiver filtrando por jobId, precisamos usar o filtro correto no JSONB
-    if (data.jobId) {
+    // Filtros de importação e saneamento
+    if (data.jobId && data.jobId !== "") {
       q = q.or(`raw->>job_id.eq.${data.jobId},raw->>last_job_id.eq.${data.jobId}`);
+    } else {
+      // Se não houver jobId, aplica filtros geográficos/nicho normalmente
+      if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
+      if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
+      if (data.nicho && data.nicho !== "") q = q.eq("nicho", data.nicho);
     }
-
-    if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
-    if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
-    if (data.nicho && data.nicho !== "") q = q.eq("nicho", data.nicho);
     if (data.contactStatus && data.contactStatus.length > 0) {
       q = q.in("followup_status", data.contactStatus);
     }
