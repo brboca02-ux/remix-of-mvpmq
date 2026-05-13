@@ -65,7 +65,19 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
     const CHUNK_SIZE_LIMIT = 20; // Reduzido para evitar timeouts de rede
     for (let i = 0; i < data.leads.length; i += CHUNK_SIZE_LIMIT) {
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
-      
+
+      // Deduplicação intra-chunk por identity_hash
+      const seen = new Set<string>();
+      const uniqueLeads = currentLeads.filter(l => {
+        if (!l.identity_hash) return true;
+        if (seen.has(l.identity_hash)) {
+          duplicateCount++;
+          return false;
+        }
+        seen.add(l.identity_hash);
+        return true;
+      });
+
       // Inteligência de Enriquecimento: Busca leads existentes para mesclar dados
       const hashes = uniqueLeads.map(l => l.identity_hash).filter(Boolean);
       const { data: existingLeads } = await supabase.from("leads_import")
