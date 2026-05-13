@@ -268,12 +268,12 @@ export function ImportErrorAudit() {
                         <div className="text-[10px] text-muted-foreground font-mono bg-muted/20 p-2 rounded border border-white/5 group-hover:border-white/10 transition-colors overflow-hidden">
                           <div className="grid grid-cols-1 gap-1">
                             {Object.entries(error.raw_payload || {}).map(([key, val], idx) => (
-                              val && typeof val === 'string' && val.length > 0 && (
+                              val && typeof val === 'string' && val.length > 0 ? (
                                 <div key={idx} className="flex gap-2">
                                   <span className="font-bold uppercase opacity-40">{key}:</span>
                                   <span className="truncate">{String(val)}</span>
                                 </div>
-                              )
+                              ) : null
                             ))}
                           </div>
                         </div>
