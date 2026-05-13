@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { importLeadsCsv, startImportJob, processImportJobChunk, generateJobReport, checkExistingLeads } from "@/server/leads-import.functions";
+import { importLeadsCsv, startImportJob, processImportJobChunk, generateJobReport, checkExistingLeads } from "@/lib/leads-import.functions";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { validateCsvFile, type CsvValidationResult } from "@/lib/csv-validator";
 import { cn } from "@/lib/utils";
-import { normalizeLeadClient } from "@/lib/lead-normalize";
+import { normalizeLead } from "@/lib/leads-shared";
 
 interface Props {
   open: boolean;
@@ -111,7 +111,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
       const sampleLeads = result.previewRows.map((cols) => {
         const obj: any = {};
         result.headers.forEach((h, i) => (obj[h] = cols[i] ?? ""));
-        return normalizeLeadClient({
+        return normalizeLead({
           nome: obj.nome || obj.razao_social || obj.fantasia || obj.empresa,
           telefone: obj.telefone || obj.tel || obj.whatsapp || obj.celular,
           cnpj: obj.cnpj

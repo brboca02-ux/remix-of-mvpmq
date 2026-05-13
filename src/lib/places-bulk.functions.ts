@@ -1,7 +1,9 @@
 // @ts-nocheck
- import { createServerFn } from "@tanstack/react-start";
- import { getSupabase, Logger, normalizeLead, withFallback, type StandardLead } from "./leads-core";
- import { internalEnqueueJob, internalUpdateJobStatus, internalAppendJobEvent } from "./jobs.server";
+import { createServerFn } from "@tanstack/react-start";
+import { normalizeLead, withFallback, type StandardLead } from "@/lib/leads-shared";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
+import { logger as Logger } from "@/lib/logger";
+import { internalEnqueueJob, internalUpdateJobStatus, internalAppendJobEvent } from "@/lib/jobs.server";
 
 const PLACES_KEY = () => process.env.GOOGLE_PLACES_API_KEY;
 
@@ -123,7 +125,7 @@ export const searchPlacesIds = createServerFn({ method: "POST" })
      };
      
      // Create a persistent job for this search
-     const supabase = getSupabase();
+     const supabase = getSupabase;
      const { data: { user } } = await supabase.auth.getUser();
      await internalEnqueueJob({
        tipo: "places_search",
@@ -141,7 +143,7 @@ export const processPlacesChunk = createServerFn({ method: "POST" })
     const key = PLACES_KEY();
     if (!key) throw new Error("API Key missing");
 
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const finalLeads: any[] = [];
     const errors: any[] = [];
 

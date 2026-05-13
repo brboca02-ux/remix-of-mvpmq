@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JobHistoryList } from "@/components/jobs/JobHistoryList";
 import { useServerFn } from "@tanstack/react-start";
-import { listActiveJobs } from "@/server/jobs.functions";
+import { listActiveJobs } from "@/lib/jobs.functions";
 import { useEffect, useState } from "react";
 import { JobProgressCard } from "@/components/jobs/JobProgressCard";
 import { Activity, History, ShieldAlert } from "lucide-react";

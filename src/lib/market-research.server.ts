@@ -1,9 +1,9 @@
 // @ts-nocheck
  import { MarketResearchReport, MarketResearchSource, MarketResearchSavedReport } from "@/types/market-research";
- import { getGoogleTrendsData } from "./market-research/providers/googleTrends.provider";
- import { getAnswerThePublicData } from "./market-research/providers/answerThePublic.provider";
- import { getCompetitorsData } from "./market-research/providers/competitors.provider";
- import { getAiSynthesis } from "./market-research/providers/lovableAi.provider";
+import { getGoogleTrendsData } from "./market-research-server/providers/googleTrends.provider";
+import { getAnswerThePublicData } from "./market-research-server/providers/answerThePublic.provider";
+import { getCompetitorsData } from "./market-research-server/providers/competitors.provider";
+import { getAiSynthesis } from "./market-research-server/providers/lovableAi.provider";
  import { supabase } from "@/integrations/supabase/client";
  import { logger } from "@/lib/logger";
  

@@ -214,7 +214,7 @@ export interface ImportErrorCreateInput {
 /**
  * Followup history item
  * Tracks followup actions and their outcomes
- * Used in: src/server/leads-import.functions.ts
+ * Used in: src/lib/leads-import.functions.ts
  */
 export interface FollowupHistoryItem {
   /** Unique identifier */

@@ -153,7 +153,7 @@ exports[`SiteFooter Snapshot > renders correctly and matches snapshot 1`] = `
             >
               <svg
                 aria-hidden="true"
-                class="lucide lucide-camera h-5 w-5"
+                class="lucide lucide-instagram h-5 w-5"
                 fill="none"
                 height="24"
                 stroke="currentColor"
@@ -164,13 +164,22 @@ exports[`SiteFooter Snapshot > renders correctly and matches snapshot 1`] = `
                 width="24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path
-                  d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"
+                <rect
+                  height="20"
+                  rx="5"
+                  ry="5"
+                  width="20"
+                  x="2"
+                  y="2"
                 />
-                <circle
-                  cx="12"
-                  cy="13"
-                  r="3"
+                <path
+                  d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
+                />
+                <line
+                  x1="17.5"
+                  x2="17.51"
+                  y1="6.5"
+                  y2="6.5"
                 />
               </svg>
             </a>

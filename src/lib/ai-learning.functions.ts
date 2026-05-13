@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSupabase, Logger } from "./leads-core";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
+import { logger as Logger } from "@/lib/logger";
 
 export interface UserSalesProfile {
   id: string;
@@ -22,7 +23,7 @@ export interface UserSalesProfile {
  
 export const getUserSalesProfile = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const userId = DEV_USER_ID;
 
     let { data, error } = await supabase
@@ -52,7 +53,7 @@ export const getUserSalesProfile = createServerFn({ method: "GET" })
 export const updateUserSalesProfile = createServerFn({ method: "POST" })
   .inputValidator((input: Partial<UserSalesProfile>) => input)
   .handler(async ({ data: updates }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const userId = DEV_USER_ID;
 
     const { data, error } = await supabase
@@ -78,7 +79,7 @@ export const recordLearningAction = createServerFn({ method: "POST" })
     context?: any 
   }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const userId = DEV_USER_ID;
 
     // Check if learning is paused
@@ -124,7 +125,7 @@ export const analyzeUserStyle = createServerFn({ method: "POST" })
       has_cta: hasQuestion
     };
 
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const userId = DEV_USER_ID;
     
     await supabase.from("user_style_references").insert({
@@ -138,7 +139,7 @@ export const analyzeUserStyle = createServerFn({ method: "POST" })
 
 export const getWinnerMessages = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const { data } = await supabase
       .from("winner_messages")
       .select("*")

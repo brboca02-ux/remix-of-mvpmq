@@ -7,7 +7,7 @@ import {
   testMakeWebhook,
   getMakeStats,
   listMakeSendLogs,
-} from "@/server/make-integration.functions";
+} from "@/lib/make-integration.functions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -1,9 +1,11 @@
 // @ts-nocheck
  import { createServerFn } from "@tanstack/react-start";
- import { internalEnqueueJob, internalUpdateJobStatus } from "./jobs.server";
-import { getSupabase, normalizeLead, Logger, type StandardLead } from "./leads-core";
-import { processCnpjEnrichment } from "./leads-cnpj-enrichment";
-import { parseUniversalCsv } from "./leads-parser";
+ import { internalEnqueueJob, internalUpdateJobStatus } from "@/lib/jobs.server";
+import { normalizeLead, type StandardLead } from "@/lib/leads-shared";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
+import { logger as Logger } from "@/lib/logger";
+import { processCnpjEnrichment } from "@/lib/leads-cnpj-enrichment";
+import { parseUniversalCsv } from "@/lib/leads-parser";
 import { logger } from "@/lib/logger";
 import type { ImportError, JobSourceStats, FollowupHistoryItem, HealthCheck } from "@/types/database";
 import type { LeadUpdate } from "@/modules/crm/types";
@@ -13,7 +15,7 @@ export const startImportJob = createServerFn({ method: "POST" })
 // ... keep existing code
   .inputValidator((input: { filename: string; total_rows: number; mode?: "fast" | "smart"; sample_rate?: number; }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
     
     const { data: job, error } = await supabase.from("lead_import_jobs").insert({
@@ -52,7 +54,7 @@ export const startImportJob = createServerFn({ method: "POST" })
 export const processImportJobChunk = createServerFn({ method: "POST" })
   .inputValidator((input: { job_id: string; leads: StandardLead[]; chunk_index: number; is_sampling?: boolean; }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const now = new Date().toISOString();
     let successCount = 0, failedCount = 0, duplicateCount = 0;
     const errors: Array<{ job_id: string; error_message: string; raw_payload: Record<string, unknown> }> = [];
@@ -146,7 +148,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
  
          // Update the mirror job
          const mirrorJobId = `import_${data.job_id}`;
-         const { data: mirrorJob } = await getSupabase().from("jobs").select("id").eq("idempotency_key", mirrorJobId).maybeSingle();
+         const { data: mirrorJob } = await getSupabase.from("jobs").select("id").eq("idempotency_key", mirrorJobId).maybeSingle();
          if (mirrorJob) {
            const statusMap: Record<string, JobStatus> = { processing: "running", completed: "done", failed: "failed", partial: "done" };
            await internalUpdateJobStatus({
@@ -163,7 +165,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
 export const getImportJobStatus = createServerFn({ method: "GET" })
   .inputValidator((input: { job_id: string }) => input)
   .handler(async ({ data }) => {
-    const { data: job, error } = await getSupabase().from("lead_import_jobs").select("*").eq("id", data.job_id).single();
+    const { data: job, error } = await getSupabase.from("lead_import_jobs").select("*").eq("id", data.job_id).single();
     if (error) throw new Error("Job não encontrado.");
     return job;
   });
@@ -173,7 +175,7 @@ export const getActiveImportJobs = createServerFn({ method: "GET" })
     try {
       // Busca jobs ativos ou finalizados na última hora (para auditoria)
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-      const { data: jobs, error } = await getSupabase().from("lead_import_jobs")
+      const { data: jobs, error } = await getSupabase.from("lead_import_jobs")
         .select("*")
         .or(`status.in.(pending,processing),finished_at.gt.${oneHourAgo}`)
         .order("created_at", { ascending: false });
@@ -213,7 +215,7 @@ export const addLeadManual = createServerFn({ method: "POST" })
     source?: string;
   }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     
     // Generate identity hash for deduplication
     const hashBase = `manual:${(data.nome || '').toLowerCase().trim()}:${(data.cidade || '').toLowerCase().trim()}`;
@@ -253,7 +255,7 @@ export const addLeadManual = createServerFn({ method: "POST" })
 export const generateJobReport = createServerFn({ method: "POST" })
   .inputValidator((input: { job_id: string }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const { data: job } = await supabase.from("lead_import_jobs").select("*").eq("id", data.job_id).single();
     if (!job) throw new Error("Job não encontrado");
     
@@ -293,7 +295,7 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     isDiscarded?: boolean;
   }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const page = data.page || 1, pageSize = data.pageSize || 20;
     const from = (page - 1) * pageSize, to = from + pageSize - 1;
     let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
@@ -335,7 +337,7 @@ export const updateLeadOperation = createServerFn({ method: "POST" })
     }
   }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const id = data.lead_id.startsWith("lead_") ? data.lead_id.substring(5) : data.lead_id;
     const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
     
@@ -373,7 +375,7 @@ export const updateLeadOperation = createServerFn({ method: "POST" })
 export const processEnrichmentQueue = createServerFn({ method: "POST" })
   .inputValidator((input: { limit?: number; job_id?: string }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const { data: queueItems } = await supabase.from("lead_enrichment_queue").select("*, leads_import(*)").eq("status", "pending").limit(data.limit || 5);
     if (!queueItems) return { processed: 0 };
     for (const item of queueItems) {
@@ -385,7 +387,7 @@ export const processEnrichmentQueue = createServerFn({ method: "POST" })
 
 export const checkImportHealth = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const now = new Date();
     const checks: HealthCheck[] = [];
     
@@ -429,7 +431,7 @@ export const checkImportHealth = createServerFn({ method: "GET" })
 export const getDedupeAudit = createServerFn({ method: "GET" })
   .inputValidator((input: { job_id: string }) => input)
   .handler(async ({ data }) => {
-    const { data: audit } = await getSupabase().from("lead_dedupe_audit")
+    const { data: audit } = await getSupabase.from("lead_dedupe_audit")
       .select("*, leads_import!lead_dedupe_audit_original_lead_id_fkey(*)")
       .eq("job_id", data.job_id);
     return audit || [];
@@ -438,7 +440,7 @@ export const getDedupeAudit = createServerFn({ method: "GET" })
 export const resolveDedupeConflict = createServerFn({ method: "POST" })
   .inputValidator((input: { audit_id: string; action: 'merged' | 'inserted_override' }) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const { data: audit } = await supabase.from("lead_dedupe_audit").select("*").eq("id", data.audit_id).single();
     if (!audit) throw new Error("Auditoria não encontrada");
 
@@ -472,7 +474,7 @@ export const getBuscadorMetrics = createServerFn({ method: "POST" })
 
     try {
       // Timeout de 10s para evitar travamento da UI
-      const rpcPromise = getSupabase().rpc('get_buscador_metrics', {
+      const rpcPromise = getSupabase.rpc('get_buscador_metrics', {
         p_cidades: data.cidades?.length ? data.cidades : undefined,
         p_estados: data.estados?.length ? data.estados : undefined,
         p_cnae_codes: data.cnae_codes?.length ? data.cnae_codes : undefined,
@@ -504,7 +506,7 @@ export const getBuscadorMetrics = createServerFn({ method: "POST" })
 export const getLeadDataSources = createServerFn({ method: "GET" })
   .inputValidator((input: { lead_id: string }) => input)
   .handler(async ({ data }) => {
-    const { data: sources } = await getSupabase()
+    const { data: sources } = await getSupabase
       .from("lead_data_sources")
       .select("*")
       .eq("lead_id", data.lead_id);
@@ -514,7 +516,7 @@ export const getLeadDataSources = createServerFn({ method: "GET" })
 export const recoverStuckJobs = createServerFn({ method: "POST" })
   .handler(async () => {
     try {
-      await getSupabase().rpc("recover_stuck_import_jobs");
+      await getSupabase.rpc("recover_stuck_import_jobs");
     } catch (e) {
       Logger.warn("Erro ao tentar recuperar jobs travados:", e);
     }
@@ -525,7 +527,7 @@ export const checkExistingLeads = createServerFn({ method: "POST" })
   .inputValidator((input: { hashes: string[] }) => input)
   .handler(async ({ data }) => {
     if (!data.hashes.length) return { existingCount: 0 };
-    const { count } = await getSupabase()
+    const { count } = await getSupabase
       .from("leads_import")
       .select("*", { count: "exact", head: true })
       .in("identity_hash", data.hashes);

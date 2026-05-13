@@ -300,7 +300,7 @@ export const useCRMStore = create<CRMState>()(
           const { supabase } = await import('@/integrations/supabase/client');
           const { data: leads, error } = await supabase
             .from('leads_import')
-            .select('status, opportunity_score, estimated_value')
+            .select('status, confidence_score')
             .limit(1000);
           
           if (error) {
@@ -340,7 +340,7 @@ export const useCRMStore = create<CRMState>()(
             const stage = statusToStage[lead.status || 'Novo'] || 'novo';
             if (byStage[stage]) {
               byStage[stage].count++;
-              const value = lead.estimated_value || 0;
+              const value = 0; // estimated_value não existe no banco
               byStage[stage].value += value;
               totalValue += value;
             }

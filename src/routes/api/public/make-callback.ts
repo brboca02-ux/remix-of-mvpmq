@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
- import { signPayload } from "@/server/make-integration.server";
- import { internalUpdateJobStatus } from "@/server/jobs.server";
+ import { signPayload } from "@/lib/make-integration.server";
+ import { internalUpdateJobStatus } from "@/lib/jobs.server";
 import { logger } from "@/lib/logger";
 
 // Public callback that Make can call to confirm delivery / replies.
