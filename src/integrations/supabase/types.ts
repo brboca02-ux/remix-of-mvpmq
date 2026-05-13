@@ -2551,6 +2551,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_import_job_stats: {
+        Args: {
+          p_duplicate: number
+          p_failed: number
+          p_job_id: string
+          p_new_status?: string
+          p_processed: number
+          p_source_stats?: Json
+          p_success: number
+        }
+        Returns: undefined
+      }
       mask_cpf: { Args: { p_cpf: string }; Returns: string }
       normalize_cnae: { Args: { input: string }; Returns: string }
       normalize_socio_key: { Args: { nome: string }; Returns: string }
