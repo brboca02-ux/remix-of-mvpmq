@@ -17,6 +17,22 @@ import type { JobStatus, JobSourceStats } from './database';
 // Re-export types from database for convenience
 export type { JobStatus, JobSourceStats };
 
+// Generic Job record used by jobs-store (UI/state shape)
+export interface Job {
+  id: string;
+  type?: string;
+  status: JobStatus;
+  payload: JobPayload;
+  result?: unknown;
+  error?: string;
+  progress?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  startedAt?: string;
+  finishedAt?: string;
+  [key: string]: unknown;
+}
+
 // ============================================================================
 // Job Payload Types
 // ============================================================================

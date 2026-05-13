@@ -6,6 +6,7 @@ export interface PageVisit {
   path: string;
   timestamp: string;
   metadata?: Record<string, any>;
+  [key: string]: unknown;
 }
 
 export const navigationService = {

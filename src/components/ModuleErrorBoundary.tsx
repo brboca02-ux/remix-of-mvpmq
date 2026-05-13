@@ -22,7 +22,7 @@ interface ModuleErrorFallbackProps {
 /**
  * Generic Module Error Fallback UI
  */
-function ModuleErrorFallback({ moduleName, error, onReset, onGoBack }: ModuleErrorFallbackProps): JSX.Element {
+function ModuleErrorFallback({ moduleName, error, onReset, onGoBack }: ModuleErrorFallbackProps): React.ReactElement {
   return (
     <div className="flex items-center justify-center p-8">
       <Card className="max-w-lg w-full">
@@ -68,7 +68,7 @@ function ModuleErrorFallback({ moduleName, error, onReset, onGoBack }: ModuleErr
 /**
  * Prospecting Module Error Boundary
  */
-export function ProspectingErrorBoundary({ children }: { children: ReactNode }): JSX.Element {
+export function ProspectingErrorBoundary({ children }: { children: ReactNode }): React.ReactElement {
   return (
     <ErrorBoundary
       fallback={
@@ -87,7 +87,7 @@ export function ProspectingErrorBoundary({ children }: { children: ReactNode }):
 /**
  * CRM Module Error Boundary
  */
-export function CRMErrorBoundary({ children }: { children: ReactNode }): JSX.Element {
+export function CRMErrorBoundary({ children }: { children: ReactNode }): React.ReactElement {
   return (
     <ErrorBoundary
       fallback={
@@ -106,7 +106,7 @@ export function CRMErrorBoundary({ children }: { children: ReactNode }): JSX.Ele
 /**
  * Market Research Module Error Boundary
  */
-export function MarketResearchErrorBoundary({ children }: { children: ReactNode }): JSX.Element {
+export function MarketResearchErrorBoundary({ children }: { children: ReactNode }): React.ReactElement {
   return (
     <ErrorBoundary
       fallback={
@@ -125,7 +125,7 @@ export function MarketResearchErrorBoundary({ children }: { children: ReactNode 
 /**
  * Services Module Error Boundary
  */
-export function ServicesErrorBoundary({ children }: { children: ReactNode }): JSX.Element {
+export function ServicesErrorBoundary({ children }: { children: ReactNode }): React.ReactElement {
   return (
     <ErrorBoundary
       fallback={
@@ -145,7 +145,7 @@ export function ServicesErrorBoundary({ children }: { children: ReactNode }): JS
  * Data Loading Error Boundary
  * For components that load data from APIs
  */
-export function DataLoadingErrorBoundary({ children }: { children: ReactNode }): JSX.Element {
+export function DataLoadingErrorBoundary({ children }: { children: ReactNode }): React.ReactElement {
   return (
     <ErrorBoundary
       fallback={
@@ -179,7 +179,7 @@ export function DataLoadingErrorBoundary({ children }: { children: ReactNode }):
  * Form Error Boundary
  * For form components with specific error handling
  */
-export function FormErrorBoundary({ children }: { children: ReactNode }): JSX.Element {
+export function FormErrorBoundary({ children }: { children: ReactNode }): React.ReactElement {
   return (
     <ErrorBoundary
       fallback={

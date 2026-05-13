@@ -1004,13 +1004,13 @@ export function SendToMakeDialog({ lead, open, onOpenChange, onStatusChanged }: 
                        followup_status: statusForChannels(channels),
                        last_contact_at: new Date().toISOString(),
                        contact_notes: contactNotes,
-                       followup_history_item: {
-                         channel: channels[0].toUpperCase(),
-                         status: 'confirmado',
-                         message: 'Manual log',
-                         type: abordagemType,
-                         notes: contactNotes
-                       }
+                        followup_history_item: {
+                          channel: channels[0].toUpperCase() as any,
+                          status: 'confirmado' as any,
+                          message: 'Manual log',
+                          type: abordagemType,
+                          notes: contactNotes
+                        }
                      }
                    }
                  });
