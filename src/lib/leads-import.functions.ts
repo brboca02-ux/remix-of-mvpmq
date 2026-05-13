@@ -360,12 +360,14 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     const from = (page - 1) * pageSize, to = from + pageSize - 1;
     let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
     
+    // Se estiver filtrando por jobId, precisamos usar o filtro correto no JSONB
+    if (data.jobId) {
+      q = q.or(`raw->>job_id.eq.${data.jobId},raw->>last_job_id.eq.${data.jobId}`);
+    }
+
     if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
     if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
     if (data.nicho && data.nicho !== "") q = q.eq("nicho", data.nicho);
-    if (data.jobId) {
-      q = q.filter("raw->>job_id", "eq", data.jobId);
-    }
     if (data.contactStatus && data.contactStatus.length > 0) {
       q = q.in("followup_status", data.contactStatus);
     }

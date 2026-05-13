@@ -32,7 +32,7 @@ export function useCompanySearch(
   extraCompanies: Company[] = [],
 ): SearchResult {
   const debouncedText = useDebounced(filter.text, 200);
-  const baseCompanies = useMemo(() => getMockCompanies(), []);
+  const baseCompanies = useMemo(() => [], []); // Removido mock fixo para não mascarar dados reais
   const companies = useMemo(() => {
     if (!extraCompanies.length) return baseCompanies;
     const seen = new Set<string>();
