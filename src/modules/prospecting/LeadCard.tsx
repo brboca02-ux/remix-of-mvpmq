@@ -1444,9 +1444,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                      className="w-full bg-white text-violet-600 hover:bg-violet-50 rounded-2xl font-black shadow-lg"
                      onClick={(e) => {
                        e.stopPropagation();
-                        if (action.id === 'site') onGenerateSite(lead);
-                        else setMakeOpen(true);
-                       else if (action.id === 'social') onDiscoverSocial?.(lead);
+                       if (action.id === 'site') onGenerateSite(lead);
                        else setMakeOpen(true);
                      }}
                    >
@@ -1573,7 +1571,6 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                         <span className="text-sm font-black text-slate-900">R$ {(lead.expectedRevenue || 0).toLocaleString('pt-BR')}</span>
                       </div>
                     </div>
-                  </div>
                   </div>
                 </div>
               );
