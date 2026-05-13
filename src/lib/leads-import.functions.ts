@@ -196,7 +196,9 @@ export const getActiveImportJobs = createServerFn({ method: "GET" })
 export const importLeadsCsv = createServerFn({ method: "POST" })
   .inputValidator((input: { csv: string; nicho?: string }) => input)
   .handler(async ({ data }) => {
-    return { leads: parseUniversalCsv(data.csv, data.nicho) };
+    const result = parseUniversalCsv(data.csv, data.nicho);
+    // parseUniversalCsv now returns { leads, errors, ... } because it uses smartParseCsv
+    return result;
   });
 
 /**
