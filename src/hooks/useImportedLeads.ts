@@ -88,23 +88,28 @@ export function useImportedLeads(args: UseImportedLeadsArgs): UseImportedLeadsRe
     try {
       setState((s) => ({ ...s, loading: true }));
       let rows: any[] = [];
+      
+      const res = await listImportedLeads({ 
+        data: { 
+          cidade, 
+          uf, 
+          nicho, 
+          jobId, 
+          page: 1, 
+          pageSize: 1000 // Aumentado para ver mais leads de uma vez
+        } 
+      });
+      rows = res.rows ?? [];
+
       if (filtro.length >= 2) {
-        const { data, error } = await supabase.rpc("buscar_empresas" as never, {
-          filtro,
-        } as never);
-        if (error) throw error;
-        rows = (data as any[]) ?? [];
-        if (cidade) rows = rows.filter((r) => (r.cidade || "").toLowerCase().includes(cidade.toLowerCase()));
-        if (uf) rows = rows.filter((r) => (r.uf || "").toUpperCase() === uf.toUpperCase());
-      } else {
-        const res = await listImportedLeads({ data: { cidade, uf, nicho, jobId, page: 1, pageSize: 100 } });
-        rows = res.rows ?? [];
-        const companies = adapt(rows);
-        setState({ companies, loading: false, total: res.total ?? companies.length });
-        return; // Early return for the else branch
+        rows = rows.filter(r => {
+          const hay = `${r.nome} ${r.cnpj} ${r.cidade} ${r.uf} ${r.atividade} ${r.nicho}`.toLowerCase();
+          return hay.includes(filtro.toLowerCase());
+        });
       }
+
       const companies = adapt(rows);
-      setState({ companies, loading: false, total: companies.length });
+      setState({ companies, loading: false, total: res.total ?? companies.length });
     } catch (err) {
       logger.error("Failed to load imported leads", err instanceof Error ? err : undefined, {
         cidade,

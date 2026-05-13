@@ -300,7 +300,7 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     const supabase = getSupabase;
     const page = data.page || 1, pageSize = data.pageSize || 20;
     const from = (page - 1) * pageSize, to = from + pageSize - 1;
-    let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
+    let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: true });
     
     if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
     if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
