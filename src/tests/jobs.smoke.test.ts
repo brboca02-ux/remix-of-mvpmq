@@ -5,7 +5,6 @@ import {
   internalRetryJob, 
   internalCancelJob 
 } from '../lib/jobs.server';
-import { supabaseAdmin } from '../integrations/supabase/client.server';
 
 // Mock Supabase
 const mockResult = {
@@ -16,7 +15,7 @@ const mockResult = {
   single: vi.fn().mockResolvedValue({ data: null, error: null }),
 };
 
-const mockFrom = vi.fn(() => mockResult);
+const mockFrom = vi.fn((_table: string) => mockResult as any);
 
 vi.mock('../integrations/supabase/client.server', () => ({
   supabaseAdmin: {
@@ -29,22 +28,27 @@ describe('Jobs Layer - Smoke Tests', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default mock behavior
+    mockResult.select.mockReturnThis();
+    mockResult.insert.mockReturnThis();
+    mockResult.update.mockReturnThis();
+    mockResult.eq.mockReturnThis();
+    mockResult.single.mockResolvedValue({ data: null, error: null });
   });
 
   it('1. internalEnqueueJob deve garantir owner_user_id como DEV_USER_ID', async () => {
     // First call: check existing job
     mockFrom.mockReturnValueOnce({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null })
-    });
+      ...mockResult,
+      single: vi.fn().mockResolvedValue({ data: null, error: null })
+    } as any);
 
     const mockInsert = vi.fn().mockReturnThis();
     mockFrom.mockReturnValue({
+      ...mockResult,
       insert: mockInsert,
-      select: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: { id: 'job-1' }, error: null })
-    });
+    } as any);
 
     await internalEnqueueJob({
       tipo: 'test',
@@ -60,10 +64,9 @@ describe('Jobs Layer - Smoke Tests', () => {
 
   it('2. internalUpdateJobStatus deve ignorar atualizações se job estiver cancelado', async () => {
     mockFrom.mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { status: 'cancelled', cancel_requested: true } })
-    });
+      ...mockResult,
+      single: vi.fn().mockResolvedValue({ data: { status: 'cancelled', cancel_requested: true }, error: null })
+    } as any);
 
     const result = await internalUpdateJobStatus({
       jobId: 'job-1',
@@ -75,35 +78,25 @@ describe('Jobs Layer - Smoke Tests', () => {
 
   it('3. internalRetryJob só deve permitir retry em jobs falhos ou queued_external', async () => {
     mockFrom.mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { status: 'done' } })
-    });
+      ...mockResult,
+      single: vi.fn().mockResolvedValue({ data: { status: 'done' }, error: null })
+    } as any);
 
     await expect(internalRetryJob('job-1')).rejects.toThrow('Somente jobs falhos ou aguardando reprocessamento');
   });
 
   it('4. internalCancelJob deve marcar cancel_requested como true', async () => {
     const mockUpdate = vi.fn().mockReturnThis();
-    mockFrom.mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { status: 'running' } }),
-      update: mockUpdate,
-      insert: vi.fn().mockResolvedValue({ error: null })
-    });
-
-    // Mock for the update call
+    
+    // Setup sequential mock behavior
     mockFrom.mockReturnValueOnce({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { status: 'running' } })
-    }).mockReturnValue({
+      ...mockResult,
+      single: vi.fn().mockResolvedValue({ data: { status: 'running' }, error: null })
+    } as any).mockReturnValue({
+      ...mockResult,
       update: mockUpdate,
-      eq: vi.fn().mockReturnThis(),
-      select: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: { status: 'cancelled' }, error: null })
-    });
+    } as any);
 
     await internalCancelJob('job-1');
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
