@@ -35,12 +35,13 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("");
   const [eta, setEta] = useState<number | null>(null);
-  const [jobStats, setJobStats] = useState<{ success: number; failed: number; total: number; duplicates: number } | null>(null);
+  const [jobStats, setJobStats] = useState<{ success: number; failed: number; total: number; duplicates: number; errors?: any[] } | null>(null);
   const [previewLeads, setPreviewLeads] = useState<any[]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [errorHint, setErrorHint] = useState<string | null>(null);
+  const [parserErrors, setParserErrors] = useState<any[]>([]);
   const [existingCount, setExistingCount] = useState<number | null>(null);
   const [validation, setValidation] = useState<Extract<CsvValidationResult, { valid: true }> | null>(null);
 
@@ -55,6 +56,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     setStatusText("");
     setErrorDetails(null);
     setErrorHint(null);
+    setParserErrors([]);
     setExistingCount(null);
     setValidation(null);
   }, []);
@@ -149,15 +151,21 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     
     setLoading(true);
     setErrorDetails(null);
-    setStatusText("Processando...");
+    setStatusText("Analisando arquivo...");
     
     try {
       const text = file ? await file.text() : pastedText;
       const result = await importLeadsCsv({ data: { csv: text, nicho } });
       const leads = result.leads;
+      
+      // Store parser errors for display
+      if (result.errors && result.errors.length > 0) {
+        setParserErrors(result.errors);
+      }
 
       if (leads.length === 0) {
-        throw new Error("Nenhum lead válido encontrado no arquivo.");
+        const firstError = result.errors?.[0]?.reason || "Nenhum lead válido encontrado no arquivo.";
+        throw new Error(firstError);
       }
 
       setStatusText(`Iniciando importação de ${leads.length} leads...`);
@@ -513,6 +521,32 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                     </div>
                   ))}
                 </div>
+
+                {/* Parser Errors Rescuing Section */}
+                {parserErrors.length > 0 && (
+                  <div className="mt-4 space-y-3 bg-white p-4 rounded-xl border border-destructive/20 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      <h5 className="text-xs font-black uppercase text-destructive tracking-tight">Falhas Detectadas no Parser ({parserErrors.length})</h5>
+                    </div>
+                    <ScrollArea className="h-[120px] pr-2">
+                      <div className="space-y-2">
+                        {parserErrors.slice(0, 50).map((err, idx) => (
+                          <div key={idx} className="p-2 rounded bg-destructive/5 border border-destructive/10 text-[10px]">
+                            <div className="flex justify-between font-bold text-destructive mb-1">
+                              <span>Linha {err.line}</span>
+                              <span className="opacity-70">{err.reason}</span>
+                            </div>
+                            <code className="block truncate opacity-60 font-mono bg-white/50 p-1 rounded">{err.content}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Dica: Corrija estas linhas no arquivo original e reenvie para resgatar esses leads.
+                    </p>
+                  </div>
+                )}
 
                 <Button variant="outline" className="w-full font-bold h-12" onClick={() => onOpenChange(false)}>
                   Fechar e Ver Leads
