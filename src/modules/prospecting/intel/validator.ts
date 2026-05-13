@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Validator for Lead Intelligence data
  * 

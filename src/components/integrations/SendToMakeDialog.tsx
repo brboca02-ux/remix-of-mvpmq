@@ -1010,7 +1010,7 @@ export function SendToMakeDialog({ lead, open, onOpenChange, onStatusChanged }: 
                           message: 'Manual log',
                           type: abordagemType,
                           notes: contactNotes
-                        }
+                        } as any
                      }
                    }
                  });

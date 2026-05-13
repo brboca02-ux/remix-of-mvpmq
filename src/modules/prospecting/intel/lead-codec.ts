@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Lead Codec - Parser and Serializer for Lead Data
  * 

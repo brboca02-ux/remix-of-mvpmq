@@ -336,7 +336,7 @@ export const lookupCnpj = createServerFn({ method: "POST" })
         return { ok: true as const, data: details, cached: false };
       }
     } catch (e) {
-      Logger.error("Erro na consulta multi-fonte:", e);
+      Logger.error("Erro na consulta multi-fonte:", e as Error);
     }
 
     return { ok: false as const, error: "NOT_FOUND" };
