@@ -12,7 +12,7 @@ import {
   validaCpf,
   validaCnpj,
   checkRateLimit,
-} from './dd/util.server'
+} from "@/server/dd/util.server";
 import {
   fetchCnpjBrasilApi,
   fetchCnpjReceitaWS,
@@ -20,8 +20,8 @@ import {
   fetchWhoisRDAP,
   fetchSitePublico,
   consultarAntecedentesPF,
-} from './dd/providers.server'
-import { gravarAudit } from './dd/audit.server'
+} from "@/server/dd/providers.server";
+import { gravarAudit } from "@/server/dd/audit.server";
 
 // ============ Consulta PJ (CNPJ) ============
 export const consultarPJ = createServerFn({ method: 'POST' })
