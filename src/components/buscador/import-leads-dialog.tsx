@@ -49,6 +49,8 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
   const [existingCount, setExistingCount] = useState<number | null>(null);
   const [validation, setValidation] = useState<Extract<CsvValidationResult, { valid: true }> | null>(null);
 
+  const router = useRouter();
+
   const resetState = useCallback(() => {
     setFile(null);
     setPastedText("");
