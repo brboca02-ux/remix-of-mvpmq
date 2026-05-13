@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import type { ErrorCode } from './error-messages';
+import type { ErrorCode as UserFriendlyErrorCode } from './error-messages';
 import { formatError, isRecoverableError, getErrorSeverity } from './error-messages';
 
 /**
