@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import type { MarketAnalysis, NicheOpportunity } from "@/lib/types";
 import { useState, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { expandNiches } from "@/server/market.functions";
+import { expandNiches } from "@/lib/market.functions";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/format";
 import {

@@ -61,7 +61,7 @@ function estimateActiveCompanies(idea: string, audience?: string): number | null
 }
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
-import { expandNiches } from "@/server/market.functions";
+import { expandNiches } from "@/lib/market.functions";
 import { toast } from "sonner";
 import { AIConsultor } from "@/components/ai-consultor";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
