@@ -339,6 +339,117 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
       totalRows: 0,
     };
   }
+
+  // ============================================================================
+  // DETECT DELIMITER: pipe, semicolon, tab, or comma
+  // ============================================================================
+  const firstFewLines = lines.slice(0, 5).join('\n');
+  const pipeCount = (firstFewLines.match(/\|/g) || []).length;
+  const semiCount = (firstFewLines.match(/;/g) || []).length;
+  const tabCount = (firstFewLines.match(/\t/g) || []).length;
+  const commaCount = (firstFewLines.match(/,/g) || []).length;
+  
+  // If pipe is the dominant separator, use pipe-based parsing
+  const isPipeDelimited = pipeCount > commaCount && pipeCount > semiCount && pipeCount > tabCount;
+  const isSemiDelimited = semiCount > commaCount && semiCount > pipeCount && semiCount > tabCount;
+  const isTabDelimited = tabCount > commaCount && tabCount > pipeCount && tabCount > semiCount;
+  
+  let detectedDelimiter = ",";
+  if (isPipeDelimited) detectedDelimiter = "|";
+  else if (isSemiDelimited) detectedDelimiter = ";";
+  else if (isTabDelimited) detectedDelimiter = "\t";
+
+  // If pipe/semicolon/tab delimited, use simple split parser (much more reliable)
+  if (detectedDelimiter !== ",") {
+    warnings.push(`Delimitador detectado: "${detectedDelimiter === "|" ? "pipe (|)" : detectedDelimiter === ";" ? "ponto e vírgula (;)" : "tab"}"`);
+    
+    // Detect headers
+    const firstLine = lines[0];
+    const headerKeywords = ["nome", "name", "telefone", "phone", "email", "cnpj", "empresa", "razao", "fantasia", "cidade", "uf"];
+    const firstLineLower = firstLine.toLowerCase();
+    const hasHeaders = headerKeywords.some(kw => firstLineLower.includes(kw));
+    
+    const startIdx = hasHeaders ? 1 : 0;
+    const headers = hasHeaders ? firstLine.split(detectedDelimiter).map(h => h.trim()) : undefined;
+    
+    if (hasHeaders && headers) {
+      warnings.push(`Cabeçalhos: ${headers.slice(0, 5).join(", ")}${headers.length > 5 ? "..." : ""}`);
+    }
+    
+    for (let i = startIdx; i < lines.length; i++) {
+      const cols = lines[i].split(detectedDelimiter).map(c => c.trim());
+      if (cols.length === 0 || !cols[0]) continue;
+      
+      let leadData: Partial<StandardLead>;
+      
+      if (hasHeaders && headers) {
+        leadData = mapWithHeaders(cols, headers);
+      } else {
+        // Positional: first col = nome, try to detect others
+        leadData = {
+          nome: cols[0],
+          telefone: cols.find(c => /^\d{10,11}$/.test(c.replace(/\D/g, ''))) || cols[1] || undefined,
+          raw: { all_fields: cols },
+        };
+        
+        // Try to find CNPJ (14 digits)
+        const cnpjCol = cols.find(c => c.replace(/\D/g, '').length === 14);
+        if (cnpjCol) (leadData as any).cnpj = cnpjCol.replace(/\D/g, '');
+        
+        // Try to find city (common patterns)
+        const cityCol = cols.find(c => /^[A-Z][a-záéíóúãõ\s]+$/.test(c) && c.length > 3 && c.length < 30);
+        if (cityCol) leadData.cidade = cityCol;
+        
+        // Try to find UF (2 uppercase letters)
+        const ufCol = cols.find(c => /^[A-Z]{2}$/.test(c));
+        if (ufCol) leadData.uf = ufCol;
+        
+        // Try to find atividade/categoria (longer text fields)
+        const atividadeCol = cols.find(c => c.length > 15 && !/^\d/.test(c) && c !== cols[0]);
+        if (atividadeCol) leadData.atividade = atividadeCol;
+      }
+      
+      if (leadData && leadData.nome && leadData.nome.length > 1) {
+        const finalLead: StandardLead = {
+          nome: leadData.nome,
+          telefone: leadData.telefone || null,
+          email: leadData.email || null,
+          cnpj: (leadData as any).cnpj || null,
+          razao_social: leadData.razao_social || null,
+          fantasia: leadData.fantasia || null,
+          cidade: leadData.cidade || null,
+          uf: leadData.uf || null,
+          bairro: leadData.bairro || null,
+          cep: leadData.cep || null,
+          site: leadData.site || null,
+          porte: leadData.porte || null,
+          status: leadData.status || null,
+          atividade: leadData.atividade || null,
+          capital_social: leadData.capital_social || 0,
+          nicho: effectiveNicho,
+          source: "csv_import",
+          confidence_score: 0.6,
+          raw: leadData.raw || {},
+        };
+        leads.push(finalLead);
+      } else {
+        errors.push({ line: i + 1, content: lines[i].substring(0, 80), reason: "Nome não encontrado" });
+      }
+    }
+    
+    return {
+      leads,
+      format: { hasHeaders: !!headers, delimiter: detectedDelimiter as any, columnPattern: "standard", encoding: "utf-8" },
+      warnings,
+      errors,
+      headers,
+      totalRows: lines.length - (headers ? 1 : 0),
+    };
+  }
+  
+  // ============================================================================
+  // COMMA-DELIMITED: Original logic (Google Maps format detection)
+  // ============================================================================
   
   // Detect format
   const firstLine = lines[0];
