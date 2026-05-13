@@ -8,10 +8,19 @@ import {
 import { supabaseAdmin } from '../integrations/supabase/client.server';
 
 // Mock Supabase
-const mockFrom = vi.fn();
+const mockResult = {
+  select: vi.fn().mockReturnThis(),
+  insert: vi.fn().mockReturnThis(),
+  update: vi.fn().mockReturnThis(),
+  eq: vi.fn().mockReturnThis(),
+  single: vi.fn().mockResolvedValue({ data: null, error: null }),
+};
+
+const mockFrom = vi.fn(() => mockResult);
+
 vi.mock('../integrations/supabase/client.server', () => ({
   supabaseAdmin: {
-    from: vi.fn((...args) => mockFrom(...args)),
+    from: (table: string) => mockFrom(table),
   }
 }));
 
