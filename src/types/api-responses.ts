@@ -14,7 +14,7 @@
 
 /**
  * Google Places API search response
- * Used in: src/server/places-bulk.functions.ts
+ * Used in: src/lib/places-bulk.functions.ts
  */
 export interface GooglePlacesResponse {
   /** Status of the API request */
@@ -191,7 +191,7 @@ export interface QSA {
 
 /**
  * BrasilAPI CNPJ response
- * Used in: src/server/dd/providers.server.ts
+ * Used in: src/lib/dd/providers.server.ts
  * API: https://brasilapi.com.br/api/cnpj/v1/{cnpj}
  */
 export interface BrasilAPIResponse {
@@ -373,7 +373,7 @@ export interface RDAPResponse {
 
 /**
  * Google PageSpeed Insights API response
- * Used in: src/server/pagespeed.functions.ts
+ * Used in: src/lib/pagespeed.functions.ts
  * API: https://www.googleapis.com/pagespeedonline/v5/runPagespeed
  */
 export interface PageSpeedResponse {
@@ -529,7 +529,7 @@ export interface PageSpeedResponse {
 
 /**
  * Lovable AI synthesis response
- * Used in: src/server/market-research/providers/lovableAi.provider.ts
+ * Used in: src/lib/market-research-server/providers/lovableAi.provider.ts
  */
 export interface LovableAIResponse {
   /** Success status */

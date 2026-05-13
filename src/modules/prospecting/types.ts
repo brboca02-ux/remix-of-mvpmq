@@ -592,7 +592,7 @@ export interface Playbook {
 /**
  * Lead import job
  * Extended job type specific to lead imports
- * Used in: src/server/leads-import.functions.ts
+ * Used in: src/lib/leads-import.functions.ts
  */
 export interface LeadImportJob {
   /** Job ID */
@@ -649,7 +649,7 @@ export interface LeadImportJob {
 /**
  * Parsed lead data
  * Intermediate representation of lead data during import
- * Used in: src/server/leads-parser.ts
+ * Used in: src/lib/leads-parser.ts
  */
 export interface ParsedLeadData {
   /** Company name */

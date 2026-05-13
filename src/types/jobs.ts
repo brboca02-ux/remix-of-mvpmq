@@ -5,9 +5,9 @@
  * These types replace 'any' types identified in the type audit (Task 14.1).
  * 
  * Used in:
- * - src/server/jobs.server.ts
- * - src/server/jobs.functions.ts
- * - src/server/leads-import.functions.ts
+ * - src/lib/jobs.server.ts
+ * - src/lib/jobs.functions.ts
+ * - src/lib/leads-import.functions.ts
  * 
  * @module types/jobs
  */

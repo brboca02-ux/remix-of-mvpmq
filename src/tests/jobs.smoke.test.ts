@@ -4,7 +4,7 @@ import {
   internalUpdateJobStatus, 
   internalRetryJob, 
   internalCancelJob 
-} from '../server/jobs.server';
+} from '../lib/jobs.server';
 import { supabaseAdmin } from '../integrations/supabase/client.server';
 
 // Mock Supabase

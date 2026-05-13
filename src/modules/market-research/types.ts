@@ -5,9 +5,9 @@
  * These types replace 'any' types identified in the type audit (Task 14.1).
  * 
  * Used in:
- * - src/server/market-research.server.ts
- * - src/server/market-research.functions.ts
- * - src/server/market-research/providers/
+ * - src/lib/market-research.server.ts
+ * - src/lib/market-research.functions.ts
+ * - src/lib/market-research-server/providers/
  * 
  * @module modules/market-research/types
  */
@@ -34,7 +34,7 @@ export type {
 /**
  * Research context
  * Provides context for AI synthesis and research providers
- * Used in: src/server/market-research/providers/lovableAi.provider.ts
+ * Used in: src/lib/market-research-server/providers/lovableAi.provider.ts
  */
 export interface ResearchContext {
   /** User's original input */
@@ -114,7 +114,7 @@ export interface NormalizedIntent {
 
 /**
  * Google Trends data
- * Used in: src/server/market-research/providers/googleTrends.provider.ts
+ * Used in: src/lib/market-research-server/providers/googleTrends.provider.ts
  */
 export interface GoogleTrendsData {
   /** Search query */

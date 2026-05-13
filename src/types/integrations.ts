@@ -6,7 +6,7 @@
  * identified in the type audit (Task 14.1).
  * 
  * Used in:
- * - src/server/make-integration.functions.ts
+ * - src/lib/make-integration.functions.ts
  * 
  * @module types/integrations
  */

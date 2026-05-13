@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runAuthAudit } from "../server/auth-audit.server";
+import { runAuthAudit } from "../lib/auth-audit.server";
 
 describe("Authentication Flow Audit", () => {
   it("should report healthy status when infrastructure is correct", async () => {
