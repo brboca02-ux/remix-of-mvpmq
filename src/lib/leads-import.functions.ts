@@ -89,9 +89,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       const leadsToUpsert = uniqueLeads.map(incoming => {
         const existing = existingMap.get(incoming.identity_hash);
         if (!existing) {
+          const { id, created_at, updated_at, ...cleanIncoming } = incoming as any;
           return { 
-            ...incoming, 
-            raw: { ...(incoming.raw || {}), job_id: data.job_id } 
+            ...cleanIncoming, 
+            raw: { ...(cleanIncoming.raw || {}), job_id: data.job_id } 
           };
         }
 
