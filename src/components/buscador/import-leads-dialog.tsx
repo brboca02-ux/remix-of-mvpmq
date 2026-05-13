@@ -198,7 +198,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
         } 
       });
 
-      let currentChunkSize = 50;
+      let currentChunkSize = 200; // Aumentado para otimizar importações de mais de 2k leads
       let totalProcessed = 0;
       
       for (let i = 0; i < leads.length; i += currentChunkSize) {
