@@ -406,8 +406,8 @@ Use a função return_niche_opportunities.`,
       // Persistir no Lovable Cloud se houver analysisId e nichos
       if (data.analysisId && result.niches?.length > 0) {
         try {
-          const { getSupabase } = await import("./leads-core");
-          const supabase = getSupabase();
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const supabase = supabaseAdmin;
           
           const opportunities = result.niches.map((n: any) => ({
             analysis_id: data.analysisId,
