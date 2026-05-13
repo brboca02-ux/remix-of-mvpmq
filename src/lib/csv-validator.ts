@@ -207,11 +207,22 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
     // SMART DETECTION: Google Maps format (no headers, commas in data)
     // ============================================================================
     const firstLine = lines[0];
-    const hasPhonePattern = /\(\d{2,3}\)\s*[\d\s-]+/.test(firstLine);
-    const hasRatingPattern = /\d,\d\s*\(\d+\)/.test(firstLine);
-    const isGoogleMapsFormat = hasPhonePattern && hasRatingPattern;
+    
+    // Check multiple lines for Google Maps pattern (first line might be atypical)
+    const sampleLines = lines.slice(0, Math.min(5, lines.length));
+    const hasPhonePattern = sampleLines.some(l => /\(\d{2,3}\)\s*[\d\s-]+/.test(l));
+    const hasRatingPattern = sampleLines.some(l => /\d,\d\s*\(\d+\)/.test(l));
+    const hasEmptyFieldPattern = sampleLines.some(l => /,,/.test(l));
+    const hasAddressPattern = sampleLines.some(l => /\b(rua|r\.|av\.|avenida|tv\.)\b/i.test(l));
+    
+    // Google Maps format: has phone patterns AND (rating with comma OR empty fields + address)
+    const isGoogleMapsFormat = hasPhonePattern && (hasRatingPattern || (hasEmptyFieldPattern && hasAddressPattern));
+    
+    // Also check: first line doesn't look like a header
+    const firstLineLooksLikeHeader = /^(nome|name|empresa|razao|telefone|phone|email)/i.test(firstLine.trim());
+    const isNoHeaderFormat = isGoogleMapsFormat && !firstLineLooksLikeHeader;
 
-    if (isGoogleMapsFormat) {
+    if (isNoHeaderFormat) {
       // Google Maps format - no headers needed, first row is data
       const warnings: string[] = [
         "Formato Google Maps detectado - arquivo sem cabeçalhos. Usando parser inteligente.",
@@ -259,7 +270,10 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
     const headerCheck = validateHeaders(headers);
     if (!headerCheck.valid) {
       // Before failing, check if this looks like data (not headers)
-      const firstLineLooksLikeData = /\(\d/.test(firstLine) || /\d,\d/.test(firstLine);
+      const firstLineLooksLikeData = sampleLines.some(l => 
+        /\(\d/.test(l) || /\d,\d/.test(l) || /,,/.test(l) || 
+        /\b(rua|r\.|av\.|avenida|tv\.)\b/i.test(l)
+      );
       
       if (firstLineLooksLikeData) {
         // Treat as no-header CSV
