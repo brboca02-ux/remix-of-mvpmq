@@ -14,7 +14,7 @@ export * from './api-responses';
 export * from './database';
 
 // Job System Types
-export * from './jobs';
+export type { Job, JobPayload, JobFilters, JobsState, JobActions, BackgroundJob, BaseJobPayload } from './jobs';
 
 // Integration Types
 export * from './integrations';
