@@ -364,6 +364,10 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     if (data.jobId) {
       q = q.or(`raw->>job_id.eq.${data.jobId},raw->>last_job_id.eq.${data.jobId}`);
     }
+
+    if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
+    if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
+    if (data.nicho && data.nicho !== "") q = q.eq("nicho", data.nicho);
     if (data.contactStatus && data.contactStatus.length > 0) {
       q = q.in("followup_status", data.contactStatus);
     }
