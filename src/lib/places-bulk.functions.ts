@@ -123,7 +123,7 @@ export const searchPlacesIds = createServerFn({ method: "POST" })
      };
      
      // Create a persistent job for this search
-     const supabase = getSupabase();
+     const supabase = getSupabase;
      const { data: { user } } = await supabase.auth.getUser();
      await internalEnqueueJob({
        tipo: "places_search",
@@ -141,7 +141,7 @@ export const processPlacesChunk = createServerFn({ method: "POST" })
     const key = PLACES_KEY();
     if (!key) throw new Error("API Key missing");
 
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const finalLeads: any[] = [];
     const errors: any[] = [];
 

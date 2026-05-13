@@ -110,7 +110,7 @@ export const analyzeLeadSiteData = createServerFn({ method: "POST" })
     const args = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
     const extracted = JSON.parse(args) as ExtractedFeatures;
 
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     await supabase.from("leads_analysis").update({
       extracted_features: extracted as any,
       maps_text: data.maps_text,
@@ -258,7 +258,7 @@ export const generateLeadSiteSections = createServerFn({ method: "POST" })
       }
     ];
 
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     await supabase.from("leads_analysis").update({
       site_sections: sections as any
     }).eq("id", data.lead_id);
@@ -269,7 +269,7 @@ export const generateLeadSiteSections = createServerFn({ method: "POST" })
 export const updateLeadSiteSection = createServerFn({ method: "POST" })
   .inputValidator((data: { lead_id: string; sections: SiteSection[] }) => data)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     await supabase.from("leads_analysis").update({
       site_sections: data.sections as any
     }).eq("id", data.lead_id);

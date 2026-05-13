@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { getActiveImportJobs } from "@/lib/leads-import.functions";
-import { getSupabase } from "@/server/leads-core";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
 import { toast } from "sonner";
 
 export function ActiveJobsBanner() {
@@ -28,7 +28,7 @@ export function ActiveJobsBanner() {
   };
 
   const fetchErrors = async (jobId: string) => {
-    const supabase = getSupabase();
+    const supabase = getSupabase;
     const { data } = await supabase
       .from("lead_import_errors")
       .select("*")
