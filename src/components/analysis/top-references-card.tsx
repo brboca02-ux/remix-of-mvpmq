@@ -21,7 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CnpjValidationDialog } from "@/components/analysis/cnpj-validation-dialog";
-import { lookupCnpj } from "@/server/cnpj.functions";
+import { lookupCnpj } from "@/lib/cnpj.functions";
 import { toast } from "sonner";
 import type { MarketAnalysis } from "@/lib/types";
 

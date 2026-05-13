@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { getFollowupDashboardData, trackSalesConversion } from "@/server/cnpj.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { getFollowupDashboardData, trackSalesConversion } from "@/lib/cnpj.functions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -9,7 +9,7 @@ import {
   Instagram, ListChecks, CheckCircle, ShieldAlert, UserMinus, Ban
 } from "@/lib/icons";
 import { getLeadDataSources, updateLeadOperation } from "@/server/leads-import.functions";
-import { lookupCnpj, searchCompanyPresence, detectWeakDigitalPresence, generateSalesMessage, generateFollowUpSequence, type CnpjDetails } from "@/server/cnpj.functions";
+import { lookupCnpj, searchCompanyPresence, detectWeakDigitalPresence, generateSalesMessage, generateFollowUpSequence, type CnpjDetails } from "@/lib/cnpj.functions";
 import { analyzeLeadSiteData, generateLeadSiteSections, updateLeadSiteSection, type SiteSection, type ExtractedFeatures } from "@/server/site-generator.functions";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { toast } from "sonner";

@@ -28,7 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { lookupCnpj, type CnpjDetails, type Socio } from "@/server/cnpj.functions";
+import { lookupCnpj, type CnpjDetails, type Socio } from "@/lib/cnpj.functions";
 import { formatCurrency } from "@/lib/format";
 import { toast } from "sonner";
 
