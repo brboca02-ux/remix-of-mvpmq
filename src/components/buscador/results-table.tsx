@@ -114,14 +114,30 @@ export function ResultsTable({
                     onClick={() => onSelect?.(c)}
                   >
                     <TableCell>
-                      <div className="font-bold text-slate-900 dark:text-slate-100">{c.nome}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="font-bold text-slate-900 dark:text-slate-100">{c.nome}</div>
+                        {c.is_enriched && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Sparkles className="h-3 w-3 text-violet-500 fill-violet-500/20" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-[10px]">Lead Enriquecido Inteligente</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-[9px] h-4 font-mono px-1">
                           {c.cnpj}
                         </Badge>
-                        <Badge variant="secondary" className="text-[9px] h-4 px-1">
-                          {c.porte}
-                        </Badge>
+                        <div className="flex gap-1 ml-1 opacity-60">
+                          {c.telefone && <Phone className="h-2.5 w-2.5" />}
+                          {c.email && <Mail className="h-2.5 w-2.5" />}
+                          {c.site && <Globe className="h-2.5 w-2.5" />}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell className="text-sm">

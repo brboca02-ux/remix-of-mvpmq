@@ -66,19 +66,59 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
     for (let i = 0; i < data.leads.length; i += CHUNK_SIZE_LIMIT) {
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
       
-      // Batch upsert leads para maior performance e menos requests
-      // Filter out duplicates within the current chunk to avoid "ON CONFLICT DO UPDATE command cannot affect row a second time"
-      const uniqueLeads = Array.from(new Map(currentLeads.map(l => [l.identity_hash, l])).values());
+      // Inteligência de Enriquecimento: Busca leads existentes para mesclar dados
+      const hashes = uniqueLeads.map(l => l.identity_hash).filter(Boolean);
+      const { data: existingLeads } = await supabase.from("leads_import")
+        .select("*")
+        .in("identity_hash", hashes);
+      
+      const existingMap = new Map(existingLeads?.map(l => [l.identity_hash, l]) || []);
+
+      const leadsToUpsert = uniqueLeads.map(incoming => {
+        const existing = existingMap.get(incoming.identity_hash);
+        if (!existing) {
+          return { 
+            ...incoming, 
+            raw: { ...(incoming.raw || {}), job_id: data.job_id } 
+          };
+        }
+
+        // Enriquecimento Inteligente: Preenche apenas o que está vazio
+        const merged = { ...existing };
+        let enrichedCount = 0;
+        
+        const fieldsToEnrich = [
+          'telefone', 'email', 'site', 'instagram_handle', 'cidade', 'uf', 
+          'bairro', 'cep', 'logradouro', 'numero', 'complemento', 
+          'cnpj', 'razao_social', 'atividade', 'porte', 'nicho'
+        ];
+
+        fieldsToEnrich.forEach(field => {
+          if (incoming[field] && (!existing[field] || existing[field] === '')) {
+             merged[field] = incoming[field];
+             enrichedCount++;
+          }
+        });
+
+        // Atualiza metadados de enriquecimento
+        return { 
+          ...merged, 
+          raw: { 
+            ...(merged.raw || {}), 
+            last_job_id: data.job_id,
+            enriched_fields_count: (merged.raw?.enriched_fields_count || 0) + enrichedCount,
+            last_enrichment_at: now
+          } 
+        };
+      });
+
       const { data: upserted, error: upsertError } = await supabase.from("leads_import").upsert(
-        uniqueLeads.map(lead => ({
-          ...lead,
-          raw: { ...(lead.raw || {}), job_id: data.job_id }
-        })), 
+        leadsToUpsert, 
         { onConflict: "identity_hash", ignoreDuplicates: false }
       ).select("id, created_at, identity_hash, source, confidence_score");
 
       if (upsertError) {
-        logger.error('Batch upsert failed', upsertError, { batchSize: currentLeads.length });
+        logger.error('Batch upsert with enrichment failed', upsertError, { batchSize: currentLeads.length });
         failedCount += currentLeads.length;
         upsertError.message && errors.push({ 
           job_id: data.job_id, 
@@ -320,7 +360,17 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     }
     
     const { data: rows, count } = await q;
-    return { rows: (rows || []).map(r => ({ ...r, score: r.confidence_score })), total: count || 0, page, pageSize };
+    return { 
+      rows: (rows || []).map(r => ({ 
+        ...r, 
+        score: r.confidence_score,
+        // Adicionando flags de enriquecimento para a UI
+        is_enriched: !!r.last_enriched_at || (r.raw?.enriched_fields_count > 0)
+      })), 
+      total: count || 0, 
+      page, 
+      pageSize 
+    };
   });
 
 export const updateLeadOperation = createServerFn({ method: "POST" })
