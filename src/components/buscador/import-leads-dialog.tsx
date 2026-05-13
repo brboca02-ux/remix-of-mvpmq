@@ -447,16 +447,45 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
             {loading && (
               <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-8 animate-pulse">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-bold flex items-center gap-3 text-primary">
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className={cn(
+                    "text-sm font-bold flex items-center gap-3",
+                    errorDetails ? "text-destructive" : "text-primary"
+                  )}>
+                    {errorDetails ? (
+                      <AlertCircle className="h-5 w-5" />
+                    ) : (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    )}
                     {statusText}
                   </span>
-                  <span className="text-sm font-black text-primary">{progress}%</span>
+                  <span className={cn(
+                    "text-sm font-black",
+                    errorDetails ? "text-destructive" : "text-primary"
+                  )}>{progress}%</span>
                 </div>
-                <Progress value={progress} className="h-3" />
-                <p className="text-[11px] text-center text-muted-foreground italic">
-                  Aguarde enquanto processamos os dados. Isso pode levar alguns segundos.
-                </p>
+                <Progress value={progress} className={cn("h-3", errorDetails && "bg-destructive/20")} />
+                {errorDetails ? (
+                  <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20 mt-4">
+                    <p className="text-xs text-destructive font-semibold mb-1">Detalhes do erro:</p>
+                    <p className="text-[11px] text-destructive leading-relaxed">{errorDetails}</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-3 w-full h-8 text-[10px] border-destructive/30 hover:bg-destructive/10"
+                      onClick={() => {
+                        setLoading(false);
+                        setErrorDetails(null);
+                        setProgress(0);
+                      }}
+                    >
+                      Tentar Novamente
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-center text-muted-foreground italic">
+                    Aguarde enquanto processamos os dados. Isso pode levar alguns segundos.
+                  </p>
+                )}
               </div>
             )}
 
