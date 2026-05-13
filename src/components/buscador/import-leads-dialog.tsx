@@ -151,15 +151,21 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     
     setLoading(true);
     setErrorDetails(null);
-    setStatusText("Processando...");
+    setStatusText("Analisando arquivo...");
     
     try {
       const text = file ? await file.text() : pastedText;
       const result = await importLeadsCsv({ data: { csv: text, nicho } });
       const leads = result.leads;
+      
+      // Store parser errors for display
+      if (result.errors && result.errors.length > 0) {
+        setParserErrors(result.errors);
+      }
 
       if (leads.length === 0) {
-        throw new Error("Nenhum lead válido encontrado no arquivo.");
+        const firstError = result.errors?.[0]?.reason || "Nenhum lead válido encontrado no arquivo.";
+        throw new Error(firstError);
       }
 
       setStatusText(`Iniciando importação de ${leads.length} leads...`);
