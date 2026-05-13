@@ -48,7 +48,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { generateOfferCopy } from "@/server/offers.functions";
+import { generateOfferCopy } from "@/lib/offers.functions";
 import { useFollowupStore } from "@/modules/followup/followup-store";
 import { Link } from "@tanstack/react-router";
 import jsPDF from 'jspdf';

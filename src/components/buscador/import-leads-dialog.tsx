@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { importLeadsCsv, startImportJob, processImportJobChunk, generateJobReport, checkExistingLeads } from "@/server/leads-import.functions";
+import { importLeadsCsv, startImportJob, processImportJobChunk, generateJobReport, checkExistingLeads } from "@/lib/leads-import.functions";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { validateCsvFile, type CsvValidationResult } from "@/lib/csv-validator";

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getBuscadorMetrics } from "@/server/leads-import.functions";
+import { getBuscadorMetrics } from "@/lib/leads-import.functions";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -25,7 +25,7 @@ import { useCachedCompanies } from "@/hooks/useCachedCompanies";
 import { useImportedLeads } from "@/hooks/useImportedLeads";
 import { ActiveJobsBanner } from "@/components/buscador/active-jobs-banner";
 import { usePresets, useSavedLists } from "@/hooks/useSavedLists";
-import { interpretSearch } from "@/server/search.functions";
+import { interpretSearch } from "@/lib/search.functions";
 import type { CompanyFilter, CompanyPorte } from "@/lib/company-types";
 import { emptyFilter } from "@/lib/company-types";
 import type { Company } from "@/lib/company-types";
