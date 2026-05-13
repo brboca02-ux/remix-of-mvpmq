@@ -65,7 +65,7 @@ export interface LeadCreateInput {
  * Job status enum
  * Represents the current state of a background job
  */
-export type JobStatus = 'pending' | 'running' | 'done' | 'failed' | 'cancelled';
+export type JobStatus = 'pending' | 'queued' | 'running' | 'done' | 'completed' | 'failed' | 'cancelled';
 
 /**
  * Job entity from jobs table

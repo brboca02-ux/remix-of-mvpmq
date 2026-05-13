@@ -52,7 +52,7 @@ describe('Jobs Store', () => {
 
   describe('Job Creation', () => {
     it('should create a new job with unique ID', async () => {
-      const payload = { type: 'test', data: {} };
+      const payload = { type: 'test' };
       const job = await useJobsStore.getState().createJob(payload);
 
       expect(job.id).toBeDefined();
@@ -63,7 +63,7 @@ describe('Jobs Store', () => {
     });
 
     it('should add new job to active jobs list', async () => {
-      const payload = { type: 'test', data: {} };
+      const payload = { type: 'test' };
       await useJobsStore.getState().createJob(payload);
 
       const state = useJobsStore.getState();
@@ -72,7 +72,7 @@ describe('Jobs Store', () => {
     });
 
     it('should add new job to all jobs list', async () => {
-      const payload = { type: 'test', data: {} };
+      const payload = { type: 'test' };
       await useJobsStore.getState().createJob(payload);
 
       const state = useJobsStore.getState();
@@ -80,7 +80,7 @@ describe('Jobs Store', () => {
     });
 
     it('should start polling after creating first job', async () => {
-      const payload = { type: 'test', data: {} };
+      const payload = { type: 'test' };
       await useJobsStore.getState().createJob(payload);
 
       const state = useJobsStore.getState();
@@ -91,8 +91,8 @@ describe('Jobs Store', () => {
     });
 
     it('should create jobs with different IDs', async () => {
-      const job1 = await useJobsStore.getState().createJob({ type: 'test1', data: {} });
-      const job2 = await useJobsStore.getState().createJob({ type: 'test2', data: {} });
+      const job1 = await useJobsStore.getState().createJob({ type: 'test' });
+      const job2 = await useJobsStore.getState().createJob({ type: 'test' });
 
       expect(job1.id).not.toBe(job2.id);
     });
@@ -100,7 +100,7 @@ describe('Jobs Store', () => {
 
   describe('Job Cancellation', () => {
     it('should cancel an active job', async () => {
-      const job = await useJobsStore.getState().createJob({ type: 'test', data: {} });
+      const job = await useJobsStore.getState().createJob({ type: 'test' });
       await useJobsStore.getState().cancelJob(job.id);
 
       const state = useJobsStore.getState();
@@ -111,7 +111,7 @@ describe('Jobs Store', () => {
     });
 
     it('should remove cancelled job from active jobs', async () => {
-      const job = await useJobsStore.getState().createJob({ type: 'test', data: {} });
+      const job = await useJobsStore.getState().createJob({ type: 'test' });
       await useJobsStore.getState().cancelJob(job.id);
 
       const state = useJobsStore.getState();
@@ -121,7 +121,7 @@ describe('Jobs Store', () => {
 
   describe('Job Retrieval', () => {
     it('should return job by ID', async () => {
-      const created = await useJobsStore.getState().createJob({ type: 'test', data: {} });
+      const created = await useJobsStore.getState().createJob({ type: 'test' });
       const retrieved = useJobsStore.getState().getJob(created.id);
 
       expect(retrieved).toEqual(created);
@@ -135,7 +135,7 @@ describe('Jobs Store', () => {
 
   describe('Job Retry', () => {
     it('should create new job when retrying', async () => {
-      const original = await useJobsStore.getState().createJob({ type: 'test', data: { key: 'value' } });
+      const original = await useJobsStore.getState().createJob({ type: 'test' });
       const retried = await useJobsStore.getState().retryJob(original.id);
 
       expect(retried.id).not.toBe(original.id);
@@ -152,7 +152,7 @@ describe('Jobs Store', () => {
 
   describe('Job Deletion', () => {
     it('should delete job from all lists', async () => {
-      const job = await useJobsStore.getState().createJob({ type: 'test', data: {} });
+      const job = await useJobsStore.getState().createJob({ type: 'test' });
       await useJobsStore.getState().deleteJob(job.id);
 
       const state = useJobsStore.getState();
@@ -162,7 +162,7 @@ describe('Jobs Store', () => {
     });
 
     it('should clear selectedJobId if deleted job was selected', async () => {
-      const job = await useJobsStore.getState().createJob({ type: 'test', data: {} });
+      const job = await useJobsStore.getState().createJob({ type: 'test' });
       useJobsStore.getState().setSelectedJob(job.id);
       await useJobsStore.getState().deleteJob(job.id);
 
@@ -252,7 +252,7 @@ describe('Jobs Store', () => {
   describe('Reset', () => {
     it('should reset store to initial state', async () => {
       // Modify state
-      await useJobsStore.getState().createJob({ type: 'test', data: {} });
+      await useJobsStore.getState().createJob({ type: 'test' });
       useJobsStore.getState().setSelectedJob('job-123');
       useJobsStore.getState().setFilters({ type: ['lead_import'] });
 
