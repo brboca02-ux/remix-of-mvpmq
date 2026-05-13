@@ -82,7 +82,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       const hashes = uniqueLeads.map(l => l.identity_hash).filter(Boolean);
       const { data: existingLeads } = await supabase.from("leads_import")
         .select("*")
-        .in("identity_hash", hashes);
+        .in("identity_hash", hashes.length ? hashes : ['_non_existent_']);
       
       const existingMap = new Map(existingLeads?.map(l => [l.identity_hash, l]) || []);
 
