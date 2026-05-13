@@ -121,13 +121,25 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
       });
       
       const hashes = allLeads.map(l => l.identity_hash).filter((h): h is string => !!h);
-      if (hashes.length > 0) {
-        // Chunk hashes for checking to avoid too large query parameters
-        const chunkSize = 100;
+      const cnpjs = allLeads.map(l => l.cnpj).filter(c => c && !c.startsWith("TEMP:"));
+      const phones = allLeads.map(l => l.telefone).filter((p): p is string => !!p);
+
+      if (hashes.length > 0 || cnpjs.length > 0 || phones.length > 0) {
+        // Chunk to avoid too large query parameters
+        const chunkSize = 50;
         let totalExisting = 0;
-        for (let i = 0; i < hashes.length; i += chunkSize) {
-          const chunk = hashes.slice(i, i + chunkSize);
-          const { existingCount: count } = await checkExistingLeads({ data: { hashes: chunk } });
+        for (let i = 0; i < Math.max(hashes.length, cnpjs.length, phones.length); i += chunkSize) {
+          const chunkHashes = hashes.slice(i, i + chunkSize);
+          const chunkCnpjs = cnpjs.slice(i, i + chunkSize);
+          const chunkPhones = phones.slice(i, i + chunkSize);
+          
+          const { existingCount: count } = await checkExistingLeads({ 
+            data: { 
+              hashes: chunkHashes,
+              cnpjs: chunkCnpjs,
+              phones: chunkPhones
+            } 
+          });
           totalExisting += count;
         }
         setExistingCount(totalExisting);
