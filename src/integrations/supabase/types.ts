@@ -1108,6 +1108,48 @@ export type Database = {
           },
         ]
       }
+      lead_partners: {
+        Row: {
+          cargo: string | null
+          created_at: string | null
+          id: string
+          lead_id: string
+          nome: string
+          qualificacao: string | null
+        }
+        Insert: {
+          cargo?: string | null
+          created_at?: string | null
+          id?: string
+          lead_id: string
+          nome: string
+          qualificacao?: string | null
+        }
+        Update: {
+          cargo?: string | null
+          created_at?: string | null
+          id?: string
+          lead_id?: string
+          nome?: string
+          qualificacao?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_partners_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_import"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_partners_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_master_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_analysis: {
         Row: {
           city: string
@@ -1225,6 +1267,7 @@ export type Database = {
           raw: Json | null
           razao_social: string | null
           site: string | null
+          socios: Json | null
           source: string
           status: string | null
           telefone: string | null
@@ -1277,6 +1320,7 @@ export type Database = {
           raw?: Json | null
           razao_social?: string | null
           site?: string | null
+          socios?: Json | null
           source?: string
           status?: string | null
           telefone?: string | null
@@ -1329,6 +1373,7 @@ export type Database = {
           raw?: Json | null
           razao_social?: string | null
           site?: string | null
+          socios?: Json | null
           source?: string
           status?: string | null
           telefone?: string | null
@@ -2430,6 +2475,7 @@ export type Database = {
           raw: Json | null
           razao_social: string | null
           site: string | null
+          socios: Json | null
           source: string
           status: string | null
           telefone: string | null
