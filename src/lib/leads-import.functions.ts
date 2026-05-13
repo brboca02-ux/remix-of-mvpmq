@@ -360,7 +360,17 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     }
     
     const { data: rows, count } = await q;
-    return { rows: (rows || []).map(r => ({ ...r, score: r.confidence_score })), total: count || 0, page, pageSize };
+    return { 
+      rows: (rows || []).map(r => ({ 
+        ...r, 
+        score: r.confidence_score,
+        // Adicionando flags de enriquecimento para a UI
+        is_enriched: !!r.last_enriched_at || (r.raw?.enriched_fields_count > 0)
+      })), 
+      total: count || 0, 
+      page, 
+      pageSize 
+    };
   });
 
 export const updateLeadOperation = createServerFn({ method: "POST" })
