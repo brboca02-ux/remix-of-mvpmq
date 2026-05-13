@@ -340,7 +340,7 @@ export const useCRMStore = create<CRMState>()(
             const stage = statusToStage[lead.status || 'Novo'] || 'novo';
             if (byStage[stage]) {
               byStage[stage].count++;
-              const value = lead.estimated_value || 0;
+              const value = 0; // estimated_value não existe no banco
               byStage[stage].value += value;
               totalValue += value;
             }
