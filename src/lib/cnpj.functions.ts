@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSupabase, Logger } from "./leads-core";
+import { getSupabase, Logger } from "@/server/leads-core";
 
 export interface Socio {
   nome: string;
@@ -304,7 +304,7 @@ export const lookupCnpj = createServerFn({ method: "POST" })
     // 1. Prioridade: Base Local (Receita Federal) - Através de leads-cnpj-enrichment logic
     // Aqui no buscador usamos a mesma lógica centralizada para consistência
     try {
-      const { getCnpjPublicData } = await import("./leads-cnpj-enrichment");
+      const { getCnpjPublicData } = await import("@/server/leads-cnpj-enrichment");
       const localData = await getCnpjPublicData(cnpj);
       if (localData) {
         // Adaptar StandardLead para CnpjDetails para manter compatibilidade com UI existente
