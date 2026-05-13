@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { analyzeMarket } from "@/server/market.functions";
+import { analyzeMarket } from "@/lib/market.functions";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 import type { MarketAnalysis, Region } from "@/lib/types";
 import { AnalysisDashboard } from "@/components/analysis-dashboard";
