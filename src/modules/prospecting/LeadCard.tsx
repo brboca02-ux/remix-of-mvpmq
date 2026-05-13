@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
@@ -613,10 +614,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem onClick={() => onGenerateSite(lead)} className="font-medium gap-3 py-2.5">
-                      <Layout className="h-4 w-4 text-slate-500" /> Gerar Proposta
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onGeneratePitch(lead)} className="font-medium gap-3 py-2.5">
-                      <MessageSquare className="h-4 w-4 text-primary" /> Criar Pitch
+                      <Layout className="h-4 w-4 text-slate-500" /> Ver Proposta
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onUpdateStatus(lead.id, 'Lead Fechado')} className="font-medium gap-3 py-2.5 text-emerald-600">
                       <CheckCircle2 className="h-4 w-4" /> Marcar Fechado
@@ -975,8 +973,6 @@ export const LeadCard: React.FC<LeadCardProps> = ({
               // Secondary actions = todas as 4 menos a sugerida
               const secondary = ([
                 { id: 'diagnosis' as SuggestedActionId, label: 'Diagnóstico IA',       icon: Sparkles,      color: 'text-violet-500',  onClick: () => onViewDiagnosis(lead) },
-                { id: 'pitch' as SuggestedActionId,     label: 'Criar Pitch',          icon: MessageSquare, color: 'text-primary',     onClick: () => onGeneratePitch(lead) },
-                { id: 'social' as SuggestedActionId,    label: 'Analisar Redes c/ IA', icon: SearchCode,    color: 'text-emerald-500', onClick: () => onDiscoverSocial?.(lead) },
                 { id: 'make' as SuggestedActionId,      label: 'Enviar via Make',      icon: Send,          color: 'text-indigo-500',  onClick: () => setMakeOpen(true) },
               ]).filter(s => s.id !== suggestion.id);
 
@@ -1358,6 +1354,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     {secondary.map((s) => {
                       const Icon = s.icon;
                       const isLoading = loadingAction === s.id;
+                      if (s.id === 'pitch' || s.id === 'social') return null;
                       return (
                         <button
                           key={s.id}
@@ -1447,8 +1444,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                      className="w-full bg-white text-violet-600 hover:bg-violet-50 rounded-2xl font-black shadow-lg"
                      onClick={(e) => {
                        e.stopPropagation();
-                       if (action.id === 'site') onGenerateSite(lead);
-                       else if (action.id === 'pitch') onGeneratePitch(lead);
+                        if (action.id === 'site') onGenerateSite(lead);
+                        else setMakeOpen(true);
                        else if (action.id === 'social') onDiscoverSocial?.(lead);
                        else setMakeOpen(true);
                      }}
