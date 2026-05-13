@@ -87,6 +87,9 @@ describe("SendToMakeDialog", () => {
   it("should handle 401 Unauthorized error and use fallback templates without crashing", async () => {
     const { generateMakeVariants } = await import("@/lib/make-integration.functions");
     (generateMakeVariants as any).mockRejectedValue({ status: 401, message: "Unauthorized" });
+    
+    const { analyzeUserStyle } = await import("@/lib/ai-learning.functions");
+    (analyzeUserStyle as any).mockResolvedValue({ style: "professional" });
 
     render(
       <SendToMakeDialog
