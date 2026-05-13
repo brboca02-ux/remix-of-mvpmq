@@ -562,9 +562,19 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                         ))}
                       </div>
                     </ScrollArea>
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Dica: Corrija estas linhas no arquivo original e reenvie para resgatar esses leads.
-                    </p>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 text-[10px] h-7 gap-1 border-destructive/20 text-destructive hover:bg-destructive/5"
+                        onClick={() => {
+                          onOpenChange(false);
+                          router.navigate({ to: "/agenda/ops", search: { tab: 'auditoria' } });
+                        }}
+                      >
+                        <ShieldAlert className="h-3 w-3" /> Abrir Painel de Auditoria
+                      </Button>
+                    </div>
                   </div>
                 )}
 
