@@ -286,7 +286,16 @@ export const useProspectingStore = create<ProspectingState>()(
       }),
       deleteLead: (id) => set((state) => ({ leads: state.leads.filter(l => l.id !== id) })),
       deleteLeads: (ids) => set((state) => ({ leads: state.leads.filter(l => !ids.includes(l.id)) })),
-      moveLead: (id, newStatus) => set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, status: newStatus } : l) })),
+      moveLead: (id, newStatus) => {
+        set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, status: newStatus, updatedAt: new Date().toISOString() } : l) }));
+        // Sync to backend
+        const lead = get().leads.find(l => l.id === id);
+        if (lead) {
+          import('./sync-service').then(({ syncLeadToBackend }) => {
+            syncLeadToBackend({ ...lead, status: newStatus });
+          });
+        }
+      },
       moveLeads: (ids, newStatus) => set((state) => ({ leads: state.leads.map(l => ids.includes(l.id) ? { ...l, status: newStatus } : l) })),
       upsertLead: (lead) => set((state) => {
         const existing = state.leads.find(l => l.id === lead.id);

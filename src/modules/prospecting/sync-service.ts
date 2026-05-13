@@ -5,43 +5,50 @@ import { AuditLog } from "@/hooks/useAuditStore";
 import { logger } from "@/lib/logger";
 
 /**
- * Service to handle synchronization between local state and Supabase backend
+ * Service to handle synchronization between local state and Supabase backend.
+ * 
+ * Syncs lead changes to the `leads_import` table (the real source of truth).
+ * This ensures that status changes, notes, and updates made in the CRM/Prospecting
+ * modules are persisted to the database.
  */
-export const syncLeadToBackend = async (lead: ProspectLead) => {
+export const syncLeadToBackend = async (lead: ProspectLead): Promise<boolean> => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session?.user;
     
     if (!user) {
-        logger.warn('Lead sync skipped - user not authenticated');
-        return false;
+      logger.warn('Lead sync skipped - user not authenticated');
+      return false;
     }
     
-    const { error } = await (supabase as any)
-      .from('prospect_leads')
+    // Sync to leads_import table (the real table that exists in schema)
+    const { error } = await supabase
+      .from('leads_import')
       .upsert({
         id: lead.id,
-        user_id: user.id,
-        company_name: lead.companyName,
-        niche: lead.niche,
-        city: lead.city,
+        nome: lead.companyName,
+        nicho: lead.niche,
+        cidade: lead.city,
+        uf: '',
+        telefone: lead.whatsapp || '',
+        email: lead.email || '',
+        site: lead.websiteUrl || '',
+        instagram_handle: lead.instagramHandle || '',
         status: lead.status,
-        opportunity_score: lead.opportunityScore,
-        opportunity_level: lead.opportunityLevel,
-        diagnosis: lead.diagnosis,
-        source: lead.source,
-        raw_data: lead,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'id' });
+        source: lead.source || 'manual',
+        confidence_score: (lead.opportunityScore || 0) / 100,
+        atividade: lead.diagnosis || '',
+      } as Record<string, unknown>, { onConflict: 'id' });
 
     if (error) {
-      logger.warn('Lead sync failed', { error });
+      logger.warn('Lead sync to leads_import failed', { error: error.message, leadId: lead.id });
       return false;
     }
 
+    logger.debug('Lead synced to backend', { leadId: lead.id, status: lead.status });
     return true;
   } catch (err) {
-    logger.error('Error syncing lead to backend', err as Error);
+    logger.error('Error syncing lead to backend', err as Error, { leadId: lead.id });
     return false;
   }
 };
