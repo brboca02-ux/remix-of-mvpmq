@@ -49,6 +49,7 @@ export async function getCnpjPublicData(cnpj: string): Promise<Partial<StandardL
         uf: data.uf,
         cnae_principal: String(data.cnae_fiscal),
         status: data.descricao_situacao_cadastral,
+        socios: data.qsa || [],
         source: "brasil_api"
       };
     }
