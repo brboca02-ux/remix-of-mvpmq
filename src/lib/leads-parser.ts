@@ -21,11 +21,14 @@ export function removeAccents(str: string): string {
 export function detectSeparator(text: string): string {
   const firstLine = text.split(/\r?\n|\r/)[0] || "";
   const counts = {
+    "|": (firstLine.match(/\|/g) || []).length,
     ",": (firstLine.match(/,/g) || []).length,
     ";": (firstLine.match(/;/g) || []).length,
     "\t": (firstLine.match(/\t/g) || []).length,
   };
   
+  // Pipe tem prioridade se aparece 3+ vezes (comum em exports de base de dados)
+  if (counts["|"] >= 3) return "|";
   if (counts[";"] > counts[","] && counts[";"] > counts["\t"]) return ";";
   if (counts["\t"] > counts[","] && counts["\t"] > counts[";"]) return "\t";
   return ",";

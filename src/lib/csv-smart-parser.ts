@@ -350,9 +350,12 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
   const commaCount = (firstFewLines.match(/,/g) || []).length;
   
   // If pipe is the dominant separator, use pipe-based parsing
-  const isPipeDelimited = pipeCount > commaCount && pipeCount > semiCount && pipeCount > tabCount;
-  const isSemiDelimited = semiCount > commaCount && semiCount > pipeCount && semiCount > tabCount;
-  const isTabDelimited = tabCount > commaCount && tabCount > pipeCount && tabCount > semiCount;
+  // NOTA: Se pipe aparece pelo menos 3x nas primeiras linhas, é pipe-delimited
+  // (mesmo que tenha vírgulas em campos de endereço)
+  const avgPipesPerLine = pipeCount / Math.min(5, lines.length);
+  const isPipeDelimited = avgPipesPerLine >= 3 || (pipeCount > commaCount && pipeCount > semiCount);
+  const isSemiDelimited = !isPipeDelimited && semiCount > commaCount && semiCount > pipeCount && semiCount > tabCount;
+  const isTabDelimited = !isPipeDelimited && !isSemiDelimited && tabCount > commaCount && tabCount > pipeCount && tabCount > semiCount;
   
   let detectedDelimiter = ",";
   if (isPipeDelimited) detectedDelimiter = "|";
