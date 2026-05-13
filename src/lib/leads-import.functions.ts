@@ -136,7 +136,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
         upsertError.message && errors.push({ 
           job_id: data.job_id, 
           error_message: upsertError.message, 
-          raw_payload: { count: currentLeads.length } 
+          raw_payload: { count: currentLeads.length, first_lead: currentLeads[0]?.nome } 
         });
         continue;
       }
