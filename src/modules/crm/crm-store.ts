@@ -303,7 +303,6 @@ export const useCRMStore = create<CRMState>()(
             .select('status, confidence_score')
             .limit(1000);
           
-          console.log('CRM Store loaded leads:', leads?.length, error);
           if (error) {
             logger.warn('Failed to load pipeline stats from Supabase, using local data', { error });
             set({ pipelineLoading: false });
