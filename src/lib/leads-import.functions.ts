@@ -191,34 +191,34 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
 
      if (job) {
        const isFinished = ((job.processed_rows || 0) + data.leads.length) >= (job.total_rows || 0) || data.is_sampling;
-       const currentStats = (job.source_stats as JobSourceStats) || {};
-       for (const [s, c] of Object.entries(sourceStats)) currentStats[s] = (currentStats[s] || 0) + c;
+       
+       const newStatus = isFinished 
+         ? (failedCount > 0 && successCount === 0 ? "failed" : (failedCount > 0 ? "partial" : "completed")) 
+         : "processing";
+       
+       // Usa o RPC para atualização atômica e evitar race conditions
+       await supabase.rpc('increment_import_job_stats', {
+         p_job_id: data.job_id,
+         p_processed: data.leads.length,
+         p_success: successCount,
+         p_failed: failedCount,
+         p_duplicate: duplicateCount,
+         p_new_status: newStatus,
+         p_source_stats: sourceStats
+       });
  
-         const newStatus = isFinished ? (failedCount > 0 && successCount === 0 ? "failed" : (failedCount > 0 ? "partial" : "completed")) : "processing";
-         
-         await supabase.from("lead_import_jobs").update({
-           processed_rows: (job.processed_rows || 0) + data.leads.length,
-           success_rows: (job.success_rows || 0) + successCount,
-           failed_rows: (job.failed_rows || 0) + failedCount,
-           duplicate_rows: (job.duplicate_rows || 0) + duplicateCount,
-           status: newStatus,
-           source_stats: currentStats,
-           finished_at: isFinished ? now : null,
-           last_heartbeat: now
-         }).eq("id", data.job_id);
- 
-         // Update the mirror job
-         const mirrorJobId = `import_${data.job_id}`;
-         const { data: mirrorJob } = await getSupabase.from("jobs").select("id").eq("idempotency_key", mirrorJobId).maybeSingle();
-         if (mirrorJob) {
-           const statusMap: Record<string, JobStatus> = { processing: "running", completed: "done", failed: "failed", partial: "done" };
-           await internalUpdateJobStatus({
-             jobId: mirrorJob.id,
-             status: statusMap[newStatus] || "running",
-             result: isFinished ? { successCount, failedCount, duplicateCount, sourceStats: currentStats } : undefined,
-             error: newStatus === "failed" ? "Importação falhou ou não processou nenhum lead novo." : undefined
-           });
-         }
+       // Update the mirror job
+       const mirrorJobId = `import_${data.job_id}`;
+       const { data: mirrorJob } = await getSupabase.from("jobs").select("id").eq("idempotency_key", mirrorJobId).maybeSingle();
+       if (mirrorJob) {
+         const statusMap: Record<string, JobStatus> = { processing: "running", completed: "done", failed: "failed", partial: "done" };
+         await internalUpdateJobStatus({
+           jobId: mirrorJob.id,
+           status: statusMap[newStatus] || "running",
+           result: isFinished ? { successCount, failedCount, duplicateCount, sourceStats } : undefined,
+           error: newStatus === "failed" ? "Importação falhou ou não processou nenhum lead novo." : undefined
+         });
+       }
      }
     return { success: true };
   });
