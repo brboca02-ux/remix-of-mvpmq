@@ -96,7 +96,14 @@ export function ActiveJobsBanner() {
                 variant="outline" 
                 size="icon" 
                 className="h-6 w-6 shrink-0" 
-                onClick={() => window.location.reload()}
+                onClick={async () => {
+                  try {
+                    await fetchJobs();
+                    toast.success("Dados atualizados!", { duration: 2000 });
+                  } catch {
+                    toast.error("Erro ao atualizar");
+                  }
+                }}
                 title="Atualizar Agora"
               >
                 <RefreshCw className="h-3 w-3" />
