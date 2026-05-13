@@ -394,6 +394,11 @@ export const updateLeadOperation = createServerFn({ method: "POST" })
   .inputValidator((input: { 
     lead_id: string; 
     updates: {
+      cnpj?: string;
+      nome?: string;
+      telefone?: string;
+      email?: string;
+      site?: string;
       followup_status?: string;
       last_contact_at?: string;
       next_followup_at?: string;
