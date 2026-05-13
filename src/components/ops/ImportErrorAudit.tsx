@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { 
   AlertCircle, RefreshCw, Trash2, Edit, ChevronDown, 
-  ChevronUp, Database, FileText, CheckCircle2, X
+  ChevronUp, Database, FileText, CheckCircle2, X, Search, Calendar, Filter
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { 
   listImportErrors, 
@@ -28,14 +35,18 @@ import { normalizeLead, type StandardLead } from "@/lib/leads-shared";
 export function ImportErrorAudit() {
   const [errors, setErrors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [editingError, setEditingError] = useState<any | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<StandardLead>>({});
+  
+  // Filtros
+  const [searchTerm, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState<string>("");
 
   const fetchErrors = async () => {
     setLoading(true);
     try {
-      const data = await listImportErrors({ data: { limit: 50 } });
+      const data = await listImportErrors({ data: { limit: 100 } });
       setErrors(data);
     } catch (err) {
       console.error("Failed to fetch import errors", err);
@@ -49,6 +60,45 @@ export function ImportErrorAudit() {
     fetchErrors();
   }, []);
 
+  const filteredErrors = useMemo(() => {
+    return errors.filter(error => {
+      // Filtro de texto (CNPJ/Telefone/Mensagem)
+      const rawPayloadStr = JSON.stringify(error.raw_payload || "").toLowerCase();
+      const messageStr = (error.error_message || "").toLowerCase();
+      const searchStr = searchTerm.toLowerCase();
+      
+      const matchesSearch = !searchTerm || 
+        rawPayloadStr.includes(searchStr) || 
+        messageStr.includes(searchStr);
+
+      // Filtro de status de erro
+      const matchesStatus = statusFilter === "all" || 
+        messageStr.includes(statusFilter.toLowerCase());
+
+      // Filtro de data
+      let matchesDate = true;
+      if (dateFilter) {
+        const errorDate = new Date(error.created_at);
+        const filterDate = new Date(dateFilter);
+        matchesDate = isSameDay(errorDate, filterDate);
+      }
+
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+  }, [errors, searchTerm, statusFilter, dateFilter]);
+
+  const uniqueErrorTypes = useMemo(() => {
+    const types = new Set<string>();
+    errors.forEach(e => {
+      if (e.error_message) {
+        // Pega as primeiras 3 palavras para agrupar tipos de erro
+        const words = e.error_message.split(' ').slice(0, 3).join(' ');
+        types.add(words);
+      }
+    });
+    return Array.from(types);
+  }, [errors]);
+
   const handleDelete = async (id: string) => {
     try {
       await deleteImportError({ data: { id } });
@@ -61,7 +111,6 @@ export function ImportErrorAudit() {
 
   const handleEditOpen = (error: any) => {
     const rawData = error.raw_payload || {};
-    // Se o payload for do buscador de lugares ou CSV parcial
     const baseLead = normalizeLead({
       nome: rawData.nome || rawData.name || "",
       telefone: rawData.telefone || rawData.phone || "",
@@ -106,27 +155,81 @@ export function ImportErrorAudit() {
   return (
     <Card className="border-none shadow-none bg-transparent">
       <CardHeader className="px-0 pt-0">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <CardTitle className="text-xl flex items-center gap-2">
               <Database className="h-5 w-5 text-rose-500" /> Auditoria de Falhas
             </CardTitle>
             <CardDescription>Resgate leads que não puderam ser importados automaticamente.</CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchErrors} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} /> Atualizar
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={fetchErrors} disabled={loading}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} /> Atualizar
+            </Button>
+          </div>
+        </div>
+
+        {/* Filtros Rápidos */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-6">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar por CNPJ, Telefone..." 
+              className="pl-9 h-9 text-xs"
+              value={searchTerm}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </div>
+          
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-9 text-xs">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-3.5 w-3.5 opacity-50" />
+                <SelectValue placeholder="Tipo de Erro" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Erros</SelectItem>
+              {uniqueErrorTypes.map((type, i) => (
+                <SelectItem key={i} value={type}>{type}...</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="relative">
+            <Calendar className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              type="date" 
+              className="pl-9 h-9 text-xs"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+            />
+          </div>
+
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-9 text-xs gap-2 text-muted-foreground"
+            onClick={() => {
+              setSearchText("");
+              setStatusFilter("all");
+              setDateFilter("");
+            }}
+          >
+            <X className="h-3.5 w-3.5" /> Limpar Filtros
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="px-0">
+      
+      <CardContent className="px-0 pt-2">
         <div className="rounded-xl border border-white/5 bg-black/40 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[180px]">Data/Hora</TableHead>
-                <TableHead>Motivo da Falha</TableHead>
-                <TableHead>Dados Identificados</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+              <TableRow className="hover:bg-transparent bg-muted/20">
+                <TableHead className="w-[180px] text-[11px] uppercase font-bold">Data/Hora</TableHead>
+                <TableHead className="text-[11px] uppercase font-bold">Motivo da Falha</TableHead>
+                <TableHead className="text-[11px] uppercase font-bold">Dados Identificados</TableHead>
+                <TableHead className="text-right text-[11px] uppercase font-bold">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -136,32 +239,48 @@ export function ImportErrorAudit() {
                     <Loader2 className="h-8 w-8 animate-spin mx-auto opacity-20" />
                   </TableCell>
                 </TableRow>
-              ) : errors.length === 0 ? (
+              ) : filteredErrors.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
                     <CheckCircle2 className="h-8 w-8 mx-auto mb-2 opacity-20 text-emerald-500" />
-                    Nenhum erro de importação pendente.
+                    {errors.length > 0 ? "Nenhum erro corresponde aos filtros aplicados." : "Nenhum erro de importação pendente."}
                   </TableCell>
                 </TableRow>
               ) : (
-                errors.map((error) => (
-                  <TableRow key={error.id} className="group hover:bg-white/5">
+                filteredErrors.map((error) => (
+                  <TableRow key={error.id} className="group hover:bg-white/5 border-b border-white/5">
                     <TableCell className="text-xs font-mono text-muted-foreground">
-                      {format(new Date(error.created_at), "dd/MM/yy HH:mm:ss", { locale: ptBR })}
+                      <div className="flex flex-col">
+                        <span>{format(new Date(error.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
+                        <span className="opacity-50">{format(new Date(error.created_at), "HH:mm:ss")}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs font-bold text-rose-500 line-clamp-1">{error.error_message}</span>
-                        <span className="text-[10px] text-muted-foreground opacity-60">Job ID: {error.job_id?.slice(0, 8)}...</span>
+                        <span className="text-xs font-bold text-rose-500">{error.error_message}</span>
+                        <Badge variant="outline" className="w-fit text-[9px] h-4 border-muted-foreground/20 text-muted-foreground">
+                          Job: {error.job_id?.slice(0, 8)}
+                        </Badge>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-[10px] text-muted-foreground font-mono bg-muted/20 p-1.5 rounded border border-white/5 truncate max-w-[200px]">
-                        {JSON.stringify(error.raw_payload)}
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-[10px] text-muted-foreground font-mono bg-muted/20 p-2 rounded border border-white/5 group-hover:border-white/10 transition-colors overflow-hidden">
+                          <div className="grid grid-cols-1 gap-1">
+                            {Object.entries(error.raw_payload || {}).map(([key, val], idx) => (
+                              val && typeof val === 'string' && val.length > 0 && (
+                                <div key={idx} className="flex gap-2">
+                                  <span className="font-bold uppercase opacity-40">{key}:</span>
+                                  <span className="truncate">{String(val)}</span>
+                                </div>
+                              )
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-1">
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -196,6 +315,10 @@ export function ImportErrorAudit() {
               )}
             </TableBody>
           </Table>
+        </div>
+        <div className="mt-4 flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold tracking-widest px-2">
+          <span>Total: {errors.length} falhas registradas</span>
+          <span>Exibindo: {filteredErrors.length} filtradas</span>
         </div>
       </CardContent>
 
