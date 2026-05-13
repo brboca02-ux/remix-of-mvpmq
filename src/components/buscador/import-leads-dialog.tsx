@@ -194,8 +194,11 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
 
     } catch (e: any) {
       console.error("Import error:", e);
-      setErrorDetails(e?.message || "Não foi possível ler o arquivo CSV. Verifique o formato e tente novamente.");
-      toast.error("Falha na importação");
+      const errorMsg = e?.message || "Não foi possível ler o arquivo CSV. Verifique o formato e tente novamente.";
+      setErrorDetails(errorMsg);
+      // Ensure the error is visible to the user even if they are in the "loading" state
+      setStatusText(`Erro: ${errorMsg}`);
+      toast.error("Falha na importação", { description: errorMsg });
     } finally {
       setLoading(false);
     }
