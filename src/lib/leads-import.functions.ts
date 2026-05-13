@@ -300,9 +300,9 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     const from = (page - 1) * pageSize, to = from + pageSize - 1;
     let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
     
-    if (data.cidade) q = q.ilike("cidade", `%${data.cidade}%`);
-    if (data.uf) q = q.eq("uf", data.uf);
-    if (data.nicho) q = q.eq("nicho", data.nicho);
+    if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
+    if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
+    if (data.nicho && data.nicho !== "") q = q.eq("nicho", data.nicho);
     if (data.jobId) {
       q = q.filter("raw->>job_id", "eq", data.jobId);
     }
