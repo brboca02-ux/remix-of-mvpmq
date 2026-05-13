@@ -8,6 +8,7 @@ import {
   OperationalAdjustment, SalesService, LeadRevenueInsight, DecisionScore, AuditLogEntry, LearningPattern,
   Playbook, AutonomousDecision, ManualAnalysis
 } from './types';
+import { logger } from '@/lib/logger';
 import { calculateOpportunityScore } from './opportunity-score';
 import { generatePitch } from './pitch-generator';
 import { useAuditStore, getLeadDiff, AuditSource } from '@/hooks/useAuditStore';
@@ -371,7 +372,11 @@ export const useProspectingStore = create<ProspectingState>()(
       })),
       setBlockContact: (id, block) => set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, blockContact: block } : l) })),
       confirmContactDelivery: (id, historyId, success) => set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, contactHistory: l.contactHistory?.map(h => h.id === historyId ? { ...h, status: success ? 'confirmado' : 'erro' } : h) } : l) })),
-      executeNextSequenceStep: (id) => {}, 
+      executeNextSequenceStep: (id) => {
+        // TODO: Implementar execução real de sequência de follow-up
+        // Requer integração com WhatsApp Business API ou serviço de email
+        logger.debug('executeNextSequenceStep called (not yet implemented)', { leadId: id });
+      }, 
       updateAutomationMode: (id, mode) => set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, automationMode: mode } : l) })),
       recordMessageResult: (id, historyId, outcome) => set((state): Partial<ProspectingState> => {
         const lead = state.leads.find(l => l.id === id);
@@ -1006,10 +1011,22 @@ export const useProspectingStore = create<ProspectingState>()(
         return { expectedClosures, expectedRevenue, expectedProfit, avgTicket, insight };
       },
 
-      generatePlaybook: () => {},
-      advancePlaybook: () => {},
-      adaptPlaybook: () => {},
-      applyActiveLearning: () => {},
+      generatePlaybook: () => {
+        // TODO: Implementar geração de playbook com IA
+        logger.debug('generatePlaybook called (not yet implemented)');
+      },
+      advancePlaybook: () => {
+        // TODO: Implementar avanço de playbook
+        logger.debug('advancePlaybook called (not yet implemented)');
+      },
+      adaptPlaybook: () => {
+        // TODO: Implementar adaptação de playbook baseada em resultados
+        logger.debug('adaptPlaybook called (not yet implemented)');
+      },
+      applyActiveLearning: () => {
+        // TODO: Implementar active learning baseado em outcomes
+        logger.debug('applyActiveLearning called (not yet implemented)');
+      },
     }),
     { name: 'prospecting-storage' }
   )

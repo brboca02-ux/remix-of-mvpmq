@@ -194,6 +194,61 @@ export const importLeadsCsv = createServerFn({ method: "POST" })
     return { leads: parseUniversalCsv(data.csv, data.nicho) };
   });
 
+/**
+ * Add a single lead manually to Supabase
+ * Used by: ProspectingPage manual add, CRM manual add
+ */
+export const addLeadManual = createServerFn({ method: "POST" })
+  .inputValidator((input: {
+    nome: string;
+    telefone?: string;
+    email?: string;
+    cidade?: string;
+    uf?: string;
+    nicho?: string;
+    site?: string;
+    instagram_handle?: string;
+    atividade?: string;
+    source?: string;
+  }) => input)
+  .handler(async ({ data }) => {
+    const supabase = getSupabase();
+    
+    // Generate identity hash for deduplication
+    const hashBase = `manual:${(data.nome || '').toLowerCase().trim()}:${(data.cidade || '').toLowerCase().trim()}`;
+    const identity_hash = `manual:${hashBase.replace(/[^a-z0-9]/g, '')}`;
+    
+    const leadRow = {
+      nome: data.nome,
+      telefone: data.telefone || null,
+      email: data.email || null,
+      cidade: data.cidade || null,
+      uf: data.uf || null,
+      nicho: data.nicho || 'geral',
+      site: data.site || null,
+      instagram_handle: data.instagram_handle || null,
+      atividade: data.atividade || null,
+      source: data.source || 'manual',
+      status: 'Novo',
+      confidence_score: 0.5,
+      identity_hash,
+    };
+    
+    const { data: inserted, error } = await supabase
+      .from('leads_import')
+      .upsert(leadRow, { onConflict: 'identity_hash', ignoreDuplicates: false })
+      .select('id, nome, cidade')
+      .single();
+    
+    if (error) {
+      logger.error('Failed to add manual lead', error);
+      return { success: false, error: error.message };
+    }
+    
+    logger.info('Manual lead added to Supabase', { id: inserted.id, nome: inserted.nome });
+    return { success: true, lead: inserted };
+  });
+
 export const generateJobReport = createServerFn({ method: "POST" })
   .inputValidator((input: { job_id: string }) => input)
   .handler(async ({ data }) => {

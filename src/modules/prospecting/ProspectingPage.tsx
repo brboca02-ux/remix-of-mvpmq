@@ -208,14 +208,17 @@ export default function ProspectingPage() {
     ).length,
   };
 
-  const handleAddLeads = () => {
+  const handleAddLeads = async () => {
     const parsed = parseRawInput(rawInput);
     if (parsed.length === 0) {
       toast.error("Nenhum dado válido encontrado para importar.");
       return;
     }
 
-    parsed.forEach(p => {
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const p of parsed) {
       const newLead: ProspectLead = {
         id: crypto.randomUUID(),
         companyName: p.companyName || 'Nova Empresa',
@@ -231,9 +234,33 @@ export default function ProspectingPage() {
         ...p
       };
       addLead(newLead);
-    });
 
-    toast.success(`${parsed.length} leads importados com sucesso!`);
+      // Persist to Supabase
+      try {
+        const { addLeadManual } = await import('@/server/leads-import.functions');
+        await addLeadManual({
+          data: {
+            nome: newLead.companyName,
+            telefone: newLead.whatsapp,
+            email: newLead.email,
+            cidade: newLead.city,
+            nicho: newLead.niche,
+            site: newLead.websiteUrl,
+            instagram_handle: newLead.instagramHandle,
+            source: 'manual',
+          }
+        });
+        successCount++;
+      } catch {
+        failCount++;
+      }
+    }
+
+    if (failCount > 0) {
+      toast.warning(`${successCount} leads salvos, ${failCount} falharam ao salvar no servidor.`);
+    } else {
+      toast.success(`${successCount} leads importados e salvos com sucesso!`);
+    }
     setIsAddDialogOpen(false);
     setRawInput('');
   };

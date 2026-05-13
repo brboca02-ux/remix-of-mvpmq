@@ -83,11 +83,69 @@ import { useFollowupEvaluator } from "./useFollowupEvaluator";
 import { PerformanceReport } from '../prospecting/PerformanceReport';
 import { CRMSummaryBar } from "@/components/crm/CRMSummaryBar";
 import { WhatsappExportDialog } from "@/components/crm/WhatsappExportDialog";
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/lib/logger';
 
 const CRMPage: React.FC = () => {
-  const { leads, moveLead, deleteLead, updateLead } = useProspectingStore();
+  const { leads, moveLead, deleteLead, updateLead, addLead } = useProspectingStore();
   const auditLogs = useAuditStore((s) => s.auditLogs);
   const events = useCalendarStore((s) => s.events);
+
+  // P0-2: Sync leads from Supabase (buscador imports) into CRM view
+  useEffect(() => {
+    const loadSupabaseLeads = async () => {
+      try {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session?.session?.user) return;
+
+        const { data: dbLeads, error } = await supabase
+          .from('leads_import')
+          .select('id, nome, telefone, email, cidade, uf, nicho, site, status, atividade, instagram_handle, confidence_score, created_at')
+          .order('created_at', { ascending: false })
+          .limit(200);
+
+        if (error || !dbLeads) return;
+
+        // Merge: add Supabase leads that don't exist locally
+        const existingNames = new Set((leads || []).map(l => l.companyName?.toLowerCase()));
+        let addedCount = 0;
+
+        dbLeads.forEach((dbLead) => {
+          const name = (dbLead.nome || '').toLowerCase();
+          if (name && !existingNames.has(name)) {
+            addLead({
+              id: dbLead.id,
+              companyName: dbLead.nome || 'Sem nome',
+              niche: dbLead.nicho || 'geral',
+              city: dbLead.cidade || '',
+              email: dbLead.email || undefined,
+              whatsapp: dbLead.telefone || undefined,
+              websiteUrl: dbLead.site || undefined,
+              instagramHandle: dbLead.instagram_handle || undefined,
+              source: 'supabase_import',
+              status: (dbLead.status as any) || 'Novo',
+              opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
+              opportunityLevel: 'média',
+              diagnosis: dbLead.atividade || '',
+              createdAt: dbLead.created_at || new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+            addedCount++;
+            existingNames.add(name);
+          }
+        });
+
+        if (addedCount > 0) {
+          logger.info('Synced leads from Supabase to CRM', { addedCount });
+        }
+      } catch (err) {
+        logger.error('Failed to sync leads from Supabase', err as Error);
+      }
+    };
+
+    loadSupabaseLeads();
+  }, []); // Run once on mount
   
   useFollowupEvaluator();
   
