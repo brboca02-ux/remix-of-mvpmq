@@ -130,9 +130,27 @@ export function ResultsTable({
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-[9px] h-4 font-mono px-1">
-                          {c.cnpj}
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "text-[9px] h-4 font-mono px-1",
+                            c.cnpj?.startsWith("TEMP:") && "border-amber-500/50 bg-amber-500/5 text-amber-600 dark:text-amber-400"
+                          )}
+                        >
+                          {c.cnpj?.startsWith("TEMP:") ? "CNPJ FICTÍCIO" : c.cnpj}
                         </Badge>
+                        {c.cnpj?.startsWith("TEMP:") && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <AlertTriangle className="h-3 w-3 text-amber-500 animate-pulse" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-[10px]">Este lead possui um CNPJ gerado pelo sistema. Clique para corrigir.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                         <div className="flex gap-1 ml-1 opacity-60">
                           {c.telefone && <Phone className="h-2.5 w-2.5" />}
                           {c.email && <Mail className="h-2.5 w-2.5" />}
