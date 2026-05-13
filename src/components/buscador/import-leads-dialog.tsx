@@ -522,6 +522,32 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                   ))}
                 </div>
 
+                {/* Parser Errors Rescuing Section */}
+                {parserErrors.length > 0 && (
+                  <div className="mt-4 space-y-3 bg-white p-4 rounded-xl border border-destructive/20 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      <h5 className="text-xs font-black uppercase text-destructive tracking-tight">Falhas Detectadas no Parser ({parserErrors.length})</h5>
+                    </div>
+                    <ScrollArea className="h-[120px] pr-2">
+                      <div className="space-y-2">
+                        {parserErrors.slice(0, 50).map((err, idx) => (
+                          <div key={idx} className="p-2 rounded bg-destructive/5 border border-destructive/10 text-[10px]">
+                            <div className="flex justify-between font-bold text-destructive mb-1">
+                              <span>Linha {err.line}</span>
+                              <span className="opacity-70">{err.reason}</span>
+                            </div>
+                            <code className="block truncate opacity-60 font-mono bg-white/50 p-1 rounded">{err.content}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Dica: Corrija estas linhas no arquivo original e reenvie para resgatar esses leads.
+                    </p>
+                  </div>
+                )}
+
                 <Button variant="outline" className="w-full font-bold h-12" onClick={() => onOpenChange(false)}>
                   Fechar e Ver Leads
                 </Button>
