@@ -94,6 +94,7 @@ export interface StandardLead {
   nicho: string;
   source: string;
   confidence_score: number;
+  socios?: any[] | null;
   raw?: any;
 }
 

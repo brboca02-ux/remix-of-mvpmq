@@ -375,6 +375,37 @@ export function CompanyDetailDialog({
                 <Field icon={<Briefcase className="h-3.5 w-3.5" />} label="CNAE" value={`${company.cnaeCode}`} />
               </div>
             </Section>
+            
+            {company.socios && Array.isArray(company.socios) && company.socios.length > 0 && (
+              <Section title="Quadro de Sócios (QSA)" icon={<Users className="h-4 w-4" />}>
+                <div className="grid grid-cols-1 gap-2">
+                  {company.socios.map((socio: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/40">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                          {socio.nome || socio.nome_socio}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground uppercase">
+                          {socio.qualificacao || socio.cargo || "Sócio"}
+                        </span>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-7 text-[10px] gap-1 hover:bg-violet-100 hover:text-violet-600"
+                        onClick={() => {
+                          const firstName = (socio.nome || socio.nome_socio || "").split(' ')[0];
+                          navigator.clipboard.writeText(firstName);
+                          toast.success(`Nome ${firstName} copiado!`);
+                        }}
+                      >
+                        <Copy className="h-3 w-3" /> Copiar Nome
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
             <Section title="Contato & Site" icon={<MessageCircle className="h-4 w-4" />}>
               <div className="space-y-2">
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
