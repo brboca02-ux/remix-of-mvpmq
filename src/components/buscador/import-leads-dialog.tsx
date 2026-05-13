@@ -108,9 +108,9 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
       }),
     );
     
-    // Quick Duplicate Check (first 20 rows)
+    // Comprehensive Duplicate Check
     try {
-      const sampleLeads = result.previewRows.map((cols) => {
+      const allLeads = result.previewRows.map((cols) => {
         const obj: any = {};
         result.headers.forEach((h, i) => (obj[h] = cols[i] ?? ""));
         return normalizeLead({
@@ -119,13 +119,21 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
           cnpj: obj.cnpj
         });
       });
-      const hashes = sampleLeads.map(l => l.identity_hash).filter((h): h is string => !!h);
+      
+      const hashes = allLeads.map(l => l.identity_hash).filter((h): h is string => !!h);
       if (hashes.length > 0) {
-        const { existingCount: count } = await checkExistingLeads({ data: { hashes } });
-        setExistingCount(count);
+        // Chunk hashes for checking to avoid too large query parameters
+        const chunkSize = 100;
+        let totalExisting = 0;
+        for (let i = 0; i < hashes.length; i += chunkSize) {
+          const chunk = hashes.slice(i, i + chunkSize);
+          const { existingCount: count } = await checkExistingLeads({ data: { hashes: chunk } });
+          totalExisting += count;
+        }
+        setExistingCount(totalExisting);
       }
     } catch (e) {
-      console.warn("Dedupe pre-check failed", e);
+      console.warn("Dedupe check failed", e);
     }
 
     if (result.warnings.length > 0) {
