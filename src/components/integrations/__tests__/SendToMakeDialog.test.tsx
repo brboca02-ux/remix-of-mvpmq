@@ -9,6 +9,22 @@ vi.mock("@/lib/make-integration.functions", () => ({
   sendLeadToMake: vi.fn(),
 }));
 
+// Mock Prospecting Store
+vi.mock("@/modules/prospecting/prospecting-store", () => ({
+  useProspectingStore: () => ({
+    recordMessageResult: vi.fn(),
+    addContactHistory: vi.fn(),
+    getPersuasionProgression: vi.fn(() => ({
+      stage: 'first',
+      recommendedStrategy: 'soft',
+      recommendedIntensity: 'leve',
+      reasoning: 'Test'
+    })),
+    getReadyResponses: vi.fn(() => []),
+    setConversationStage: vi.fn(),
+  })
+}));
+
 vi.mock("@/lib/leads-import.functions", () => ({
   updateLeadOperation: vi.fn(),
 }));
