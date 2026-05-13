@@ -6,7 +6,7 @@
    internalListMarketResearchReports,
    internalGetMarketResearchReport,
    internalDeleteMarketResearchReport
- } from "./market-research.server";
+ } from "@/server/market-research.server";
  import { logger } from "@/lib/logger";
  
  const DEV_USER_ID = "00000000-0000-0000-0000-000000000000";
