@@ -9,9 +9,12 @@ vi.mock("@/lib/make-integration.functions", () => ({
   sendLeadToMake: vi.fn(),
 }));
 
-// Mock useServerFn
+// Mock useServerFn and createServerFn
 vi.mock("@tanstack/react-start", () => ({
   useServerFn: (fn: any) => fn,
+  createServerFn: () => ({
+    handler: (handler: any) => handler,
+  }),
 }));
 
 // Mock sonner toast
