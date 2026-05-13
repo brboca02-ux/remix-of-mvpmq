@@ -1,4 +1,4 @@
-import { Mail, Phone, Globe, Building2, Sparkles, TrendingUp, AlertCircle } from "lucide-react";
+import { Mail, Phone, Globe, Building2, Sparkles, TrendingUp, AlertCircle, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
