@@ -6,7 +6,7 @@
  * 
  * Used in:
  * - src/modules/crm/
- * - src/server/leads-import.functions.ts
+ * - src/lib/leads-import.functions.ts
  * 
  * @module modules/crm/types
  */
@@ -20,7 +20,7 @@ import type { LeadStatus, ContactStatus } from '@/modules/prospecting/types';
 /**
  * Lead update payload
  * Used for updating lead information in the CRM
- * Used in: src/server/leads-import.functions.ts
+ * Used in: src/lib/leads-import.functions.ts
  */
 export interface LeadUpdate {
   /** Lead status */

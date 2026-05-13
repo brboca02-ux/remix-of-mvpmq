@@ -8,8 +8,24 @@
  * @module modules/crm/__tests__/crm-store
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useCRMStore } from '../crm-store';
+
+// Mock Supabase
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue({
+        data: [
+          { status: 'Novo', confidence_score: 80, estimated_value: 1000 },
+          { status: 'Lead Fechado', confidence_score: 100, estimated_value: 5000 }
+        ],
+        error: null
+      })
+    }))
+  }
+}));
 
 describe('CRM Store', () => {
   beforeEach(() => {

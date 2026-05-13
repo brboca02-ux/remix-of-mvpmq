@@ -9,9 +9,37 @@ vi.mock("@/lib/make-integration.functions", () => ({
   sendLeadToMake: vi.fn(),
 }));
 
-// Mock useServerFn
+// Mock Prospecting Store
+vi.mock("@/modules/prospecting/prospecting-store", () => ({
+  useProspectingStore: () => ({
+    recordMessageResult: vi.fn(),
+    addContactHistory: vi.fn(),
+    getPersuasionProgression: vi.fn(() => ({
+      stage: 'first',
+      recommendedStrategy: 'soft',
+      recommendedIntensity: 'leve',
+      reasoning: 'Test'
+    })),
+    getReadyResponses: vi.fn(() => []),
+    setConversationStage: vi.fn(),
+  })
+}));
+
+vi.mock("@/lib/leads-import.functions", () => ({
+  updateLeadOperation: vi.fn(),
+}));
+
+vi.mock("@/lib/ai-learning.functions", () => ({
+  recordLearningAction: vi.fn(),
+  analyzeUserStyle: vi.fn(),
+}));
+
+// Mock useServerFn and createServerFn
 vi.mock("@tanstack/react-start", () => ({
   useServerFn: (fn: any) => fn,
+  createServerFn: () => ({
+    handler: (handler: any) => handler,
+  }),
 }));
 
 // Mock sonner toast
@@ -31,6 +59,7 @@ vi.mock("@/components/ui/dialog", () => ({
   DialogHeader: ({ children }: any) => <div>{children}</div>,
   DialogTitle: ({ children }: any) => <h2>{children}</h2>,
   DialogDescription: ({ children }: any) => <p>{children}</p>,
+  DialogFooter: ({ children }: any) => <footer>{children}</footer>,
 }));
 
 vi.mock("@/components/ui/tabs", () => ({
@@ -58,6 +87,9 @@ describe("SendToMakeDialog", () => {
   it("should handle 401 Unauthorized error and use fallback templates without crashing", async () => {
     const { generateMakeVariants } = await import("@/lib/make-integration.functions");
     (generateMakeVariants as any).mockRejectedValue({ status: 401, message: "Unauthorized" });
+    
+    const { analyzeUserStyle } = await import("@/lib/ai-learning.functions");
+    (analyzeUserStyle as any).mockResolvedValue({ style: "professional" });
 
     render(
       <SendToMakeDialog
