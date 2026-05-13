@@ -395,6 +395,7 @@ export function CompanyDetailDialog({
                       }).then(() => {
                         toast.success("CNPJ atualizado! Recarregando dados...");
                         queryClient.invalidateQueries({ queryKey: ['lead-analysis', company.id] });
+                        onOpenChange(false); // Fecha para forçar atualização da lista e reabertura limpa
                       });
                     } else if (newCnpj) {
                       toast.error("CNPJ inválido. Deve conter 14 dígitos.");
