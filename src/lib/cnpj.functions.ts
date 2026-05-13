@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSupabase, Logger } from "@/server/leads-core";
+import { supabaseAdmin as supabase } from "@/integrations/supabase/client.server";
+import { Logger } from "@/server/leads-core";
 
 export interface Socio {
   nome: string;
@@ -38,7 +39,7 @@ export interface CnpjDetails {
 const TTL = 24 * 60 * 60 * 1000; // 24h
 
 async function getCachedApiData(api_key: string) {
-  const supabase = getSupabase();
+   
   const { data } = await supabase
     .from("public_api_cache")
     .select("response_data")
@@ -49,7 +50,7 @@ async function getCachedApiData(api_key: string) {
 }
 
 async function setApiCacheData(api_key: string, provider: string, data: any) {
-  const supabase = getSupabase();
+   
   const expires_at = new Date(Date.now() + TTL).toISOString();
   await supabase.from("public_api_cache").upsert({
     api_key,
@@ -123,7 +124,7 @@ async function checkOSMAddress(logradouro: string, cidade: string, uf: string): 
 }
 
 async function updateFieldValidation(lead_id: string, field: string, is_valid: boolean, sources: string[], conflict = false) {
-  const supabase = getSupabase();
+   
   await supabase.from("field_validation").upsert({
     lead_id,
     field_name: field,
@@ -383,7 +384,7 @@ export const searchCompanyPresence = createServerFn({ method: "POST" })
 
     await setApiCacheData(api_key, "presence_engine", result);
     
-    const supabase = getSupabase();
+     
     await supabase.from("digital_presence_analysis").upsert({
       lead_id: data.lead_id,
       presence_score: score,
@@ -468,7 +469,7 @@ export async function innerDetectWeakDigitalPresence(data: { lead_id: string; pr
       technical_meta: { presence_score: presence.score, validations: presence.validations }
     };
 
-    const supabase = getSupabase();
+     
     await supabase.from("commercial_opportunities").upsert(result, { onConflict: 'lead_id' });
 
     return result;
@@ -503,7 +504,7 @@ export async function innerGenerateSalesMessage(data: {
     const variant = Math.random() > 0.5 ? 'A' : 'B';
     
     // Get user style preferences
-    const supabase = getSupabase();
+     
     const { data: { user } } = await supabase.auth.getUser();
     let userStyle = null;
     if (user) {
@@ -619,7 +620,7 @@ export const generateFollowUpSequence = createServerFn({ method: "POST" })
       }
     ];
 
-    const supabase = getSupabase();
+     
     await supabase.from("sales_followup_sequences").upsert({
       lead_id: data.lead_id,
       sequence_history: sequence as any,
@@ -632,7 +633,7 @@ export const generateFollowUpSequence = createServerFn({ method: "POST" })
 
 export const getRevenueAnalytics = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data } = await getSupabase().from("revenue_analytics_daily").select("*").order("check_date", { ascending: false }).limit(7);
+    const { data } = await supabase.from("revenue_analytics_daily").select("*").order("check_date", { ascending: false }).limit(7);
     return data || [];
   });
 
@@ -647,7 +648,7 @@ type TrackSalesConversionInput = {
 export const trackSalesConversion = createServerFn({ method: "POST" })
   .inputValidator((input: TrackSalesConversionInput) => input)
   .handler(async ({ data }) => {
-    const supabase = getSupabase();
+     
     const update: any = {};
     if (data.type === 'reply') {
       update.replied = true;
@@ -666,7 +667,7 @@ export const trackSalesConversion = createServerFn({ method: "POST" })
 
 export const getFollowupDashboardData = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabase = getSupabase();
+     
     const { data: sequences } = await supabase
       .from("sales_followup_sequences")
       .select(`
@@ -683,7 +684,7 @@ export const getFollowupDashboardData = createServerFn({ method: "GET" })
 
 export const autoOptimizeMessages = createServerFn({ method: "POST" })
   .handler(async () => {
-    const supabase = getSupabase();
+     
     // Analisar variantes A/B com maior conversão
     const { data: variants } = await supabase
       .from("sales_pitch_history")
@@ -710,7 +711,7 @@ export const autoOptimizeMessages = createServerFn({ method: "POST" })
 
 export const getChannelPerformance = createServerFn({ method: "GET" })
   .handler(async () => {
-    const supabase = getSupabase();
+     
     const { data } = await supabase.from("channel_performance").select("*").order("total_revenue", { ascending: false });
     return data || [];
   });

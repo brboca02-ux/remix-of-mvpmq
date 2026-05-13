@@ -1,9 +1,9 @@
 // @ts-nocheck
  import { createServerFn } from "@tanstack/react-start";
- import { internalEnqueueJob, internalUpdateJobStatus } from "@/server/jobs.server";
-import { getSupabase, normalizeLead, Logger, type StandardLead } from "@/server/leads-core";
-import { processCnpjEnrichment } from "@/server/leads-cnpj-enrichment";
-import { parseUniversalCsv } from "@/server/leads-parser";
+ import { internalEnqueueJob, internalUpdateJobStatus } from "./jobs.server";
+import { getSupabase, normalizeLead, Logger, type StandardLead } from "./leads-core";
+import { processCnpjEnrichment } from "./leads-cnpj-enrichment";
+import { parseUniversalCsv } from "./leads-parser";
 import { logger } from "@/lib/logger";
 import type { ImportError, JobSourceStats, FollowupHistoryItem, HealthCheck } from "@/types/database";
 import type { LeadUpdate } from "@/modules/crm/types";

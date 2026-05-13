@@ -4,7 +4,7 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import React from "react";
 
 // Mock the server functions
-vi.mock("@/lib/make-integration.functions", () => ({
+vi.mock("@/server/make-integration.functions", () => ({
   generateMakeVariants: vi.fn(),
   sendLeadToMake: vi.fn(),
 }));
@@ -56,7 +56,7 @@ describe("SendToMakeDialog", () => {
   });
 
   it("should handle 401 Unauthorized error and use fallback templates without crashing", async () => {
-    const { generateMakeVariants } = await import("@/lib/make-integration.functions");
+    const { generateMakeVariants } = await import("@/server/make-integration.functions");
     (generateMakeVariants as any).mockRejectedValue({ status: 401, message: "Unauthorized" });
 
     render(
@@ -81,7 +81,7 @@ describe("SendToMakeDialog", () => {
   });
 
   it("should handle response with undefined variants", async () => {
-    const { generateMakeVariants } = await import("@/lib/make-integration.functions");
+    const { generateMakeVariants } = await import("@/server/make-integration.functions");
     // Simulate response with missing fields (variantA/variantB missing)
     (generateMakeVariants as any).mockResolvedValue({ used_ai: true });
 
@@ -101,7 +101,7 @@ describe("SendToMakeDialog", () => {
   });
 
   it("should handle completely empty response", async () => {
-    const { generateMakeVariants } = await import("@/lib/make-integration.functions");
+    const { generateMakeVariants } = await import("@/server/make-integration.functions");
     (generateMakeVariants as any).mockResolvedValue(null);
 
     render(

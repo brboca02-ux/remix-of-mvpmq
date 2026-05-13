@@ -238,7 +238,7 @@ export default function ProspectingPage() {
 
       // Persist to Supabase
       try {
-        const { addLeadManual } = await import('@/lib/leads-import.functions');
+        const { addLeadManual } = await import('@/server/leads-import.functions');
         await addLeadManual({
           data: {
             nome: newLead.companyName,

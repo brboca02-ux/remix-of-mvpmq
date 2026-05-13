@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { searchPlacesIds, processPlacesChunk } from "@/lib/places-bulk.functions";
-import { startImportJob } from "@/lib/leads-import.functions";
+import { searchPlacesIds, processPlacesChunk } from "@/server/places-bulk.functions";
+import { startImportJob } from "@/server/leads-import.functions";
 
 interface Props {
   open: boolean;

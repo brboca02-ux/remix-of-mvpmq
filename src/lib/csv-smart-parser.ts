@@ -11,7 +11,7 @@
  * @module lib/csv-smart-parser
  */
 
-import type { StandardLead } from "@/lib/leads-shared";
+import type { StandardLead } from "@/server/leads-core";
 
 // ============================================================================
 // Types

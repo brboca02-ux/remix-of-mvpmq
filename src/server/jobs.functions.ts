@@ -5,7 +5,7 @@ import {
   internalAppendJobEvent, 
    internalRetryJob,
    internalCancelJob
-} from "@/server/jobs.server";
+} from "./jobs.server";
  import { supabaseAdmin } from "@/integrations/supabase/client.server";
  import { logger } from "@/lib/logger";
  import { handleServerError, ErrorCodes, AppError, validateDatabaseResponse } from "@/lib/error-handler";

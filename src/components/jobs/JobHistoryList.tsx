@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { listJobs } from "@/lib/jobs.functions";
+import { listJobs } from "@/server/jobs.functions";
 import { JobProgressCard } from "./JobProgressCard";
 import { Button } from "@/components/ui/button";
 import { Loader2, Inbox } from "lucide-react";

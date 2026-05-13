@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSupabase, Logger } from "@/server/leads-core";
+import { getSupabase, Logger } from "./leads-core";
 
 export interface UserSalesProfile {
   id: string;

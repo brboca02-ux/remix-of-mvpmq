@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { searchCompaniesCached, type CachedSearchResult } from "@/lib/companies-cache.functions";
+import { searchCompaniesCached, type CachedSearchResult } from "@/server/companies-cache.functions";
 import type { Company, CompanyPorte } from "@/lib/company-types";
 import { logger } from "@/lib/logger";
 

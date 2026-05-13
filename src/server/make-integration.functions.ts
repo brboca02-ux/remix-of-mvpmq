@@ -6,7 +6,7 @@ import {
   signPayload,
   maskMessagePreview,
   validateWebhookUrl,
-} from "@/server/make-integration.server";
+} from "./make-integration.server";
 import { logger } from "@/lib/logger";
 import { AppError, ErrorCodes, withRetry } from "@/lib/error-handler";
 import type { MakeWebhookPayload, OutreachStrategy, OutreachIntensity } from "@/types/integrations";

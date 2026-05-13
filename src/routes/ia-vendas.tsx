@@ -5,7 +5,7 @@ import {
   updateUserSalesProfile, 
   getWinnerMessages, 
   analyzeUserStyle 
-} from "@/lib/ai-learning.functions";
+} from "@/server/ai-learning.functions";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";

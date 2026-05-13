@@ -18,7 +18,7 @@ import {
   consultarPJ, consultarWhois, consultarSitePublico,
   registrarConsentimentoPF, listarConsentimentos, revogarConsentimento,
   consultarPF, listarAuditoria,
-} from '@/lib/duediligence.functions'
+} from '@/server/duediligence.functions'
 
 export const Route = createFileRoute('/due-diligence')({
   component: DueDiligencePage,

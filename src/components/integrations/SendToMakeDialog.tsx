@@ -12,12 +12,12 @@ import {
   generateMakeVariants,
   sendLeadToMake,
   type MakeLeadPayload,
-} from "@/lib/make-integration.functions";
-import { updateLeadOperation } from "@/lib/leads-import.functions";
+} from "@/server/make-integration.functions";
+import { updateLeadOperation } from "@/server/leads-import.functions";
 import { 
   recordLearningAction,
   analyzeUserStyle
-} from "@/lib/ai-learning.functions";
+} from "@/server/ai-learning.functions";
 import { 
   Send, Loader2, CheckCircle2, AlertTriangle, MessageCircle, Mail, Instagram, 
   Settings2, RotateCcw, UserCheck, Eye, Edit3, Smartphone, Calendar, 

@@ -1,6 +1,6 @@
  import { Button } from "@/components/ui/button";
  import { useServerFn } from "@tanstack/react-start";
- import { retryJob, cancelJob } from "@/lib/jobs.functions";
+ import { retryJob, cancelJob } from "@/server/jobs.functions";
  import { useState } from "react";
  import { RefreshCcw, XCircle } from "lucide-react";
  import { toast } from "sonner";
