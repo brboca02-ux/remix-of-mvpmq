@@ -396,9 +396,9 @@ export const enrichLeadFull = createServerFn({ method: "POST" })
     uf?: string;
     nome?: string;
   }) => input)
-  .handler(async ({ data }): Promise<{ results: EnrichmentResult[]; summary: Record<string, unknown> }> => {
+  .handler(async ({ data }): Promise<{ results: EnrichmentResult[]; summary: Record<string, any> }> => {
     const results: EnrichmentResult[] = [];
-    const summary: Record<string, unknown> = {};
+    const summary: Record<string, any> = {};
 
     // 1. Consulta CEP (se disponível)
     if (data.cep) {
