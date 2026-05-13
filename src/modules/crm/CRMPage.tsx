@@ -199,9 +199,9 @@ const CRMPage: React.FC = () => {
   const getQualifiedBySource = (source: string) => leads.filter((l: ProspectLead) => l.source === source && (l.status === 'Lead Qualificado' || l.status === 'Lead Fechado')).length;
   
   const channelMetrics = {
-    email: getLeadsBySource('Cold Mail') > 0 ? (getQualifiedBySource('Cold Mail') / getLeadsBySource('Cold Mail')) * 100 : 18.5,
-    whatsapp: getLeadsBySource('WhatsApp') > 0 ? (getQualifiedBySource('WhatsApp') / getLeadsBySource('WhatsApp')) * 100 : 32.2,
-    linkedin: getLeadsBySource('LinkedIn') > 0 ? (getQualifiedBySource('LinkedIn') / getLeadsBySource('LinkedIn')) * 100 : 21.8,
+    email: getLeadsBySource('Cold Mail') > 0 ? (getQualifiedBySource('Cold Mail') / getLeadsBySource('Cold Mail')) * 100 : 0,
+    whatsapp: getLeadsBySource('WhatsApp') > 0 ? (getQualifiedBySource('WhatsApp') / getLeadsBySource('WhatsApp')) * 100 : 0,
+    linkedin: getLeadsBySource('LinkedIn') > 0 ? (getQualifiedBySource('LinkedIn') / getLeadsBySource('LinkedIn')) * 100 : 0,
   };
 
   const avgResponseRate = (channelMetrics.email + channelMetrics.whatsapp + channelMetrics.linkedin) / 3;

@@ -383,9 +383,73 @@ export const useProspectingStore = create<ProspectingState>()(
       setBlockContact: (id, block) => set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, blockContact: block } : l) })),
       confirmContactDelivery: (id, historyId, success) => set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, contactHistory: l.contactHistory?.map(h => h.id === historyId ? { ...h, status: success ? 'confirmado' : 'erro' } : h) } : l) })),
       executeNextSequenceStep: (id) => {
-        // TODO: Implementar execução real de sequência de follow-up
-        // Requer integração com WhatsApp Business API ou serviço de email
-        logger.debug('executeNextSequenceStep called (not yet implemented)', { leadId: id });
+        const state = get();
+        const lead = state.leads.find(l => l.id === id);
+        if (!lead || !lead.sequence || !lead.sequence.isActive) {
+          logger.debug('executeNextSequenceStep: no active sequence', { leadId: id });
+          return;
+        }
+
+        const { sequence } = lead;
+        const currentStep = sequence.steps[sequence.currentStep];
+        
+        if (!currentStep) {
+          // Sequence completed
+          set((s) => ({
+            leads: s.leads.map(l => l.id === id ? {
+              ...l,
+              sequence: { ...l.sequence!, isActive: false, stopReason: 'limit_reached' }
+            } : l)
+          }));
+          logger.info('Follow-up sequence completed', { leadId: id, totalSteps: sequence.totalSteps });
+          return;
+        }
+
+        // Record the contact in history
+        state.addContactHistory(id, {
+          channel: currentStep.channel,
+          status: 'pendente',
+          message: currentStep.suggestedMessage || `Follow-up ${currentStep.label}`,
+          objective: 'open_conversation',
+          style: currentStep.label,
+          intensity: 'medio',
+        });
+
+        // Advance to next step
+        const nextStep = sequence.currentStep + 1;
+        const isLastStep = nextStep >= sequence.totalSteps;
+
+        set((s) => ({
+          leads: s.leads.map(l => l.id === id ? {
+            ...l,
+            sequence: {
+              ...l.sequence!,
+              currentStep: nextStep,
+              isActive: !isLastStep,
+              stopReason: isLastStep ? 'limit_reached' : undefined,
+            },
+            contactStatus: 'Contato enviado hoje' as any,
+            lastContactAt: new Date().toISOString(),
+            nextFollowUpAt: !isLastStep && sequence.steps[nextStep]
+              ? new Date(Date.now() + sequence.steps[nextStep].delayDays * 86400000).toISOString()
+              : undefined,
+          } : l)
+        }));
+
+        // Sync to backend
+        const updatedLead = get().leads.find(l => l.id === id);
+        if (updatedLead) {
+          import('./sync-service').then(({ syncLeadToBackend }) => {
+            syncLeadToBackend(updatedLead);
+          });
+        }
+
+        logger.info('Follow-up step executed', { 
+          leadId: id, 
+          step: sequence.currentStep + 1, 
+          channel: currentStep.channel,
+          label: currentStep.label 
+        });
       }, 
       updateAutomationMode: (id, mode) => set((state) => ({ leads: state.leads.map(l => l.id === id ? { ...l, automationMode: mode } : l) })),
       recordMessageResult: (id, historyId, outcome) => set((state): Partial<ProspectingState> => {
@@ -1021,21 +1085,201 @@ export const useProspectingStore = create<ProspectingState>()(
         return { expectedClosures, expectedRevenue, expectedProfit, avgTicket, insight };
       },
 
-      generatePlaybook: () => {
-        // TODO: Implementar geração de playbook com IA
-        logger.debug('generatePlaybook called (not yet implemented)');
+      generatePlaybook: (leadId: string) => {
+        const state = get();
+        const lead = state.leads.find(l => l.id === leadId);
+        if (!lead) return;
+
+        const niche = lead.niche?.toLowerCase() || 'geral';
+        const hasInstagram = !!(lead.instagramHandle || lead.socialDiscovery?.instagramHandle);
+        const hasWhatsapp = !!lead.whatsapp;
+
+        // Generate intelligent playbook based on lead data
+        const stages = [];
+        let stageIndex = 0;
+
+        // Stage 1: Warm-up (Instagram if available)
+        if (hasInstagram) {
+          stages.push({
+            id: `stage_${stageIndex++}`,
+            label: 'Aquecimento Instagram',
+            channel: 'Instagram' as const,
+            strategy: 'Seguir, curtir 3 posts, ver stories',
+            trigger: 'Início do playbook',
+            objective: 'Criar familiaridade antes do contato direto',
+            delayDays: 0,
+            suggestedMessage: '',
+            alternatives: [],
+            status: 'current' as const,
+          });
+        }
+
+        // Stage 2: First contact (WhatsApp preferred)
+        if (hasWhatsapp) {
+          stages.push({
+            id: `stage_${stageIndex++}`,
+            label: 'Primeiro Contato WhatsApp',
+            channel: 'WhatsApp' as const,
+            strategy: 'Mensagem consultiva curta',
+            trigger: hasInstagram ? '24h após aquecimento' : 'Início',
+            objective: 'Abrir conversa sem parecer spam',
+            delayDays: hasInstagram ? 1 : 0,
+            suggestedMessage: `Olá! Vi o trabalho da ${lead.companyName} e achei muito interessante. Posso te mostrar algo que pode ajudar a atrair mais clientes?`,
+            alternatives: [
+              `Oi! Sou especialista em sites para ${niche}. Posso te mostrar como seus concorrentes estão captando clientes online?`,
+            ],
+            status: 'pending' as const,
+          });
+        }
+
+        // Stage 3: Follow-up
+        stages.push({
+          id: `stage_${stageIndex++}`,
+          label: 'Follow-up Consultivo',
+          channel: (hasWhatsapp ? 'WhatsApp' : 'Instagram') as 'WhatsApp' | 'Instagram' | 'Email',
+          strategy: 'Enviar valor antes de pedir algo',
+          trigger: '3 dias sem resposta',
+          objective: 'Reengajar com conteúdo de valor',
+          delayDays: 3,
+          suggestedMessage: `Oi! Fiz uma análise rápida do seu segmento e encontrei oportunidades interessantes. Posso compartilhar?`,
+          alternatives: [],
+          status: 'pending' as const,
+        });
+
+        // Stage 4: Final attempt
+        stages.push({
+          id: `stage_${stageIndex++}`,
+          label: 'Última Tentativa',
+          channel: 'Email' as const,
+          strategy: 'Email formal com proposta de valor',
+          trigger: '7 dias sem resposta',
+          objective: 'Última tentativa antes de pausar',
+          delayDays: 7,
+          suggestedMessage: `Olá ${lead.companyName}, envio este email como última tentativa de contato. Caso tenha interesse em melhorar sua presença digital, estou à disposição.`,
+          alternatives: [],
+          status: 'pending' as const,
+        });
+
+        const playbook = {
+          id: `playbook_${Date.now()}`,
+          leadId,
+          name: `Playbook ${niche}`,
+          niche,
+          stages,
+          currentStageIndex: 0,
+          conversionChance: lead.closingChance || 30,
+          aggressiveness: 'médio' as const,
+          rejectionRisk: 20,
+          lastAdaptedAt: new Date().toISOString(),
+        };
+
+        set((s) => ({
+          leads: s.leads.map(l => l.id === leadId ? { ...l, playbook } : l)
+        }));
+
+        logger.info('Playbook generated', { leadId, stages: stages.length, niche });
       },
-      advancePlaybook: () => {
-        // TODO: Implementar avanço de playbook
-        logger.debug('advancePlaybook called (not yet implemented)');
+      advancePlaybook: (leadId: string) => {
+        const state = get();
+        const lead = state.leads.find(l => l.id === leadId);
+        if (!lead?.playbook) return;
+
+        const nextIndex = lead.playbook.currentStageIndex + 1;
+        if (nextIndex >= lead.playbook.stages.length) {
+          logger.info('Playbook completed', { leadId });
+          return;
+        }
+
+        const updatedStages = lead.playbook.stages.map((s, i) => ({
+          ...s,
+          status: i < nextIndex ? 'completed' as const : i === nextIndex ? 'current' as const : 'pending' as const,
+        }));
+
+        set((s) => ({
+          leads: s.leads.map(l => l.id === leadId ? {
+            ...l,
+            playbook: { ...l.playbook!, currentStageIndex: nextIndex, stages: updatedStages }
+          } : l)
+        }));
+
+        logger.info('Playbook advanced', { leadId, stage: nextIndex });
       },
-      adaptPlaybook: () => {
-        // TODO: Implementar adaptação de playbook baseada em resultados
-        logger.debug('adaptPlaybook called (not yet implemented)');
+      adaptPlaybook: (leadId: string, behavior: 'ignored' | 'responded' | 'interested' | 'cooling_down') => {
+        const state = get();
+        const lead = state.leads.find(l => l.id === leadId);
+        if (!lead?.playbook) return;
+
+        let aggressiveness = lead.playbook.aggressiveness;
+        let rejectionRisk = lead.playbook.rejectionRisk;
+
+        switch (behavior) {
+          case 'responded':
+            aggressiveness = 'médio';
+            rejectionRisk = Math.max(0, rejectionRisk - 10);
+            break;
+          case 'interested':
+            aggressiveness = 'alto';
+            rejectionRisk = Math.max(0, rejectionRisk - 20);
+            break;
+          case 'ignored':
+            rejectionRisk = Math.min(100, rejectionRisk + 15);
+            break;
+          case 'cooling_down':
+            aggressiveness = 'baixo';
+            rejectionRisk = Math.min(100, rejectionRisk + 25);
+            break;
+        }
+
+        set((s) => ({
+          leads: s.leads.map(l => l.id === leadId ? {
+            ...l,
+            playbook: {
+              ...l.playbook!,
+              aggressiveness,
+              rejectionRisk,
+              lastAdaptedAt: new Date().toISOString(),
+            }
+          } : l)
+        }));
+
+        logger.info('Playbook adapted', { leadId, behavior, aggressiveness, rejectionRisk });
       },
-      applyActiveLearning: () => {
-        // TODO: Implementar active learning baseado em outcomes
-        logger.debug('applyActiveLearning called (not yet implemented)');
+      applyActiveLearning: (outcome: DecisionOutcome) => {
+        const state = get();
+        const patterns = [...state.activeLearningState.winningPatterns];
+        
+        const existingPattern = patterns.find(p => p.name === outcome.strategy);
+        
+        if (existingPattern) {
+          existingPattern.totalUses = (existingPattern.totalUses || 0) + 1;
+          if (outcome.outcome === 'interested' || outcome.outcome === 'responded') {
+            existingPattern.successRate = ((existingPattern.successRate * (existingPattern.totalUses - 1)) + 1) / existingPattern.totalUses;
+          } else {
+            existingPattern.successRate = (existingPattern.successRate * (existingPattern.totalUses - 1)) / existingPattern.totalUses;
+          }
+          existingPattern.lastOutcome = outcome.outcome;
+        } else {
+          patterns.push({
+            id: `pattern_${Date.now()}`,
+            name: outcome.strategy,
+            description: `Estratégia: ${outcome.strategy} via ${outcome.channel}`,
+            successRate: outcome.outcome === 'interested' || outcome.outcome === 'responded' ? 1 : 0,
+            totalUses: 1,
+            bestNiches: [],
+            bestChannels: [outcome.channel],
+            appliedRules: [],
+            lastOutcome: outcome.outcome,
+          });
+        }
+
+        set((s) => ({
+          activeLearningState: {
+            ...s.activeLearningState,
+            winningPatterns: patterns.sort((a, b) => b.successRate - a.successRate).slice(0, 20),
+          }
+        }));
+
+        logger.info('Active learning applied', { strategy: outcome.strategy, outcome: outcome.outcome });
       },
     }),
     { name: 'prospecting-storage' }
