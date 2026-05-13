@@ -402,7 +402,7 @@ function BuscadorPage() {
                   items={result.page}
                   total={result.total}
                   page={page}
-                  perPage={25}
+                  perPage={50}
                   onPageChange={setPage}
                   sortBy={sortBy}
                   onSortChange={setSortBy}
