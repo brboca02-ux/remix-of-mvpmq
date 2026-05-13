@@ -1,7 +1,9 @@
 // @ts-nocheck
- import { createServerFn } from "@tanstack/react-start";
- import { getSupabase, Logger, normalizeLead, withFallback, type StandardLead } from "@/server/leads-core";
- import { internalEnqueueJob, internalUpdateJobStatus, internalAppendJobEvent } from "@/server/jobs.server";
+import { createServerFn } from "@tanstack/react-start";
+import { normalizeLead, withFallback, type StandardLead } from "@/lib/leads-shared";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
+import { logger as Logger } from "@/lib/logger";
+import { internalEnqueueJob, internalUpdateJobStatus, internalAppendJobEvent } from "@/server/jobs.server";
 
 const PLACES_KEY = () => process.env.GOOGLE_PLACES_API_KEY;
 
