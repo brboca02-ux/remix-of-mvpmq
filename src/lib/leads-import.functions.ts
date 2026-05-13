@@ -67,8 +67,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
       
       // Batch upsert leads para maior performance e menos requests
+      // Filter out duplicates within the current chunk to avoid "ON CONFLICT DO UPDATE command cannot affect row a second time"
+      const uniqueLeads = Array.from(new Map(currentLeads.map(l => [l.identity_hash, l])).values());
       const { data: upserted, error: upsertError } = await supabase.from("leads_import").upsert(
-        currentLeads.map(lead => ({
+        uniqueLeads.map(lead => ({
           ...lead,
           raw: { ...(lead.raw || {}), job_id: data.job_id }
         })), 
