@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getSupabase, Logger } from "@/server/leads-core";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
+import { logger as Logger } from "@/lib/logger";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
