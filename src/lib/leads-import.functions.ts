@@ -67,8 +67,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       const currentLeads = data.leads.slice(i, i + CHUNK_SIZE_LIMIT);
       
       // Batch upsert leads para maior performance e menos requests
+      // Filter out duplicates within the current chunk to avoid "ON CONFLICT DO UPDATE command cannot affect row a second time"
+      const uniqueLeads = Array.from(new Map(currentLeads.map(l => [l.identity_hash, l])).values());
       const { data: upserted, error: upsertError } = await supabase.from("leads_import").upsert(
-        currentLeads.map(lead => ({
+        uniqueLeads.map(lead => ({
           ...lead,
           raw: { ...(lead.raw || {}), job_id: data.job_id }
         })), 
@@ -300,9 +302,9 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     const from = (page - 1) * pageSize, to = from + pageSize - 1;
     let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
     
-    if (data.cidade) q = q.ilike("cidade", `%${data.cidade}%`);
-    if (data.uf) q = q.eq("uf", data.uf);
-    if (data.nicho) q = q.eq("nicho", data.nicho);
+    if (data.cidade && data.cidade !== "") q = q.ilike("cidade", `%${data.cidade}%`);
+    if (data.uf && data.uf !== "") q = q.eq("uf", data.uf);
+    if (data.nicho && data.nicho !== "") q = q.eq("nicho", data.nicho);
     if (data.jobId) {
       q = q.filter("raw->>job_id", "eq", data.jobId);
     }
