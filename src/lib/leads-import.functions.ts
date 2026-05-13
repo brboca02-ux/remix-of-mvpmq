@@ -604,7 +604,11 @@ export const checkExistingLeads = createServerFn({ method: "POST" })
     let q = supabase.from("leads_import").select("id", { count: "exact", head: true });
     
     const conditions = [];
-    if (hashes.length) conditions.push(`identity_hash.in.(${hashes.join(',')})`);
+    if (hashes.length) {
+      // Escape parentheses for PostgREST .or() filter
+      const escapedHashes = hashes.map(h => h.replace(/[()]/g, '\\$&'));
+      conditions.push(`identity_hash.in.(${escapedHashes.join(',')})`);
+    }
     if (cnpjs.length) {
       const cleanCnpjs = cnpjs.map(c => c.replace(/\D/g, '')).filter(c => c.length === 14);
       if (cleanCnpjs.length) conditions.push(`cnpj.in.(${cleanCnpjs.join(',')})`);
