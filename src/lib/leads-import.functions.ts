@@ -82,7 +82,7 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
       const hashes = uniqueLeads.map(l => l.identity_hash).filter(Boolean);
       const { data: existingLeads } = await supabase.from("leads_import")
         .select("*")
-        .in("identity_hash", hashes);
+        .in("identity_hash", hashes.length ? hashes : ['_non_existent_']);
       
       const existingMap = new Map(existingLeads?.map(l => [l.identity_hash, l]) || []);
 
@@ -180,7 +180,10 @@ export const processImportJobChunk = createServerFn({ method: "POST" })
         sourceStats[src] = (sourceStats[src] || 0) + 1;
       }
     }
-    if (errors.length > 0) await supabase.from("lead_import_errors").insert(errors);
+    if (errors.length > 0) {
+      await supabase.from("lead_import_errors").insert(errors);
+      failedCount += errors.length;
+    }
 
      if (job) {
        const isFinished = ((job.processed_rows || 0) + data.leads.length) >= (job.total_rows || 0) || data.is_sampling;
@@ -601,7 +604,11 @@ export const checkExistingLeads = createServerFn({ method: "POST" })
     let q = supabase.from("leads_import").select("id", { count: "exact", head: true });
     
     const conditions = [];
-    if (hashes.length) conditions.push(`identity_hash.in.(${hashes.join(',')})`);
+    if (hashes.length) {
+      // Escape parentheses for PostgREST .or() filter
+      const escapedHashes = hashes.map(h => h.replace(/[()]/g, '\\$&'));
+      conditions.push(`identity_hash.in.(${escapedHashes.join(',')})`);
+    }
     if (cnpjs.length) {
       const cleanCnpjs = cnpjs.map(c => c.replace(/\D/g, '')).filter(c => c.length === 14);
       if (cleanCnpjs.length) conditions.push(`cnpj.in.(${cleanCnpjs.join(',')})`);
