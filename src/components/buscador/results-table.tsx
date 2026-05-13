@@ -42,6 +42,7 @@ export function ResultsTable({
   sortBy: SortKey;
   onSortChange: (s: SortKey) => void;
   onSelect?: (c: Company) => void;
+  perPage?: number;
 }) {
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
