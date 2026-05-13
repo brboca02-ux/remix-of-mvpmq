@@ -528,12 +528,38 @@ export const recoverStuckJobs = createServerFn({ method: "POST" })
   });
 
 export const checkExistingLeads = createServerFn({ method: "POST" })
-  .inputValidator((input: { hashes: string[] }) => input)
+  .inputValidator((input: { hashes?: string[]; cnpjs?: string[]; phones?: string[]; }) => input)
   .handler(async ({ data }) => {
-    if (!data.hashes.length) return { existingCount: 0 };
-    const { count } = await getSupabase
-      .from("leads_import")
-      .select("*", { count: "exact", head: true })
-      .in("identity_hash", data.hashes);
+    const supabase = getSupabase;
+    const { hashes = [], cnpjs = [], phones = [] } = data;
+    
+    if (!hashes.length && !cnpjs.length && !phones.length) return { existingCount: 0 };
+    
+    let q = supabase.from("leads_import").select("id", { count: "exact", head: true });
+    
+    const conditions = [];
+    if (hashes.length) conditions.push(`identity_hash.in.(${hashes.join(',')})`);
+    if (cnpjs.length) {
+      const cleanCnpjs = cnpjs.map(c => c.replace(/\D/g, '')).filter(c => c.length === 14);
+      if (cleanCnpjs.length) conditions.push(`cnpj.in.(${cleanCnpjs.join(',')})`);
+    }
+    if (phones.length) {
+      const cleanPhones = phones.map(p => p.replace(/\D/g, '')).filter(p => p.length >= 10);
+      if (cleanPhones.length) conditions.push(`telefone.in.(${cleanPhones.join(',')})`);
+    }
+    
+    if (conditions.length === 0) return { existingCount: 0 };
+    
+    const { count, error } = await q.or(conditions.join(','));
+    
+    if (error) {
+       // Fallback to identity_hash only if OR query fails (e.g. too complex)
+       const { count: fallbackCount } = await supabase
+         .from("leads_import")
+         .select("id", { count: "exact", head: true })
+         .in("identity_hash", hashes);
+       return { existingCount: fallbackCount || 0 };
+    }
+    
     return { existingCount: count || 0 };
   });

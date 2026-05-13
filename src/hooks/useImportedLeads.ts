@@ -33,7 +33,7 @@ function adapt(rows: any[]): Company[] {
     email: r.email ?? undefined,
     telefone: r.telefone ?? undefined,
     site: r.site ?? undefined,
-    status: (r.status || "").toLowerCase().includes("ativ") || !r.status ? "ativa" : "inativa",
+    status: (r.status || "").toLowerCase().includes("ativ") || !r.status || r.status === "unknown" ? "ativa" : "inativa",
     faturamentoEstimado: 0,
     funcionarios: 0,
     capitalSocial: Number(r.capital_social) || 0,
@@ -75,7 +75,7 @@ export function useImportedLeads(args: UseImportedLeadsArgs): UseImportedLeadsRe
   const { cnaeCodes, cidades, estados, text, jobId } = args;
   const cidade = cidades[0] || "";
   const uf = estados[0] || "";
-  const nicho = cnaeCodes.length > 0 ? (cnaeCodes.find((c) => CNAE_TO_NICHO[c]) ? "solar" : undefined) : undefined;
+  const nicho = cnaeCodes.length > 0 ? (CNAE_TO_NICHO[cnaeCodes[0]] || undefined) : undefined;
   const filtro = (text || "").trim();
 
   const [state, setState] = useState<{ companies: Company[]; loading: boolean; total: number }>({

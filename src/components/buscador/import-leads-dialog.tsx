@@ -108,9 +108,9 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
       }),
     );
     
-    // Quick Duplicate Check (first 20 rows)
+    // Comprehensive Duplicate Check
     try {
-      const sampleLeads = result.previewRows.map((cols) => {
+      const allLeads = result.previewRows.map((cols) => {
         const obj: any = {};
         result.headers.forEach((h, i) => (obj[h] = cols[i] ?? ""));
         return normalizeLead({
@@ -119,13 +119,33 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
           cnpj: obj.cnpj
         });
       });
-      const hashes = sampleLeads.map(l => l.identity_hash).filter((h): h is string => !!h);
-      if (hashes.length > 0) {
-        const { existingCount: count } = await checkExistingLeads({ data: { hashes } });
-        setExistingCount(count);
+      
+      const hashes = allLeads.map(l => l.identity_hash).filter((h): h is string => !!h);
+      const cnpjs = allLeads.map(l => l.cnpj).filter(c => c && !c.startsWith("TEMP:"));
+      const phones = allLeads.map(l => l.telefone).filter((p): p is string => !!p);
+
+      if (hashes.length > 0 || cnpjs.length > 0 || phones.length > 0) {
+        // Chunk to avoid too large query parameters
+        const chunkSize = 50;
+        let totalExisting = 0;
+        for (let i = 0; i < Math.max(hashes.length, cnpjs.length, phones.length); i += chunkSize) {
+          const chunkHashes = hashes.slice(i, i + chunkSize);
+          const chunkCnpjs = cnpjs.slice(i, i + chunkSize);
+          const chunkPhones = phones.slice(i, i + chunkSize);
+          
+          const { existingCount: count } = await checkExistingLeads({ 
+            data: { 
+              hashes: chunkHashes,
+              cnpjs: chunkCnpjs,
+              phones: chunkPhones
+            } 
+          });
+          totalExisting += count;
+        }
+        setExistingCount(totalExisting);
       }
     } catch (e) {
-      console.warn("Dedupe pre-check failed", e);
+      console.warn("Dedupe check failed", e);
     }
 
     if (result.warnings.length > 0) {
@@ -327,7 +347,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                      <div className="flex-1">
                        <p className="text-xs font-bold text-blue-900 uppercase">Aviso de Duplicados</p>
                        <p className="text-[10px] text-blue-800/80 leading-relaxed">
-                         Detectamos que <strong>{existingCount} dos {previewLeads.length}</strong> primeiros leads já existem na base. 
+                         Detectamos que <strong>{existingCount} dos {rowCount}</strong> leads já existem na base. 
                          Eles serão atualizados automaticamente durante a importação.
                        </p>
                      </div>
