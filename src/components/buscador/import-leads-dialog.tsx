@@ -1,5 +1,9 @@
 import { useCallback, useState, useRef, useEffect } from "react";
-import { Upload, FileUp, Loader2, CheckCircle2, AlertCircle, FileText, LayoutList, ClipboardPaste, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { 
+  Upload, FileUp, Loader2, CheckCircle2, AlertCircle, FileText, 
+  LayoutList, ClipboardPaste, X, ArrowRight, ShieldCheck, ShieldAlert 
+} from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
