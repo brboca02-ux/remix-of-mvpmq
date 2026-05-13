@@ -1,7 +1,9 @@
 // @ts-nocheck
  import { createServerFn } from "@tanstack/react-start";
  import { internalEnqueueJob, internalUpdateJobStatus } from "@/server/jobs.server";
-import { getSupabase, normalizeLead, Logger, type StandardLead } from "@/server/leads-core";
+import { normalizeLead, type StandardLead } from "@/lib/leads-shared";
+import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
+import { logger as Logger } from "@/lib/logger";
 import { processCnpjEnrichment } from "@/server/leads-cnpj-enrichment";
 import { parseUniversalCsv } from "@/server/leads-parser";
 import { logger } from "@/lib/logger";

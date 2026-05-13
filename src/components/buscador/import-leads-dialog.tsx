@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { validateCsvFile, type CsvValidationResult } from "@/lib/csv-validator";
 import { cn } from "@/lib/utils";
-import { normalizeLead } from "@/server/leads-core";
+import { normalizeLead } from "@/lib/leads-shared";
 
 interface Props {
   open: boolean;
