@@ -364,7 +364,7 @@ export const listImportedLeads = createServerFn({ method: "GET" })
     let q = supabase.from("leads_import").select("*", { count: "exact" }).range(from, to).order("created_at", { ascending: false });
     
     // Se estiver filtrando por jobId, precisamos usar o filtro correto no JSONB
-    if (data.jobId) {
+    if (data.jobId && data.jobId !== "") {
       q = q.or(`raw->>job_id.eq.${data.jobId},raw->>last_job_id.eq.${data.jobId}`);
     }
 
