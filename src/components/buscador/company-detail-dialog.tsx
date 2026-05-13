@@ -367,7 +367,51 @@ export function CompanyDetailDialog({
           </div>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {company.cnpj?.startsWith("TEMP:") && (
+          <div className="mx-6 mb-4 p-4 rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900/50 flex items-start gap-4 animate-in slide-in-from-top-2">
+            <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
+              <ShieldAlert className="h-6 w-6" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <h4 className="font-bold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                Atenção: CNPJ Fictício Detectado
+                <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 h-5 text-[10px]">REQUER CORREÇÃO</Badge>
+              </h4>
+              <p className="text-sm text-amber-800/80 dark:text-amber-300/80 leading-relaxed">
+                Este lead foi importado sem um CNPJ válido. Para desbloquear a consulta na Receita Federal e enriquecimento completo, informe o CNPJ real da empresa.
+              </p>
+              <div className="flex gap-3 pt-2">
+                <Button 
+                  size="sm" 
+                  className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl h-8 text-xs font-bold shadow-lg shadow-amber-600/20"
+                  onClick={() => {
+                    const newCnpj = window.prompt("Informe o CNPJ correto (apenas números):", "");
+                    if (newCnpj && newCnpj.replace(/\D/g, "").length === 14) {
+                      updateOperationFn({
+                        data: {
+                          lead_id: company.id,
+                          updates: { cnpj: newCnpj.replace(/\D/g, "") }
+                        }
+                      }).then(() => {
+                        toast.success("CNPJ atualizado! Recarregando dados...");
+                        queryClient.invalidateQueries({ queryKey: ['lead-analysis', company.id] });
+                      });
+                    } else if (newCnpj) {
+                      toast.error("CNPJ inválido. Deve conter 14 dígitos.");
+                    }
+                  }}
+                >
+                  Corrigir Agora
+                </Button>
+                <Button variant="ghost" size="sm" className="h-8 text-xs text-amber-700 hover:bg-amber-100" onClick={() => setIsDiscardDialogOpen(true)}>
+                  Descartar Lead
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-6">
           <div className="lg:col-span-7 space-y-4 pt-2">
             <Section title="Identidade" icon={<Building2 className="h-4 w-4" />}>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
