@@ -335,7 +335,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                      <div className="flex-1">
                        <p className="text-xs font-bold text-blue-900 uppercase">Aviso de Duplicados</p>
                        <p className="text-[10px] text-blue-800/80 leading-relaxed">
-                         Detectamos que <strong>{existingCount} dos {previewLeads.length}</strong> primeiros leads já existem na base. 
+                         Detectamos que <strong>{existingCount} dos {rowCount}</strong> leads já existem na base. 
                          Eles serão atualizados automaticamente durante a importação.
                        </p>
                      </div>
