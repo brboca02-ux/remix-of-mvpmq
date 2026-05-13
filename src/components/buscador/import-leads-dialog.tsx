@@ -1,5 +1,9 @@
 import { useCallback, useState, useRef, useEffect } from "react";
-import { Upload, FileUp, Loader2, CheckCircle2, AlertCircle, FileText, LayoutList, ClipboardPaste, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { 
+  Upload, FileUp, Loader2, CheckCircle2, AlertCircle, FileText, 
+  LayoutList, ClipboardPaste, X, ArrowRight, ShieldCheck, ShieldAlert 
+} from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -44,6 +48,8 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
   const [parserErrors, setParserErrors] = useState<any[]>([]);
   const [existingCount, setExistingCount] = useState<number | null>(null);
   const [validation, setValidation] = useState<Extract<CsvValidationResult, { valid: true }> | null>(null);
+
+  const router = useRouter();
 
   const resetState = useCallback(() => {
     setFile(null);
@@ -562,9 +568,19 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                         ))}
                       </div>
                     </ScrollArea>
-                    <p className="text-[10px] text-muted-foreground italic">
-                      Dica: Corrija estas linhas no arquivo original e reenvie para resgatar esses leads.
-                    </p>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 text-[10px] h-7 gap-1 border-destructive/20 text-destructive hover:bg-destructive/5"
+                        onClick={() => {
+                          onOpenChange(false);
+                          router.navigate({ to: "/agenda/ops", search: { tab: 'auditoria' } });
+                        }}
+                      >
+                        <ShieldAlert className="h-3 w-3" /> Abrir Painel de Auditoria
+                      </Button>
+                    </div>
                   </div>
                 )}
 

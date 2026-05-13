@@ -5,8 +5,9 @@ import {
   Settings, HeartPulse, Terminal, Wrench, 
   Download, Copy, Search, ShieldAlert, Lock,
   FileJson, FileSpreadsheet, CheckCircle2, XCircle,
-  Target, Instagram, Layout
+  Target, Instagram, Layout, ShieldClose
 } from "lucide-react";
+import { ImportErrorAudit } from "@/components/ops/ImportErrorAudit";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -87,6 +88,9 @@ function AgendaOpsPage() {
             <TabsTrigger value="jobs" className="gap-2">
               <Activity className="h-4 w-4" /> Jobs
             </TabsTrigger>
+            <TabsTrigger value="auditoria" className="gap-2 text-rose-500">
+              <ShieldAlert className="h-4 w-4" /> Falhas de Importação
+            </TabsTrigger>
             <TabsTrigger value="captacao" className="gap-2">
               <Target className="h-4 w-4" /> Captação
             </TabsTrigger>
@@ -106,6 +110,10 @@ function AgendaOpsPage() {
 
           <TabsContent value="jobs">
             <JobControlPanel />
+          </TabsContent>
+
+          <TabsContent value="auditoria">
+            <ImportErrorAudit />
           </TabsContent>
 
           <TabsContent value="captacao">

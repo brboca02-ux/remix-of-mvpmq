@@ -634,3 +634,31 @@ export const checkExistingLeads = createServerFn({ method: "POST" })
     
     return { existingCount: count || 0 };
   });
+
+export const listImportErrors = createServerFn({ method: "GET" })
+  .inputValidator((input: { job_id?: string; limit?: number }) => input)
+  .handler(async ({ data }) => {
+    const supabase = getSupabase;
+    let q = supabase.from("lead_import_errors").select("*").order("created_at", { ascending: false });
+    if (data.job_id) q = q.eq("job_id", data.job_id);
+    if (data.limit) q = q.limit(data.limit);
+    
+    const { data: errors } = await q;
+    return errors || [];
+  });
+
+export const deleteImportError = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string }) => input)
+  .handler(async ({ data }) => {
+    const { error } = await getSupabase.from("lead_import_errors").delete().eq("id", data.id);
+    if (error) throw error;
+    return { success: true };
+  });
+
+export const updateLeadManual = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string; updates: Partial<StandardLead> }) => input)
+  .handler(async ({ data }) => {
+    const { error } = await getSupabase.from("leads_import").update(data.updates as any).eq("id", data.id);
+    if (error) throw error;
+    return { success: true };
+  });
