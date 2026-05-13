@@ -10,7 +10,8 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { MarketResearchReport } from '@/types/market-research';
+import type { MarketResearchReport as BaseReport, MarketResearchSavedReport } from '@/types/market-research';
+type MarketResearchReport = MarketResearchSavedReport;
 import type { ResearchContext } from './types';
 import { logger } from '@/lib/logger';
 
