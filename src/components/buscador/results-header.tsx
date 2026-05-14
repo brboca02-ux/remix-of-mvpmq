@@ -184,14 +184,25 @@ export function ResultsHeader({
           <Button 
             variant="ghost" 
             size="sm" 
-            className={cn("h-8 text-[11px] font-bold uppercase whitespace-nowrap px-3", !cacheStatus?.warning ? "bg-background shadow-sm rounded-lg" : "opacity-60 hover:opacity-100")}
+            onClick={() => onSearchTextChange("")}
+            className={cn("h-8 text-[11px] font-bold uppercase whitespace-nowrap px-3", !searchText ? "bg-background shadow-sm rounded-lg" : "opacity-60 hover:opacity-100")}
           >
-            Minha Base
+            Ver Tudo
           </Button>
-          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase opacity-60 hover:opacity-100 whitespace-nowrap px-3">
-            Bases Públicas
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => onSearchTextChange("ativa")}
+            className={cn("h-8 text-[11px] font-bold uppercase whitespace-nowrap px-3", searchText === "ativa" ? "bg-background shadow-sm rounded-lg" : "opacity-60 hover:opacity-100")}
+          >
+            Empresas Ativas
           </Button>
-          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase opacity-60 hover:opacity-100 whitespace-nowrap px-3">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => onSearchTextChange("digital")}
+            className={cn("h-8 text-[11px] font-bold uppercase whitespace-nowrap px-3", searchText === "digital" ? "bg-background shadow-sm rounded-lg" : "opacity-60 hover:opacity-100")}
+          >
             Inteligência IA
           </Button>
         </div>

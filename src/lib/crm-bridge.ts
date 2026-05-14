@@ -33,6 +33,24 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
   const store = useProspectingStore.getState();
   const existing = store.leads;
 
+  // Filtra leads que ainda não estão no CRM (pelo CNPJ ou Telefone) antes de aplicar limite
+  const phoneIndex = new Set(
+    existing.map((l) => normPhone(l.whatsapp)).filter((p) => p.length >= 10)
+  );
+  const cnpjIndex = new Set(
+    existing
+      .map((l) => (l as any).raw?.cnpj || (l as any).cnpj)
+      .filter(Boolean)
+      .map((c: string) => c.replace(/\D/g, ''))
+  );
+
+  const trulyNewLeads = leads.filter(lead => {
+    const phone = normPhone(lead.phone);
+    const cnpj = (lead.raw?.cnpj as string || '').replace(/\D/g, '');
+    const isDuplicate = (cnpj && cnpjIndex.has(cnpj)) || (phone.length >= 10 && phoneIndex.has(phone));
+    return !isDuplicate;
+  });
+
   // Limite de 100 leads por dia
   const today = new Date().toISOString().split('T')[0];
   const sentTodayCount = existing.filter(l => 
@@ -44,21 +62,13 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
   }
 
   const remainingQuota = 100 - sentTodayCount;
-  const leadsToProcess = leads.slice(0, remainingQuota);
+  const leadsToProcess = trulyNewLeads.slice(0, remainingQuota);
 
-  const phoneIndex = new Set(
-    existing.map((l) => normPhone(l.whatsapp)).filter((p) => p.length >= 10)
-  );
+  // Re-índice para business name check (mais custoso)
   const businessIndex = new Set(
     existing
       .filter((l) => l.companyName)
       .map((l) => `${normKey(l.companyName)}|${normKey(l.city)}`)
-  );
-  const cnpjIndex = new Set(
-    existing
-      .map((l) => (l as any).raw?.cnpj || (l as any).cnpj)
-      .filter(Boolean)
-      .map((c: string) => c.replace(/\D/g, ''))
   );
 
   let created = 0;

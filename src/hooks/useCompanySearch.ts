@@ -81,8 +81,12 @@ export function useCompanySearch(
         if (ds.score < filter.digitalScoreMin) return false;
       }
       if (text) {
-        const hay = `${c.nome} ${c.cnpj} ${c.cidade} ${c.estado} ${c.cnaeLabel} ${c.sector}`.toLowerCase();
-        if (!hay.includes(text)) return false;
+        const hay = `${c.nome} ${c.cnpj} ${c.cidade} ${c.estado} ${c.cnaeLabel} ${c.sector} ${c.status} ${c.porte}`.toLowerCase();
+        if (text === 'digital' || text === 'ia') {
+          if (c.score < 50) return false;
+        } else if (!hay.includes(text)) {
+          return false;
+        }
       }
       return true;
     });
