@@ -1716,7 +1716,7 @@ export default function ProspectingPage() {
                                 try {
                                   const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
                                   if (!domain) return;
-                                  const res = await hunterFindEmails({ data: { domain, company: selectedLead.companyName } });
+                                  const res = await hunterFindEmails({ domain, company: selectedLead.companyName });
                                   if (res.success && res.data.emails?.length > 0) {
                                     const email = res.data.emails[0].email;
                                     setSelectedLead({ ...selectedLead, email });
