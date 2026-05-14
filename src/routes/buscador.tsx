@@ -123,7 +123,9 @@ function BuscadorPage() {
     [imported.companies, cached.companies],
   );
 
-  const result = useCompanySearch(filter, page, 50, sortBy, extras); // Aumentado perPage para 50 para ver mais leads por página
+  const crmLeads = useProspectingStore((s) => s.leads);
+  const result = useCompanySearch(filter, page, 50, sortBy, extras, crmLeads); 
+
 
   // Métricas sincronizadas com filtros via RPC Real
   const { data: metrics, isLoading: metricsLoading } = useQuery({
