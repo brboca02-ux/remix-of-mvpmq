@@ -1,3 +1,4 @@
+"use client";
 // @ts-nocheck
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
@@ -120,20 +121,20 @@ import { createServerFn } from "@tanstack/react-start";
 import { analyzePageSpeed as analyzePageSpeedFn } from '../../lib/pagespeed.functions';
 
 const hunterFindEmails = createServerFn({ method: "POST" })
-  .handler(async (args: any) => {
+  .handler(async (ctx: any) => {
     const { hunterFindEmails: fn } = await import('../../server/enrichment-paid-providers');
-    return fn(args);
+    return fn(ctx.data);
   });
 
 const builtWithLookup = createServerFn({ method: "POST" })
-  .handler(async (args: any) => {
+  .handler(async (ctx: any) => {
     const { builtWithLookup: fn } = await import('../../server/enrichment-paid-providers');
-    return fn(args);
+    return fn(ctx.data);
   });
 
 const analyzePageSpeed = createServerFn({ method: "POST" })
-  .handler(async (args: any) => {
-    return analyzePageSpeedFn(args);
+  .handler(async (ctx: any) => {
+    return analyzePageSpeedFn(ctx.data);
   });
 
 
@@ -182,7 +183,7 @@ export default function ProspectingPage() {
                 niche: dbLead.nicho || 'geral',
                 city: dbLead.cidade || '',
                 neighborhood: dbLead.bairro || undefined,
-                address: dbLead.address || undefined,
+                address: (dbLead as any).address || undefined,
                 email: dbLead.email || undefined,
                 whatsapp: dbLead.telefone || undefined,
                 websiteUrl: dbLead.site || undefined,
@@ -193,7 +194,7 @@ export default function ProspectingPage() {
                 legalType: dbLead.status === 'MATRIZ' || dbLead.status === 'FILIAL' ? dbLead.status : undefined,
                 size: dbLead.porte || undefined,
                 status_sefaz: dbLead.status || undefined,
-                partners: Array.isArray(dbLead.socios) ? dbLead.socios : undefined,
+                partners: Array.isArray(dbLead.socios) ? (dbLead.socios as any as string[]) : undefined,
                 is_enriched: !!dbLead.enrichment_data,
                 digitalScore: computeDigitalScore({ 
                   websiteUrl: dbLead.site, 
@@ -208,7 +209,7 @@ export default function ProspectingPage() {
                   email: dbLead.email 
                 }).level,
                 source: 'supabase_import',
-                status: dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo'),
+                status: (dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo')) as any,
                 opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
                 opportunityLevel: (dbLead.confidence_score || 0.5) >= 0.8 ? 'quente' : (dbLead.confidence_score || 0.5) >= 0.5 ? 'boa' : 'média',
                 diagnosis: dbLead.atividade || '',
@@ -1436,12 +1437,12 @@ export default function ProspectingPage() {
                     className="h-9 px-4 rounded-full border-slate-200 hover:bg-slate-50 font-bold hidden md:flex"
                     onClick={() => {
                       if (selectedLead) {
-                        const siteData = selectedLead.generatedSite || {
+                        const siteData = (selectedLead as any).generatedSite || {
                           companyName: selectedLead.companyName,
                           niche: selectedLead.niche,
                           city: selectedLead.city,
                           services: ['Atendimento Premium', 'Tratamentos Especiais', 'Especialistas Qualificados'],
-                          differentials: selectedLead.generatedSite?.differentials || ['Qualidade Premium', 'Atendimento Rápido', 'Preço Justo'],
+                          differentials: (selectedLead as any).generatedSite?.differentials || ['Qualidade Premium', 'Atendimento Rápido', 'Preço Justo'],
                           tone: 'Premium',
                           whatsapp: selectedLead.whatsapp,
                           instagram: selectedLead.instagramHandle
@@ -1706,7 +1707,7 @@ export default function ProspectingPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/50 space-y-3">
                             <div className="flex items-center gap-2 mb-1">
-                               <Mail className="h-4 w-4 text-primary" />
+                               <Search className="h-4 w-4 text-primary" />
                                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Hunter.io</span>
                             </div>
                             <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Encontra e verifica e-mails reais de tomadores de decisão usando o domínio da empresa.</p>
@@ -1720,7 +1721,7 @@ export default function ProspectingPage() {
                                 try {
                                   const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
                                   if (!domain) return;
-                                  const res = await hunterFindEmails({ domain, company: selectedLead.companyName });
+                                  const res = await hunterFindEmails({ data: { domain, company: selectedLead.companyName } } as any);
                                   if (res.success && res.data.emails?.length > 0) {
                                     const email = res.data.emails[0].email;
                                     setSelectedLead({ ...selectedLead, email });
@@ -1754,7 +1755,7 @@ export default function ProspectingPage() {
                                 try {
                                   const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
                                   if (!domain) return;
-                                  const res = await builtWithLookup({ domain });
+                                  const res = await builtWithLookup({ data: { domain } } as any);
                                   if (res.success && res.data) {
                                     const techs = res.data.technologies?.map((t: any) => t.name) || [];
                                     const painPoints = [];
@@ -1805,7 +1806,7 @@ export default function ProspectingPage() {
                               onClick={async () => {
                                 setIsEnrichingExtra(true);
                                 try {
-                                  const res = await analyzePageSpeed({ data: { url: selectedLead.websiteUrl! } });
+                                  const res = await analyzePageSpeed({ data: { url: selectedLead.websiteUrl! } } as any);
                                   if (res.ok) {
                                     setSelectedLead({ 
                                       ...selectedLead, 
@@ -2115,13 +2116,12 @@ export default function ProspectingPage() {
                         websiteUrl: site.url || selectedLead.websiteUrl,
                         updatedAt: new Date().toISOString()
                       });
-                    }} 
-                    className="w-full h-14 rounded-2xl text-base font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"
-                    onClick={() => {
+
                       updateLead(selectedLead.id, selectedLead);
                       toast.success("Lead atualizado com sucesso!");
                       setIsLeadConfigOpen(false);
                     }} 
+                    className="w-full h-14 rounded-2xl text-base font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"
                   >
                     Salvar Todas as Alterações
                   </Button>
@@ -2216,7 +2216,7 @@ export default function ProspectingPage() {
 
       <FocusMode isOpen={isFocusModeOpen} onClose={() => setIsFocusModeOpen(false)} />
       
-      {isImporting && <ActiveJobsBanner />}
+      {/* isImporting && <ActiveJobsBanner /> */}
     </div>
   );
 }
