@@ -113,8 +113,8 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-slate-100/80">
         <div className="flex items-center gap-1.5">
            {lead.digitalScore !== undefined && (
-             <div className={cn(
-               "text-sm font-black px-1.5 py-0.5 rounded-md border shadow-sm",
+              <div className={cn(
+                "text-xs font-black px-2 py-1 rounded-lg border-2 shadow-sm uppercase tracking-tighter",
                lead.digitalLevel ? digitalLevelColors[lead.digitalLevel] : 'bg-slate-50 text-slate-400 border-slate-200'
              )}>
                {lead.digitalScore}%
