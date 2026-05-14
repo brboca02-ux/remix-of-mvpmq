@@ -1860,6 +1860,8 @@ export default function ProspectingPage() {
       </Dialog>
 
       <FocusMode isOpen={isFocusModeOpen} onClose={() => setIsFocusModeOpen(false)} />
+      
+      {isImporting && <ActiveJobsBanner />}
     </div>
   );
 }
