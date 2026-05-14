@@ -1153,13 +1153,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
               return (
                 <div
-                  className="bg-slate-50/80 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-6 space-y-5 shadow-sm relative overflow-hidden group/intel"
+                  className="bg-slate-50/80 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-6 space-y-4 shadow-sm relative overflow-hidden group/intel"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none group-hover/intel:bg-primary/10 transition-colors" />
 
                   {/* Cabeçalho & Alertas Preventivos */}
-                  <div className="flex flex-col gap-4 relative z-10">
+                  <div className="flex flex-col gap-3 relative z-10">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">
                         <Zap className="h-4 w-4 text-primary animate-pulse" /> IA Strategy Hub
