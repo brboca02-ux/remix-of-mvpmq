@@ -54,9 +54,9 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       className={cn(
-        "group flex flex-col gap-2 rounded-xl border border-slate-200/60 bg-white",
+        "group flex flex-col gap-2 rounded-lg border border-slate-200/50 bg-white",
         "p-2.5 cursor-grab active:cursor-grabbing transition-all duration-300",
-        "hover:shadow-lg hover:shadow-slate-200/40 hover:border-primary/40 hover:-translate-y-0.5",
+        "hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
         hasAlert && "ring-1 ring-rose-500/30 border-rose-200 bg-rose-50/10",
         isInactive && "opacity-60 grayscale bg-slate-50"
@@ -64,96 +64,77 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       title={`${lead.companyName} • Score ${lead.opportunityScore}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <div className="relative shrink-0">
-            {isDiscarded || isNoInterest ? (
-              <div className="h-2.5 w-2.5 flex items-center justify-center">
-                {isDiscarded ? <Ban className="h-3 w-3 text-slate-400" /> : <UserMinus className="h-3 w-3 text-slate-400" />}
-              </div>
-            ) : (
-              <span aria-hidden className={cn("block h-2.5 w-2.5 rounded-full border border-white shadow-sm", dotClass)} />
+        <div className="flex flex-col min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 mb-1">
+            <div className="relative shrink-0">
+              {isDiscarded || isNoInterest ? (
+                <div className="h-2 w-2 flex items-center justify-center">
+                  {isDiscarded ? <Ban className="h-2.5 w-2.5 text-slate-400" /> : <UserMinus className="h-2.5 w-2.5 text-slate-400" />}
+                </div>
+              ) : (
+                <span aria-hidden className={cn("block h-2 w-2 rounded-full border border-white shadow-sm", dotClass)} />
+              )}
+            </div>
+            <span className={cn(
+              "text-[11px] font-black truncate leading-tight tracking-tight uppercase",
+              hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-800"
+            )}>
+              {lead.companyName || 'Sem nome'}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1">
+            {lead.niche && (
+              <span className="text-[8px] font-bold text-slate-400 bg-slate-50 px-1 rounded uppercase">
+                {lead.niche}
+              </span>
             )}
-            
-            {hasAlert && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 border border-white"></span>
+            {lead.city && (
+              <span className="text-[8px] font-bold text-slate-400 uppercase">
+                • {lead.city}
               </span>
             )}
           </div>
-          
-          <span className={cn(
-            "text-[12px] font-bold truncate leading-tight tracking-tight",
-            hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-800"
-          )}>
-            {lead.companyName || 'Sem nome'}
-          </span>
         </div>
 
-        <div className="flex flex-col items-end gap-1">
-          <span className={cn(
-            "shrink-0 inline-flex items-center justify-center rounded-md px-1.5 py-0 text-[10px] font-black tabular-nums shadow-sm border",
-            isInactive ? "text-slate-300 bg-slate-100 border-slate-200" : 
-            lead.opportunityScore >= 80 ? "text-indigo-700 bg-indigo-50 border-indigo-100" :
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <div className={cn(
+            "inline-flex items-center justify-center rounded px-1 py-0.5 text-[10px] font-black tabular-nums border",
+            isInactive ? "text-slate-300 bg-slate-50 border-slate-200" : 
+            lead.opportunityScore >= 80 ? "text-rose-700 bg-rose-50 border-rose-100" :
             lead.opportunityScore >= 60 ? "text-amber-700 bg-amber-50 border-amber-100" :
-            "text-slate-500 bg-slate-100 border-slate-200"
+            "text-slate-500 bg-slate-50 border-slate-200"
           )}>
             {lead.opportunityScore}
           </span>
-          {lead.digitalScore !== undefined && (
-            <div className={cn(
-              "text-[8px] font-black px-1 rounded-sm border",
-              lead.digitalLevel ? digitalLevelColors[lead.digitalLevel] : 'bg-slate-100 text-slate-500 border-slate-200'
-            )}>
-              DIGITAL: {lead.digitalScore}%
-            </div>
-          )}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1 mt-0.5">
-        {lead.niche && (
-          <Badge variant="outline" className="text-[9px] py-0 px-1 bg-slate-50/50 border-slate-100 text-slate-500 font-medium">
-            {lead.niche}
-          </Badge>
-        )}
-        {lead.city && (
-          <Badge variant="outline" className="text-[9px] py-0 px-1 bg-slate-50/50 border-slate-100 text-slate-400 font-medium">
-            {lead.city}
-          </Badge>
-        )}
-        {lead.hasMetaAds && (
-           <Badge variant="outline" className="text-[8px] py-0 px-1 bg-blue-50 border-blue-100 text-blue-600 font-black">
-             ADS
-           </Badge>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between mt-1 pt-2 border-t border-slate-50">
-        <div className="flex items-center gap-1">
-           {lead.whatsapp && (
-             <div className="p-1 rounded-md bg-emerald-50 text-emerald-600">
-               <MessageCircle className="h-3 w-3" />
+      <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-slate-100">
+        <div className="flex items-center gap-1.5">
+           {lead.digitalScore !== undefined && (
+             <div className={cn(
+               "text-[7px] font-black px-1 rounded-sm border",
+               lead.digitalLevel ? digitalLevelColors[lead.digitalLevel] : 'bg-slate-50 text-slate-400 border-slate-200'
+             )}>
+               {lead.digitalScore}%
              </div>
            )}
-           {lead.websiteUrl && (
-             <div className="p-1 rounded-md bg-blue-50 text-blue-600">
-               <GlobeIcon className="h-3 w-3" />
-             </div>
-           )}
-           {lead.instagramHandle && (
-             <div className="p-1 rounded-md bg-pink-50 text-pink-600">
-               <Instagram className="h-3 w-3" />
-             </div>
-           )}
+           <div className="flex items-center gap-1 opacity-60">
+             {lead.whatsapp && <MessageCircle className="h-2.5 w-2.5 text-emerald-600" />}
+             {lead.websiteUrl && <GlobeIcon className="h-2.5 w-2.5 text-blue-600" />}
+             {lead.instagramHandle && <Instagram className="h-2.5 w-2.5 text-pink-600" />}
+           </div>
         </div>
         
-        <div className="text-[9px] font-medium text-slate-400 flex items-center gap-0.5">
-          <Clock className="h-2.5 w-2.5" />
-          {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: true, locale: ptBR }) : 'Recentemente'}
+        <div className="text-[7px] font-bold text-slate-300 uppercase flex items-center gap-0.5">
+          <Clock className="h-2 w-2" />
+          {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: false, locale: ptBR }) : 'Agora'}
         </div>
       </div>
     </div>
+  );
+};
   );
 };
 
