@@ -189,7 +189,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
                 "flex items-center justify-between px-3 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border shadow-sm transition-all",
                 column.borderColor
               )}>
-                <div className={cn("flex items-center gap-1.5 font-black text-[9px] uppercase tracking-wider", column.color)}>
+                <div className={cn("flex items-center gap-1.5 font-black text-[9px] uppercase tracking-wider", column.color)} title={column.label}>
                   <div className={cn("p-1.5 rounded-lg shadow-sm", column.bg)}>
                     {column.icon}
                   </div>
