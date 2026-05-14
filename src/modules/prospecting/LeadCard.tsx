@@ -981,7 +981,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
           {/* Contact Chips Section */}
           <div className="flex flex-wrap gap-2 pt-1">
             {lead.whatsapp && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[12px] font-bold shadow-sm">
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[13px] font-bold shadow-sm">
                 <Phone className="h-3.5 w-3.5" /> {lead.whatsapp}
               </div>
             )}
