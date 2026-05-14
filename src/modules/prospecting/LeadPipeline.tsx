@@ -1,14 +1,14 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import { ProspectLead } from './types';
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "../../components/ui/badge";
 import { Sparkles, Target, Zap, Trophy, Inbox, Ban, UserMinus, Trash2, XCircle, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProspectingStore } from './prospecting-store';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/dialog";
+import { Button } from "../../components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { toast } from 'sonner';
 
 interface LeadPipelineProps {
