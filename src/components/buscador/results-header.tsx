@@ -243,7 +243,7 @@ export function ResultsHeader({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {validPortes.map((p) => {
           const count = distribuicaoPorte[p] || 0;
           const pct = total ? Math.min(100, Math.round((count / total) * 100)) : 0;
@@ -253,26 +253,34 @@ export function ResultsHeader({
             p === "Micro" ? "🏪" : 
             p === "Pequena" ? "🏭" : 
             p === "Média" ? "🏢" : "🏙️";
-
+ 
           return (
             <div
               key={p}
-              className="group relative overflow-hidden rounded-xl border border-border/60 bg-background p-3 transition-all hover:border-primary/40 hover:shadow-sm"
+              className="group relative overflow-hidden rounded-xl border border-border/50 bg-background p-3.5 transition-all hover:border-primary/40 hover:shadow-md md:p-4"
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-lg">{icon}</span>
-                <span className="text-[10px] font-bold text-primary opacity-80">{pct}%</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl md:text-2xl">{icon}</span>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
+                    {p}
+                  </div>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-primary/20 bg-primary/5 text-primary">
+                  {pct}%
+                </Badge>
               </div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                {p}
+              
+              <div className="mt-1 text-xl font-black tracking-tight md:text-2xl">
+                {loading ? <Skeleton className="h-7 w-16" /> : count.toLocaleString("pt-BR")}
               </div>
-              <div className="mt-0.5 text-lg font-black tracking-tight">
-                {loading ? <Skeleton className="h-6 w-12" /> : count.toLocaleString("pt-BR")}
+              
+              <div className="mt-2 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary/70 transition-all duration-1000 group-hover:bg-primary" 
+                  style={{ width: `${pct}%` }} 
+                />
               </div>
-              <div 
-                className="absolute bottom-0 left-0 h-1 bg-primary/20 transition-all group-hover:bg-primary" 
-                style={{ width: `${pct}%` }} 
-              />
             </div>
           );
         })}
