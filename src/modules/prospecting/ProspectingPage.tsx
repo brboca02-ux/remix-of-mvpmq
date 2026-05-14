@@ -633,21 +633,21 @@ export default function ProspectingPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50/50">
+    <div className="flex min-h-screen flex-col bg-slate-50">
       <SiteHeader />
       
-      <main className="flex-1 px-4 py-8 md:px-8">
-        <div className="mx-auto max-w-7xl space-y-6">
+      <main className="flex-1 px-4 py-12 md:px-8 max-w-[1600px] mx-auto w-full">
+        <div className="space-y-12">
           
           {/* Top Summary / Hero Section */}
-          <div className="text-center space-y-2 max-w-3xl mx-auto">
-            <Badge variant="outline" className="px-3 py-0.5 border-primary/20 bg-primary/5 text-primary text-[10px]">
-              Plataforma de Captação IA v2.0
-            </Badge>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          <div className="text-center space-y-6 max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[11px] font-black uppercase tracking-widest">
+              <Sparkles className="h-3 w-3" /> Plataforma de Captação IA v2.0
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-[1.1] uppercase">
               Transforme Leads em <span className="text-primary">Clientes Reais</span>
             </h1>
-            <p className="text-base md:text-lg text-slate-500 font-medium max-w-xl mx-auto">
+            <p className="text-lg md:text-xl text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">
               Prospecção baseada em comportamento humano: aqueça leads no Instagram, valide no Google e aborde com segurança máxima.
             </p>
             <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-6 max-w-4xl mx-auto mt-8 shadow-sm">
