@@ -11,7 +11,7 @@
  */
 
 import { createServerFn } from "@tanstack/react-start";
-import { logger } from "@/lib/logger";
+import { logger } from "../lib/logger";
 import type { EnrichmentResult } from "./enrichment-providers";
 
 // ============================================================================

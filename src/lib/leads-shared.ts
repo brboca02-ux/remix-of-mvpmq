@@ -121,7 +121,8 @@ export function normalizeLead(lead: Partial<StandardLead>): StandardLead {
 
 export function withFallback<T>(
   fn: () => Promise<T>,
-  fallbackValue: T
+  fallbackValue: T,
+  _label?: string
 ): Promise<T> {
   try {
     return fn();

@@ -9,10 +9,10 @@ import {
   OperationalAdjustment, SalesService, LeadRevenueInsight, DecisionScore, AuditLogEntry, LearningPattern,
   Playbook, AutonomousDecision, ManualAnalysis
 } from './types';
-import { logger } from '@/lib/logger';
+import { logger } from '../../lib/logger';
 import { calculateOpportunityScore } from './opportunity-score';
 import { generatePitch } from './pitch-generator';
-import { useAuditStore, getLeadDiff, AuditSource } from '@/hooks/useAuditStore';
+import { useAuditStore, getLeadDiff, AuditSource } from '../../hooks/useAuditStore';
 import { syncLeadToBackend } from './sync-service';
 
 interface AddStatusNoteInput {

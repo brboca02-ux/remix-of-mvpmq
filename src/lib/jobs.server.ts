@@ -1,5 +1,5 @@
 // @ts-nocheck
- import { supabaseAdmin } from "@/integrations/supabase/client.server";
+ import { supabaseAdmin } from "../integrations/supabase/client.server";
  import { logger } from "@/lib/logger";
  import type { JobMetadata } from "@/types/jobs";
  
@@ -10,7 +10,7 @@
      logger.debug(message, { args });
    }
  }
-import { Database } from "@/integrations/supabase/types";
+import { Database } from "../integrations/supabase/types";
 
 export type Job = Database["public"]["Tables"]["jobs"]["Row"];
  export type JobStatus = "queued" | "running" | "done" | "failed" | "queued_external" | "cancelled";

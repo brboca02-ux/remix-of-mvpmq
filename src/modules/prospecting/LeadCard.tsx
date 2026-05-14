@@ -11,8 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { 
   ExternalLink, 
   MessageCircle, 
-  Globe, 
-  TrendingUp, 
+  Globe as GlobeIcon, 
+  TrendingUp as TrendingUpIcon, 
   MoreVertical,
   CheckCircle2,
   AlertCircle,
@@ -23,7 +23,7 @@ import {
   MessageSquare,
   Paperclip,
   Tag,
-  Phone,
+  Phone as PhoneIcon,
   ArrowRight,
   X,
   AlertTriangle,
@@ -31,7 +31,7 @@ import {
   Loader2,
   Target
 } from "../../lib/icons";
-import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Globe, Phone, TrendingUp, Users, Eye } from "lucide-react";
+import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Users, Eye } from "lucide-react";
 import { useProspectingStore } from './prospecting-store';
 import { addDays } from 'date-fns';
 import { calculateOpportunityScore } from './opportunity-score';
@@ -57,7 +57,7 @@ import {
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from "@/components/ui/select";
+} from "../../components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { logger } from "@/lib/logger";
-import { AppError, ErrorCodes } from "@/lib/error-handler";
+import { logger } from "./logger";
+import { AppError, ErrorCodes } from "./error-handler";
 
 const inputSchema = z.object({
   url: z.string().min(3, "URL muito curta").max(500, "URL muito longa"),

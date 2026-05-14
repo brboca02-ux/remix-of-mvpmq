@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createServerFn } from "@tanstack/react-start";
-import { logger } from "@/lib/logger";
+import { logger } from "./logger";
 
 /**
  * Creative Engine

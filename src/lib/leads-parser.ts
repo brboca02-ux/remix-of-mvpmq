@@ -8,7 +8,7 @@
  */
 
 import { StandardLead, normalizeLead } from "./leads-core";
-import { smartParseCsv } from "@/lib/csv-smart-parser";
+import { smartParseCsv } from "./csv-smart-parser";
 
 /**
  * Utilitários para parsing inteligente de CSV e mapeamento dinâmico de cabeçalhos.
