@@ -11,6 +11,7 @@ export function ActiveJobsBanner() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [dismissedJobs, setDismissedJobs] = useState<Set<string>>(new Set());
   const [jobErrors, setJobErrors] = useState<Record<string, any[]>>({});
 
   const fetchJobs = async () => {
