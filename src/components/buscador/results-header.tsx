@@ -89,10 +89,10 @@ export function ResultsHeader({
 
   return (
     <div data-testid="prospecting-page" className="space-y-4 border-b border-border/60 bg-card p-4 md:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {loading ? <Skeleton className="h-8 w-64" /> : (
+      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {loading ? <Skeleton className="h-9 w-64" /> : (
               <>
                 Você segmenta{" "}
                 <span className="text-success">{total.toLocaleString("pt-BR")}</span>{" "}
@@ -100,16 +100,16 @@ export function ResultsHeader({
               </>
             )}
           </h1>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-            {loading ? <Skeleton className="h-4 w-96" /> : (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground">
+            {loading ? <Skeleton className="h-5 w-96" /> : (
               <>
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="flex items-center gap-1 cursor-help">
+                      <span className="flex items-center gap-1.5 cursor-help py-1">
+                        <TrendingUp className="h-3.5 w-3.5 opacity-70" />
                         Potencial estimado:{" "}
                         <span className="font-semibold text-foreground">{formatBRL(potencialMensal)}/mês</span>
-                        <Info className="h-3 w-3 opacity-50" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs">
@@ -117,14 +117,14 @@ export function ResultsHeader({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                <span>·</span>
+                <span className="hidden sm:inline text-muted-foreground/30">•</span>
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="flex items-center gap-1 cursor-help">
+                      <span className="flex items-center gap-1.5 cursor-help py-1">
+                        <Zap className="h-3.5 w-3.5 text-success opacity-70" />
                         Qualidade:{" "}
                         <span className="font-semibold text-success">{qualidadeScore}/100</span>
-                        <Info className="h-3 w-3 opacity-50" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs">
@@ -134,9 +134,9 @@ export function ResultsHeader({
                 </TooltipProvider>
                 {updatedAt && (
                   <>
-                    <span>·</span>
-                    <span className="flex items-center gap-1 text-[10px] opacity-70">
-                      <Clock className="h-3 w-3" />
+                    <span className="hidden sm:inline text-muted-foreground/30">•</span>
+                    <span className="flex items-center gap-1.5 py-1 text-[11px] opacity-70">
+                      <Clock className="h-3.5 w-3.5" />
                       Atualizado {formatTimeAgo(updatedAt)}
                     </span>
                   </>
@@ -145,16 +145,17 @@ export function ResultsHeader({
             )}
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={onSavePreset} className="gap-2">
+
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap md:justify-end">
+          <Button variant="outline" size="sm" onClick={onSavePreset} className="h-9 gap-2 text-xs font-semibold px-4 order-2 sm:order-none">
             <Sparkles className="h-4 w-4" />
-            Salvar preset
+            <span className="hidden lg:inline">Salvar</span> Preset
           </Button>
-          <Button data-testid="save-list-button" variant="outline" size="sm" onClick={onSaveList} className="gap-2">
+          <Button data-testid="save-list-button" variant="outline" size="sm" onClick={onSaveList} className="h-9 gap-2 text-xs font-semibold px-4 order-3 sm:order-none">
             <Save className="h-4 w-4" />
-            Salvar lista
+            <span className="hidden lg:inline">Salvar</span> Lista
           </Button>
-          <Button variant="outline" size="sm" onClick={onExportWhatsApp} disabled={total === 0} className="gap-2">
+          <Button variant="outline" size="sm" onClick={onExportWhatsApp} disabled={total === 0} className="h-9 gap-2 text-xs font-semibold px-4 order-4 sm:order-none">
             <MessageCircle className="h-4 w-4" />
             WhatsApp
           </Button>
@@ -164,16 +165,16 @@ export function ResultsHeader({
               variant="secondary"
               onClick={onSendToPipeline}
               disabled={total === 0}
-              className="gap-2"
+              className="h-9 gap-2 text-xs font-bold px-4 col-span-2 sm:col-auto order-1 sm:order-none bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
               data-testid="send-to-pipeline-button"
             >
               <Send className="h-4 w-4" />
               Enviar para Pipeline
             </Button>
           )}
-          <Button size="sm" onClick={onExport} disabled={total === 0} className="gap-2">
+          <Button size="sm" onClick={onExport} disabled={total === 0} className="h-9 gap-2 text-xs font-semibold px-4 order-5 sm:order-none">
             <Download className="h-4 w-4" />
-            Export CSV
+            <span className="hidden lg:inline">Exportar</span> CSV
           </Button>
         </div>
       </div>
