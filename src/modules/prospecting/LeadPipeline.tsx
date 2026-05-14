@@ -54,13 +54,13 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       className={cn(
-        "group flex flex-col gap-1.5 rounded-xl border border-slate-200/50 bg-white",
-        "p-2.5 cursor-grab active:cursor-grabbing transition-all duration-300",
-        "hover:shadow-lg hover:border-primary/40 hover:-translate-y-0.5 hover:bg-slate-50/50",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+        "group flex flex-col gap-3 rounded-[1.5rem] border border-slate-200 bg-white shadow-sm",
+        "p-4 cursor-grab active:cursor-grabbing transition-all duration-500",
+        "hover:shadow-2xl hover:border-primary/50 hover:-translate-y-2 hover:bg-white",
+        "focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10",
         "w-full max-w-full overflow-hidden",
-        hasAlert && "ring-1 ring-rose-500/30 border-rose-200 bg-rose-50/10",
-        isInactive && "opacity-60 grayscale bg-slate-50"
+        hasAlert && "ring-2 ring-rose-500/20 border-rose-300 bg-rose-50/10",
+        isInactive && "opacity-60 grayscale bg-slate-50 border-slate-100"
       )}
     >
       <div className="flex items-start justify-between gap-1.5">
