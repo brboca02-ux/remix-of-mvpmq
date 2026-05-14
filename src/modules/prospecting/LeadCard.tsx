@@ -343,6 +343,54 @@ const LeadBusinessDetails: React.FC<{ lead: ProspectLead }> = ({ lead }) => {
   );
 };
 
+const LeadTechInsights: React.FC<{ lead: ProspectLead }> = ({ lead }) => {
+  const painPoints = lead.techPainPoints || [];
+  const hasSlowSite = lead.pageSpeedStatus === 'ruim' || lead.pageSpeedStatus === 'crítico';
+  
+  if (painPoints.length === 0 && !hasSlowSite && (!lead.technologies || lead.technologies.length === 0)) return null;
+
+  return (
+    <div className="grid grid-cols-1 gap-3 p-4 bg-violet-50/30 rounded-2xl border border-violet-100 mt-3 shadow-sm">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <Zap className="h-3.5 w-3.5 text-violet-500" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-violet-600">Tech Insights & Dores</span>
+        </div>
+        {lead.pageSpeedScore && (
+           <Badge variant="outline" className={cn(
+             "text-[8px] h-3.5 px-1 border-transparent font-black",
+             lead.pageSpeedStatus === 'bom' ? "bg-emerald-100 text-emerald-700" :
+             lead.pageSpeedStatus === 'ruim' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+           )}>
+             SPEED: {lead.pageSpeedScore}
+           </Badge>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
+        {hasSlowSite && (
+          <Badge className="bg-rose-100 text-rose-700 border-rose-200 text-[9px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
+            <AlertTriangle className="h-2.5 w-2.5" /> Site Lento (Mobile)
+          </Badge>
+        )}
+        {painPoints.map((p, idx) => (
+          <Badge key={idx} className="bg-amber-100 text-amber-700 border-amber-200 text-[9px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
+            <AlertCircle className="h-2.5 w-2.5" /> {p}
+          </Badge>
+        ))}
+        {lead.technologies?.slice(0, 3).map((t, idx) => (
+          <Badge key={idx} variant="outline" className="bg-white border-slate-200 text-slate-500 text-[8px] font-bold px-1.5 py-0">
+            {t}
+          </Badge>
+        ))}
+        {(lead.technologies?.length || 0) > 3 && (
+          <span className="text-[8px] text-slate-400 font-bold">+{lead.technologies!.length - 3} mais</span>
+        )}
+      </div>
+    </div>
+  );
+};
+
 interface LeadCardProps {
   lead: ProspectLead;
   onViewDiagnosis: (lead: ProspectLead) => void;
