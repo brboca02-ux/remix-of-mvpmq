@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { cn } from "../../lib/utils";
 import { ProspectLead } from './types';
 import { Badge } from "../../components/ui/badge";
-import { Sparkles, Target, Zap, Trophy, Inbox, Ban, UserMinus, Trash2, XCircle, AlertTriangle } from 'lucide-react';
+import { Sparkles, Target, Zap, Trophy, Inbox, Ban, UserMinus, Trash2, XCircle, AlertTriangle, Clock, MessageCircle, Globe as GlobeIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { useProspectingStore } from './prospecting-store';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/dialog";
 import { Button } from "../../components/ui/button";
@@ -19,11 +21,11 @@ interface LeadPipelineProps {
 
 type SalesColumn = 'Novo' | 'Qualificado' | 'Interessado' | 'Lead Fechado';
 
-const SALES_COLUMNS: { id: SalesColumn; label: string; icon: React.ReactNode; color: string; bg: string }[] = [
-  { id: 'Novo',         label: 'Novo',         icon: <Sparkles className="h-3.5 w-3.5" />, color: 'text-rose-600',    bg: 'bg-rose-50' },
-  { id: 'Qualificado',  label: 'Qualificado',  icon: <Target   className="h-3.5 w-3.5" />, color: 'text-amber-600',   bg: 'bg-amber-50' },
-  { id: 'Interessado',  label: 'Interessado',  icon: <Zap      className="h-3.5 w-3.5" />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-  { id: 'Lead Fechado', label: 'Lead Fechado', icon: <Trophy   className="h-3.5 w-3.5" />, color: 'text-blue-600',    bg: 'bg-blue-50' },
+const SALES_COLUMNS: { id: SalesColumn; label: string; icon: React.ReactNode; color: string; bg: string; borderColor: string }[] = [
+  { id: 'Novo',         label: 'Novos Leads',  icon: <Sparkles className="h-4 w-4" />, color: 'text-indigo-600',    bg: 'bg-indigo-50/50',   borderColor: 'border-indigo-100' },
+  { id: 'Qualificado',  label: 'Qualificados', icon: <Target   className="h-4 w-4" />, color: 'text-amber-600',    bg: 'bg-amber-50/50',    borderColor: 'border-amber-100' },
+  { id: 'Interessado',  label: 'Em Negociação', icon: <Zap      className="h-4 w-4" />, color: 'text-emerald-600',  bg: 'bg-emerald-50/50',  borderColor: 'border-emerald-100' },
+  { id: 'Lead Fechado', label: 'Convertidos',  icon: <Trophy   className="h-4 w-4" />, color: 'text-blue-600',     bg: 'bg-blue-50/50',     borderColor: 'border-blue-100' },
 ];
 
 const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = ({ lead, onClick }) => {
@@ -51,45 +53,90 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       className={cn(
-        "group flex items-center gap-2.5 rounded-xl border border-slate-200/70 bg-white",
-        "px-3 py-2.5 cursor-grab active:cursor-grabbing transition-all duration-200",
-        "hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        hasAlert && "ring-1 ring-rose-500/50 border-rose-200 bg-rose-50/20",
+        "group flex flex-col gap-3 rounded-2xl border border-slate-200/60 bg-white",
+        "p-4 cursor-grab active:cursor-grabbing transition-all duration-300",
+        "hover:shadow-xl hover:shadow-slate-200/50 hover:border-primary/40 hover:-translate-y-1",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+        hasAlert && "ring-1 ring-rose-500/30 border-rose-200 bg-rose-50/10",
         isInactive && "opacity-60 grayscale bg-slate-50"
       )}
-      title={`${lead.companyName} • Score ${lead.opportunityScore} • Status: ${lead.contactStatus || 'Novo'}`}
+      title={`${lead.companyName} • Score ${lead.opportunityScore}`}
     >
-      <div className="relative shrink-0">
-        {isDiscarded || isNoInterest ? (
-          <div className="h-2 w-2 flex items-center justify-center">
-            {isDiscarded ? <Ban className="h-2.5 w-2.5 text-slate-400" /> : <UserMinus className="h-2.5 w-2.5 text-slate-400" />}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="relative shrink-0">
+            {isDiscarded || isNoInterest ? (
+              <div className="h-3 w-3 flex items-center justify-center">
+                {isDiscarded ? <Ban className="h-3.5 w-3.5 text-slate-400" /> : <UserMinus className="h-3.5 w-3.5 text-slate-400" />}
+              </div>
+            ) : (
+              <span aria-hidden className={cn("block h-3 w-3 rounded-full border-2 border-white shadow-sm", dotClass)} />
+            )}
+            
+            {hasAlert && (
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 border border-white"></span>
+              </span>
+            )}
           </div>
-        ) : (
-          <span aria-hidden className={cn("block h-2 w-2 rounded-full", dotClass)} />
-        )}
-        
-        {hasAlert && (
-          <span className="absolute -top-1 -right-1 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-sm border border-white"></span>
+          
+          <span className={cn(
+            "text-[14px] font-bold truncate leading-tight tracking-tight",
+            hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-800"
+          )}>
+            {lead.companyName || 'Sem nome'}
           </span>
+        </div>
+
+        <span className={cn(
+          "shrink-0 inline-flex items-center justify-center rounded-lg px-2 py-0.5 text-[11px] font-black tabular-nums shadow-sm border",
+          isInactive ? "text-slate-300 bg-slate-100 border-slate-200" : 
+          lead.opportunityScore >= 80 ? "text-indigo-700 bg-indigo-50 border-indigo-100" :
+          lead.opportunityScore >= 60 ? "text-amber-700 bg-amber-50 border-amber-100" :
+          "text-slate-500 bg-slate-100 border-slate-200"
+        )}>
+          {lead.opportunityScore}
+        </span>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+        {lead.niche && (
+          <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-slate-50/50 border-slate-100 text-slate-500 font-medium">
+            {lead.niche}
+          </Badge>
+        )}
+        {lead.city && (
+          <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-slate-50/50 border-slate-100 text-slate-500 font-medium">
+            {lead.city}
+          </Badge>
+        )}
+        {lead.hasMetaAds && (
+           <Badge variant="outline" className="text-[9px] py-0 px-1.5 bg-blue-50 border-blue-100 text-blue-600 font-bold">
+             ADS
+           </Badge>
         )}
       </div>
-      
-      <span className={cn(
-        "flex-1 min-w-0 text-[13px] font-semibold truncate leading-tight",
-        hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-800"
-      )}>
-        {lead.companyName || 'Sem nome'}
-      </span>
-      
-      <span className={cn(
-        "shrink-0 inline-flex items-center justify-center rounded-md px-1.5 py-0.5 text-[10px] font-black tabular-nums",
-        isInactive ? "text-slate-300 bg-slate-100" : scoreClass
-      )}>
-        {lead.opportunityScore}
-      </span>
+
+      <div className="flex items-center justify-between mt-1 pt-3 border-t border-slate-50">
+        <div className="flex items-center gap-1.5">
+           {lead.whatsapp && (
+             <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
+               <MessageCircle className="h-3.5 w-3.5" />
+             </div>
+           )}
+           {lead.websiteUrl && (
+             <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+               <GlobeIcon className="h-3.5 w-3.5" />
+             </div>
+           )}
+        </div>
+        
+        <div className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: true, locale: ptBR }) : 'Recentemente'}
+        </div>
+      </div>
     </div>
   );
 };
@@ -142,28 +189,33 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
         {SALES_COLUMNS.map((column) => {
           const columnLeads = getLeadsByStatus(column.id);
           return (
-            <div key={column.id} className="flex-shrink-0 w-[420px] md:w-[480px] flex flex-col gap-4">
-              <div className="flex items-center justify-between px-4 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm ring-1 ring-slate-900/5">
-                <div className={cn("flex items-center gap-2.5 font-black text-[11px] uppercase tracking-widest", column.color)}>
-                  <span className={cn("p-1.5 rounded-lg", column.bg)}>{column.icon}</span>
+            <div key={column.id} className="flex-shrink-0 w-[300px] md:w-[340px] flex flex-col gap-5">
+              <div className={cn(
+                "flex items-center justify-between px-5 py-4 bg-white/80 backdrop-blur-md rounded-2xl border shadow-sm transition-all",
+                column.borderColor
+              )}>
+                <div className={cn("flex items-center gap-3 font-black text-[12px] uppercase tracking-wider", column.color)}>
+                  <div className={cn("p-2 rounded-xl shadow-sm", column.bg)}>
+                    {column.icon}
+                  </div>
                   {column.label}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black text-slate-400 tabular-nums bg-slate-100 px-2 py-0.5 rounded-md border-none">
+                <div className="flex items-center">
+                  <span className="text-[11px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-2.5 py-0.5 rounded-full">
                     {columnLeads.length}
                   </span>
                 </div>
               </div>
 
               <div
-                className="flex-1 rounded-[2rem] p-3 flex flex-col gap-2.5 min-h-[560px] bg-slate-50/40 border border-slate-100/50 shadow-inner transition-all duration-300"
+                className="flex-1 rounded-[2.5rem] p-3 flex flex-col gap-4 min-h-[580px] bg-slate-50/30 border border-slate-100/40 shadow-inner transition-all duration-300"
                 onDragOver={(e) => {
                   e.preventDefault();
-                  e.currentTarget.classList.add('bg-primary/[0.03]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.01]');
+                  e.currentTarget.classList.add('bg-primary/[0.04]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.005]');
                   e.dataTransfer.dropEffect = 'move';
                 }}
                 onDragLeave={(e) => {
-                  e.currentTarget.classList.remove('bg-primary/[0.03]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.01]');
+                  e.currentTarget.classList.remove('bg-primary/[0.04]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.005]');
                 }}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -211,9 +263,9 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
       </div>
 
       {/* Drop Zone para Perdido */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 px-2 md:px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 px-4 pt-4 border-t border-slate-100/60 mt-4">
         <div 
-          className="group relative flex flex-col items-center justify-center py-8 px-6 rounded-[2.5rem] border-2 border-dashed border-rose-200 bg-rose-50/30 transition-all hover:bg-rose-100/50 hover:border-rose-400 cursor-default overflow-hidden"
+          className="group relative flex flex-col items-center justify-center py-7 px-8 rounded-[2rem] border-2 border-dashed border-rose-100 bg-rose-50/20 transition-all hover:bg-rose-50 hover:border-rose-300 cursor-default overflow-hidden"
           onDragOver={(e) => {
             e.preventDefault();
             e.currentTarget.classList.add('bg-rose-200/50', 'border-rose-500', 'scale-[1.02]');
@@ -231,15 +283,15 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
             }
           }}
         >
-          <div className="p-4 rounded-3xl bg-white shadow-xl shadow-rose-200/50 mb-3 group-hover:scale-110 transition-transform">
-            <Trash2 className="h-6 w-6 text-rose-500" />
+          <div className="p-3.5 rounded-2xl bg-white shadow-lg shadow-rose-200/40 mb-3 group-hover:scale-110 transition-transform duration-300">
+            <Trash2 className="h-5 w-5 text-rose-500" />
           </div>
-          <h3 className="text-sm font-black text-rose-900 uppercase tracking-widest">Descartar Lead</h3>
-          <p className="text-[10px] text-rose-600/70 font-bold mt-1">Solte aqui para remover do pipeline</p>
+          <h3 className="text-xs font-black text-rose-900 uppercase tracking-widest">Descartar Lead</h3>
+          <p className="text-[10px] text-rose-600/60 font-bold mt-1">Solte aqui para arquivar</p>
         </div>
 
         <div 
-          className="group relative flex flex-col items-center justify-center py-8 px-6 rounded-[2.5rem] border-2 border-dashed border-amber-200 bg-amber-50/30 transition-all hover:bg-amber-100/50 hover:border-amber-400 cursor-default overflow-hidden"
+          className="group relative flex flex-col items-center justify-center py-7 px-8 rounded-[2rem] border-2 border-dashed border-amber-100 bg-amber-50/20 transition-all hover:bg-amber-50 hover:border-amber-300 cursor-default overflow-hidden"
           onDragOver={(e) => {
             e.preventDefault();
             e.currentTarget.classList.add('bg-amber-200/50', 'border-amber-500', 'scale-[1.02]');
@@ -257,11 +309,11 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
             }
           }}
         >
-          <div className="p-4 rounded-3xl bg-white shadow-xl shadow-amber-200/50 mb-3 group-hover:scale-110 transition-transform">
-            <UserMinus className="h-6 w-6 text-amber-500" />
+          <div className="p-3.5 rounded-2xl bg-white shadow-lg shadow-amber-200/40 mb-3 group-hover:scale-110 transition-transform duration-300">
+            <UserMinus className="h-5 w-5 text-amber-500" />
           </div>
-          <h3 className="text-sm font-black text-amber-900 uppercase tracking-widest">Sem Interesse</h3>
-          <p className="text-[10px] text-amber-600/70 font-bold mt-1">Solte aqui para marcar como sem interesse</p>
+          <h3 className="text-xs font-black text-amber-900 uppercase tracking-widest text-center">Cliente Sem Interesse</h3>
+          <p className="text-[10px] text-amber-600/60 font-bold mt-1">Solte aqui para encerrar contato</p>
         </div>
       </div>
 
