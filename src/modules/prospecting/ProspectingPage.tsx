@@ -485,7 +485,7 @@ export default function ProspectingPage() {
   };
 
   const handleMoveLead = (id: string, newStatus: ProspectLead['status']) => {
-    moveLead(id, newStatus);
+    updateLead(id, { status: newStatus, updatedAt: new Date().toISOString() });
     const lead = leads.find(l => l.id === id);
     toast.info(`Lead movido para: ${newStatus}`, {
       description: `O lead "${lead?.companyName}" agora está na etapa ${newStatus}.`,
