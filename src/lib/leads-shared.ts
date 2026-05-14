@@ -67,6 +67,19 @@ export function normalizeLead(lead: Partial<StandardLead>): StandardLead {
   const cleanCnpj = (lead.cnpj || "").replace(/\D/g, "");
   const cleanCep = (lead.cep || "").replace(/\D/g, "");
   
+  const rawStatus = (lead.status || "").toLowerCase().trim();
+  let normalizedStatus = "ativa";
+  
+  if (rawStatus.includes("inativ") || rawStatus.includes("baixada") || rawStatus.includes("suspensa") || rawStatus.includes("inapta")) {
+    normalizedStatus = "inativa";
+  } else if (rawStatus.includes("ativ") || rawStatus.includes("regular")) {
+    normalizedStatus = "ativa";
+  } else if (rawStatus === "unknown" || !rawStatus) {
+    normalizedStatus = "ativa"; // Default assumption for leads
+  } else {
+    normalizedStatus = rawStatus; // Keep original if it's a specific code
+  }
+
   const normalized: StandardLead = {
     cnpj: cleanCnpj || `TEMP:${Math.random().toString(36).slice(2)}`,
     nome: (lead.nome || "Empresa sem nome").trim(),
@@ -81,7 +94,7 @@ export function normalizeLead(lead: Partial<StandardLead>): StandardLead {
     cep: cleanCep || null,
     porte: normalizePorte(lead.porte ?? null),
     atividade: lead.atividade?.trim() || null,
-    status: lead.status?.toLowerCase().trim() || "unknown",
+    status: normalizedStatus,
     capital_social: Number(lead.capital_social) || 0,
     cnae_principal: lead.cnae_principal?.trim() || null,
     nicho: lead.nicho || "geral",
