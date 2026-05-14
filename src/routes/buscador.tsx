@@ -340,7 +340,7 @@ function BuscadorPage() {
                 onClick={() => {
                   setPlacesOpen(true);
                   setIsImporting(true); 
-                  setFilter(prev => ({ ...prev, inPipeline: false })); // Sugere filtrar apenas novos ao abrir
+                  setFilter(prev => ({ ...prev, inPipeline: false }));
                 }}
               >
                 <Sparkles className="h-4 w-4" />
@@ -353,7 +353,7 @@ function BuscadorPage() {
                 data-testid="import-local-button"
                 onClick={() => {
                   setImportOpen(true);
-                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                  setIsImporting(true);
                 }}
               >
                 <Upload className="h-4 w-4" />
