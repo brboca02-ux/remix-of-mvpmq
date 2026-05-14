@@ -802,6 +802,11 @@ function mapWithHeaders(cols: string[], headers: string[]): Partial<StandardLead
     lead.nome = lead.razao_social || lead.fantasia || undefined;
   }
   
+  // Se ainda não tem nome mas tem CNPJ, usa "Empresa [CNPJ]"
+  if (!lead.nome && lead.cnpj) {
+    lead.nome = `Empresa ${lead.cnpj}`;
+  }
+
   return lead.nome ? lead : null;
 }
 

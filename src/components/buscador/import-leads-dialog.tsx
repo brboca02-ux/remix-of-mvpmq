@@ -215,7 +215,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
 
       if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
 
-      const result = await importLeadsCsv({ data: { csv: text, nicho } });
+      const result = await importLeadsCsv({ data: { csv: text, nicho, filename: file?.name } });
       let leads = result.leads;
 
       // Aplicar mapeamento manual se o usuário alterou

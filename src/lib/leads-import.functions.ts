@@ -253,10 +253,17 @@ export const getActiveImportJobs = createServerFn({ method: "GET" })
   });
 
 export const importLeadsCsv = createServerFn({ method: "POST" })
-  .inputValidator((input: { csv: string; nicho?: string }) => input)
+  .inputValidator((input: { csv: string; nicho?: string; filename?: string }) => input)
   .handler(async ({ data }) => {
-    const result = parseUniversalCsv(data.csv, data.nicho);
-    // parseUniversalCsv now returns { leads, errors, ... } because it uses smartParseCsv
+    const isExcel = data.filename && /\.(xlsx|xls)$/i.test(data.filename);
+    let csvToParse = data.csv;
+
+    if (isExcel) {
+      // No server-side, o browser já mandou o csv convertido via XLSX.utils.sheet_to_csv no client
+      // mas se estivéssemos recebendo o binário, faríamos o parse aqui.
+    }
+
+    const result = parseUniversalCsv(csvToParse, data.nicho);
     return result;
   });
 
