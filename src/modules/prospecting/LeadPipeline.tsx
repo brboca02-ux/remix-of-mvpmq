@@ -196,7 +196,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
                   {column.label}
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[10px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-2 py-0.5 rounded-full">
+                  <span className="text-[9px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-1.5 py-0.5 rounded-full">
                     {columnLeads.length}
                   </span>
                 </div>
