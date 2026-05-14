@@ -113,7 +113,7 @@ import { FocusMode } from './FocusMode';
 import { PerformanceDashboard } from './PerformanceDashboard';
 import { DailyAiPlan } from './DailyAiPlan';
 import { LeadPlaybook } from './LeadPlaybook';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 
   export const Route = createFileRoute('/prospecting' as any)({
   component: ProspectingPage,
