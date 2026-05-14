@@ -136,13 +136,22 @@ export default function ProspectingPage() {
             if (!existingIds.has(dbLead.id)) {
               addLead({
                 id: dbLead.id,
-                companyName: dbLead.nome || 'Sem nome',
+                companyName: dbLead.nome || dbLead.fantasia || 'Sem nome',
                 niche: dbLead.nicho || 'geral',
                 city: dbLead.cidade || '',
+                neighborhood: dbLead.bairro || undefined,
+                address: dbLead.address || undefined,
                 email: dbLead.email || undefined,
                 whatsapp: dbLead.telefone || undefined,
                 websiteUrl: dbLead.site || undefined,
                 instagramHandle: dbLead.instagram_handle || undefined,
+                cnpj: dbLead.cnpj || undefined,
+                cnae: dbLead.cnae_principal || dbLead.atividade || undefined,
+                openingDate: dbLead.data_abertura || undefined,
+                legalType: dbLead.status === 'MATRIZ' || dbLead.status === 'FILIAL' ? dbLead.status : undefined,
+                size: dbLead.porte || undefined,
+                status_sefaz: dbLead.status || undefined,
+                partners: Array.isArray(dbLead.socios) ? dbLead.socios : undefined,
                 source: 'supabase_import',
                 status: dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo'),
                 opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
@@ -1528,9 +1537,10 @@ export default function ProspectingPage() {
 
               <div className="px-8 pb-8 space-y-8">
                 <Tabs value={configInitialTab} onValueChange={setConfigInitialTab} className="w-full">
-                  <TabsList className="grid grid-cols-6 bg-slate-100/50 p-1 rounded-2xl mb-6">
+                  <TabsList className="grid grid-cols-7 bg-slate-100/50 p-1 rounded-2xl mb-6">
                     <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Visão</TabsTrigger>
                     <TabsTrigger value="playbook" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider text-violet-600">Playbook</TabsTrigger>
+                    <TabsTrigger value="empresa" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Empresa</TabsTrigger>
                     <TabsTrigger value="digital" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Digital</TabsTrigger>
                     <TabsTrigger value="contato" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Contato</TabsTrigger>
                     <TabsTrigger value="preview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Preview</TabsTrigger>
@@ -1553,6 +1563,72 @@ export default function ProspectingPage() {
                   
                   <TabsContent value="playbook" className="mt-0">
                     <LeadPlaybook leadId={selectedLead.id} />
+                  </TabsContent>
+
+                  <TabsContent value="empresa" className="space-y-6 mt-0">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">CNPJ</Label>
+                        <Input 
+                          placeholder="00.000.000/0000-00" 
+                          value={selectedLead.cnpj || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, cnpj: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">CNAE</Label>
+                        <Input 
+                          placeholder="Atividade Principal" 
+                          value={selectedLead.cnae || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, cnae: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Abertura</Label>
+                        <Input 
+                          placeholder="DD/MM/AAAA" 
+                          value={selectedLead.openingDate || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, openingDate: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Porte</Label>
+                        <Select 
+                          value={selectedLead.size || ''} 
+                          onValueChange={(val) => setSelectedLead({ ...selectedLead, size: val })}
+                        >
+                          <SelectTrigger className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium">
+                            <SelectValue placeholder="Selecione o porte" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-2xl border-slate-100 shadow-xl">
+                            <SelectItem value="Micro">Micro (ME)</SelectItem>
+                            <SelectItem value="Pequena">Pequena (EPP)</SelectItem>
+                            <SelectItem value="Demais">Demais</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="col-span-2 space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Endereço</Label>
+                        <Input 
+                          placeholder="Rua, Número, Bairro, Cidade - UF" 
+                          value={selectedLead.address || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, address: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="col-span-2 space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Quadro Societário (separado por vírgula)</Label>
+                        <Input 
+                          placeholder="Sócio 1, Sócio 2..." 
+                          value={selectedLead.partners?.join(', ') || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, partners: e.target.value.split(',').map(s => s.trim()) })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                    </div>
                   </TabsContent>
 
                   <TabsContent value="digital" className="space-y-6 mt-0">

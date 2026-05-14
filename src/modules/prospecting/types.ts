@@ -402,6 +402,13 @@ export interface ProspectLead {
   instagramUrl?: string;
   whatsapp?: string;
   websiteUrl?: string;
+  cnpj?: string;
+  cnae?: string;
+  openingDate?: string;
+  legalType?: string;
+  size?: string;
+  status_sefaz?: string;
+  partners?: string[];
   rating?: number;
   priceLevel?: string;
   source: string;
@@ -676,6 +683,20 @@ export interface ParsedLeadData {
   linkedinUrl?: string;
   /** Phone number */
   phone?: string;
+  /** CNPJ */
+  cnpj?: string;
+  /** CNAE */
+  cnae?: string;
+  /** Opening Date */
+  openingDate?: string;
+  /** Partners */
+  partners?: string[];
+  /** Legal Type (Matriz/Filial) */
+  legalType?: string;
+  /** Size (Micro/Pequena/Demais) */
+  size?: string;
+  /** SEFAZ Status */
+  status_sefaz?: string;
   /** Rating (1-5) */
   rating?: number;
   /** Price level */

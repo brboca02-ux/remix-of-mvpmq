@@ -272,6 +272,75 @@ const ManualAnalysisChecklist: React.FC<{
     </div>
   );
 };
+ 
+const LeadBusinessDetails: React.FC<{ lead: ProspectLead }> = ({ lead }) => {
+  const details = [
+    { label: 'CNPJ', value: lead.cnpj, icon: Building2 },
+    { label: 'CNAE', value: lead.cnae, icon: SearchCode },
+    { label: 'Abertura', value: lead.openingDate, icon: CalendarDays },
+    { label: 'Porte', value: lead.size, icon: Target },
+    { label: 'Status', value: lead.status_sefaz, icon: ShieldCheck },
+    { label: 'Telefone', value: lead.whatsapp, icon: Phone },
+  ].filter(d => d.value);
+
+  if (details.length === 0 && !lead.address && (!lead.partners || lead.partners.length === 0)) return null;
+
+  return (
+    <div className="grid grid-cols-1 gap-3 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 mt-3 shadow-sm">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <Building2 className="h-3.5 w-3.5 text-slate-500" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Dados da Empresa</span>
+        </div>
+        {lead.cnpj && (
+           <Badge variant="outline" className="text-[8px] h-3.5 px-1 bg-slate-100 border-transparent text-slate-500 font-black">
+             DADOS OFICIAIS
+           </Badge>
+        )}
+      </div>
+      
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        {details.map((detail, idx) => (
+          <div key={idx} className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight flex items-center gap-1">
+              <detail.icon className="h-2.5 w-2.5" /> {detail.label}
+            </span>
+            <span className="text-[11px] font-bold text-slate-700 truncate" title={String(detail.value)}>
+              {detail.value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {lead.address && (
+        <div className="flex flex-col gap-0.5 mt-1 border-t border-slate-100 pt-2">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight flex items-center gap-1">
+            <MapPin className="h-2.5 w-2.5" /> Endereço Completo
+          </span>
+          <span className="text-[11px] font-bold text-slate-700 leading-tight">
+            {lead.address}
+            {lead.neighborhood ? `, ${lead.neighborhood}` : ''}
+          </span>
+        </div>
+      )}
+
+      {lead.partners && lead.partners.length > 0 && (
+        <div className="flex flex-col gap-0.5 mt-1 border-t border-slate-100 pt-2">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight flex items-center gap-1">
+            <Users className="h-2.5 w-2.5" /> Quadro Societário
+          </span>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {lead.partners.map((partner, idx) => (
+              <Badge key={idx} variant="outline" className="bg-white border-slate-200 text-slate-600 text-[9px] font-bold px-1.5 py-0">
+                {partner}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface LeadCardProps {
   lead: ProspectLead;
@@ -879,6 +948,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 </div>
             )}
           </div>
+
+          <LeadBusinessDetails lead={lead} />
 
           <ManualAnalysisChecklist 
             lead={lead} 
