@@ -1,8 +1,8 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "../../integrations/supabase/client";
 import { ProspectLead } from "./types";
 import { toast } from "sonner";
-import { AuditLog } from "@/hooks/useAuditStore";
-import { logger } from "@/lib/logger";
+import { AuditLog } from "../../hooks/useAuditStore";
+import { logger } from "../../lib/logger";
 
 /**
  * Service to handle synchronization between local state and Supabase backend.
