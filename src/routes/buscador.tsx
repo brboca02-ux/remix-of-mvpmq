@@ -326,7 +326,10 @@ function BuscadorPage() {
                 size="sm"
                 variant="outline"
                 className="gap-2"
-                onClick={() => setPlacesOpen(true)}
+                onClick={() => {
+                  setPlacesOpen(true);
+                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                }}
               >
                 <Sparkles className="h-4 w-4" />
                 Buscar até 100+ empresas no Google
