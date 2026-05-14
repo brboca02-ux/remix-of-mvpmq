@@ -1,4 +1,4 @@
-import { Download, Save, AlertTriangle, Sparkles, MessageCircle, Search, X, ShieldCheck, Database, Zap, Loader2, Info, Clock, LayoutList, TrendingUp, DollarSign } from "lucide-react";
+import { Download, Save, AlertTriangle, Sparkles, MessageCircle, Search, X, ShieldCheck, Database, Zap, Loader2, Info, Clock, LayoutList, TrendingUp, DollarSign, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
