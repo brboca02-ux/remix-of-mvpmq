@@ -100,6 +100,7 @@ function BuscadorPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [placesOpen, setPlacesOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false); // Flag para banner de jobs
   const arrivalToastShown = useRef(false);
 
   const cached = useCachedCompanies({
