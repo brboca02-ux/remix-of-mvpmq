@@ -183,7 +183,7 @@ export default function ProspectingPage() {
                 niche: dbLead.nicho || 'geral',
                 city: dbLead.cidade || '',
                 neighborhood: dbLead.bairro || undefined,
-                address: dbLead.address || undefined,
+                address: (dbLead as any).address || undefined,
                 email: dbLead.email || undefined,
                 whatsapp: dbLead.telefone || undefined,
                 websiteUrl: dbLead.site || undefined,
