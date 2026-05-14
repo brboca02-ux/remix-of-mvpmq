@@ -1022,17 +1022,17 @@ export const LeadCard: React.FC<LeadCardProps> = ({
             onUpdate={(analysis) => updateManualAnalysis(lead.id, analysis)} 
           />
 
-          <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-50 mt-4 pt-4">
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-50 mt-4">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-8 rounded-full border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 font-bold text-[10px] px-4"
+                    className="h-9 rounded-full border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 font-bold text-[11px] px-5"
                     onClick={handleGoogleSearch}
                   >
-                    <Search className="h-3 w-3" />
+                    <Search className="h-3.5 w-3.5" />
                     Pesquisar no Google
                   </Button>
                 </TooltipTrigger>
