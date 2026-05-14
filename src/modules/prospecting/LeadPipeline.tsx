@@ -106,7 +106,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
             "text-slate-500 bg-slate-50 border-slate-200"
           )}>
             {lead.opportunityScore}
-          </span>
+          </div>
         </div>
       </div>
 
