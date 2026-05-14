@@ -211,7 +211,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
       </div>
 
       {/* Drop Zone para Perdido */}
-      <div className="grid grid-cols-2 gap-6 px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 px-2 md:px-4">
         <div 
           className="group relative flex flex-col items-center justify-center py-8 px-6 rounded-[2.5rem] border-2 border-dashed border-rose-200 bg-rose-50/30 transition-all hover:bg-rose-100/50 hover:border-rose-400 cursor-default overflow-hidden"
           onDragOver={(e) => {
