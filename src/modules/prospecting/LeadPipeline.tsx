@@ -53,45 +53,90 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       className={cn(
-        "group flex items-center gap-2.5 rounded-xl border border-slate-200/70 bg-white",
-        "px-3 py-2.5 cursor-grab active:cursor-grabbing transition-all duration-200",
-        "hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        hasAlert && "ring-1 ring-rose-500/50 border-rose-200 bg-rose-50/20",
+        "group flex flex-col gap-3 rounded-2xl border border-slate-200/60 bg-white",
+        "p-4 cursor-grab active:cursor-grabbing transition-all duration-300",
+        "hover:shadow-xl hover:shadow-slate-200/50 hover:border-primary/40 hover:-translate-y-1",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+        hasAlert && "ring-1 ring-rose-500/30 border-rose-200 bg-rose-50/10",
         isInactive && "opacity-60 grayscale bg-slate-50"
       )}
-      title={`${lead.companyName} • Score ${lead.opportunityScore} • Status: ${lead.contactStatus || 'Novo'}`}
+      title={`${lead.companyName} • Score ${lead.opportunityScore}`}
     >
-      <div className="relative shrink-0">
-        {isDiscarded || isNoInterest ? (
-          <div className="h-2 w-2 flex items-center justify-center">
-            {isDiscarded ? <Ban className="h-2.5 w-2.5 text-slate-400" /> : <UserMinus className="h-2.5 w-2.5 text-slate-400" />}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="relative shrink-0">
+            {isDiscarded || isNoInterest ? (
+              <div className="h-3 w-3 flex items-center justify-center">
+                {isDiscarded ? <Ban className="h-3.5 w-3.5 text-slate-400" /> : <UserMinus className="h-3.5 w-3.5 text-slate-400" />}
+              </div>
+            ) : (
+              <span aria-hidden className={cn("block h-3 w-3 rounded-full border-2 border-white shadow-sm", dotClass)} />
+            )}
+            
+            {hasAlert && (
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 border border-white"></span>
+              </span>
+            )}
           </div>
-        ) : (
-          <span aria-hidden className={cn("block h-2 w-2 rounded-full", dotClass)} />
-        )}
-        
-        {hasAlert && (
-          <span className="absolute -top-1 -right-1 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500 shadow-sm border border-white"></span>
+          
+          <span className={cn(
+            "text-[14px] font-bold truncate leading-tight tracking-tight",
+            hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-800"
+          )}>
+            {lead.companyName || 'Sem nome'}
           </span>
+        </div>
+
+        <span className={cn(
+          "shrink-0 inline-flex items-center justify-center rounded-lg px-2 py-0.5 text-[11px] font-black tabular-nums shadow-sm border",
+          isInactive ? "text-slate-300 bg-slate-100 border-slate-200" : 
+          lead.opportunityScore >= 80 ? "text-indigo-700 bg-indigo-50 border-indigo-100" :
+          lead.opportunityScore >= 60 ? "text-amber-700 bg-amber-50 border-amber-100" :
+          "text-slate-500 bg-slate-100 border-slate-200"
+        )}>
+          {lead.opportunityScore}
+        </span>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+        {lead.niche && (
+          <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-slate-50/50 border-slate-100 text-slate-500 font-medium">
+            {lead.niche}
+          </Badge>
+        )}
+        {lead.city && (
+          <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-slate-50/50 border-slate-100 text-slate-500 font-medium">
+            {lead.city}
+          </Badge>
+        )}
+        {lead.hasMetaAds && (
+           <Badge variant="outline" className="text-[9px] py-0 px-1.5 bg-blue-50 border-blue-100 text-blue-600 font-bold">
+             ADS
+           </Badge>
         )}
       </div>
-      
-      <span className={cn(
-        "flex-1 min-w-0 text-[13px] font-semibold truncate leading-tight",
-        hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-800"
-      )}>
-        {lead.companyName || 'Sem nome'}
-      </span>
-      
-      <span className={cn(
-        "shrink-0 inline-flex items-center justify-center rounded-md px-1.5 py-0.5 text-[10px] font-black tabular-nums",
-        isInactive ? "text-slate-300 bg-slate-100" : scoreClass
-      )}>
-        {lead.opportunityScore}
-      </span>
+
+      <div className="flex items-center justify-between mt-1 pt-3 border-t border-slate-50">
+        <div className="flex items-center gap-1.5">
+           {lead.whatsapp && (
+             <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
+               <MessageCircle className="h-3.5 w-3.5" />
+             </div>
+           )}
+           {lead.websiteUrl && (
+             <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+               <GlobeIcon className="h-3.5 w-3.5" />
+             </div>
+           )}
+        </div>
+        
+        <div className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: true, locale: ptBR }) : 'Recentemente'}
+        </div>
+      </div>
     </div>
   );
 };
