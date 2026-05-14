@@ -1577,10 +1577,11 @@ export default function ProspectingPage() {
 
               <div className="px-8 pb-8 space-y-8">
                 <Tabs value={configInitialTab} onValueChange={setConfigInitialTab} className="w-full">
-                  <TabsList className="grid grid-cols-7 bg-slate-100/50 p-1 rounded-2xl mb-6">
+                  <TabsList className="grid grid-cols-8 bg-slate-100/50 p-1 rounded-2xl mb-6">
                     <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Visão</TabsTrigger>
                     <TabsTrigger value="playbook" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider text-violet-600">Playbook</TabsTrigger>
                     <TabsTrigger value="empresa" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Empresa</TabsTrigger>
+                    <TabsTrigger value="paid" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider text-amber-600">Enriquecer</TabsTrigger>
                     <TabsTrigger value="digital" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Digital</TabsTrigger>
                     <TabsTrigger value="contato" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Contato</TabsTrigger>
                     <TabsTrigger value="preview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Preview</TabsTrigger>
