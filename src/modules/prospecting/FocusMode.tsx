@@ -247,7 +247,7 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
   if (!lead) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto selection:bg-primary/30">
+    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center min-h-0 px-4 sm:px-8 pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] overflow-y-auto selection:bg-primary/30 [scrollbar-gutter:stable]">
       <AnimatePresence>
         {perfectMomentAlert && (
           <motion.div 
