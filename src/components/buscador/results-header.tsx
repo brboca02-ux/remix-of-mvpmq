@@ -49,6 +49,7 @@ export function ResultsHeader({
   onExportWhatsApp,
   onSaveList,
   onSavePreset,
+  onSendToPipeline,
   cacheStatus,
   loading = false,
   updatedAt,
@@ -63,6 +64,7 @@ export function ResultsHeader({
   onExportWhatsApp: () => void;
   onSaveList: () => void;
   onSavePreset: () => void;
+  onSendToPipeline?: () => void;
   cacheStatus?: CacheStatus;
   loading?: boolean;
   updatedAt?: string;
