@@ -647,42 +647,42 @@ export default function ProspectingPage() {
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
               Transforme Leads em <span className="text-primary">Clientes Reais</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-500 font-medium">
+            <p className="text-base md:text-lg text-slate-500 font-medium max-w-xl mx-auto">
               Prospecção baseada em comportamento humano: aqueça leads no Instagram, valide no Google e aborde com segurança máxima.
             </p>
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-6 max-w-2xl mx-auto mt-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">🔒</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">Menos Bloqueios</span>
+            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-4 max-w-xl mx-auto mt-4">
+              <div className="grid grid-cols-4 gap-2">
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">🔒</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Menos Bloqueios</span>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">📈</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">+ Respostas</span>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">📈</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">+ Respostas</span>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">🤝</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">Conexão Real</span>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">🤝</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Conexão Real</span>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">⚡</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">Alta Conversão</span>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">⚡</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Alta Conversão</span>
                 </div>
               </div>
-              <p className="text-[11px] text-emerald-600 font-bold mt-4">
-                “Sistema que guia você na abordagem correta, evitando bloqueios e aumentando a taxa de resposta com base em comportamento humano.”
+              <p className="text-[10px] text-emerald-600 font-bold mt-3">
+                “Sistema que guia você na abordagem correta, evitando bloqueios e aumentando a taxa de resposta.”
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 pt-6">
+            <div className="flex flex-wrap justify-center gap-3 pt-4">
               <Button 
                 onClick={openFocusMode}
-                size="lg" 
-                className="rounded-full px-10 bg-emerald-600 hover:bg-emerald-700 shadow-xl shadow-emerald-500/20 transition-all hover:-translate-y-0.5 font-black uppercase tracking-widest gap-2 h-14"
+                size="sm" 
+                className="rounded-full px-8 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 font-black uppercase tracking-widest gap-2 h-11 text-[10px]"
               >
-                <ShieldCheck className="h-5 w-5 fill-current" /> Prospecção Segura
+                <ShieldCheck className="h-4 w-4 fill-current" /> Prospecção Segura
               </Button>
-              <Button onClick={() => navigationService.handleCTA('start_now', {}, () => setIsAddDialogOpen(true))} size="lg" className="rounded-full px-8 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 h-14">
-                <Plus className="h-5 w-5 mr-2" /> Importar Leads
+              <Button onClick={() => navigationService.handleCTA('start_now', {}, () => setIsAddDialogOpen(true))} size="sm" className="rounded-full px-6 shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 h-11 text-[10px]">
+                <Plus className="h-4 w-4 mr-1.5" /> Importar Leads
               </Button>
             </div>
           </div>
