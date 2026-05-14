@@ -158,6 +158,19 @@ export function ResultsHeader({
             <MessageCircle className="h-4 w-4" />
             WhatsApp
           </Button>
+          {onSendToPipeline && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={onSendToPipeline}
+              disabled={total === 0}
+              className="gap-2"
+              data-testid="send-to-pipeline-button"
+            >
+              <Send className="h-4 w-4" />
+              Enviar para Pipeline
+            </Button>
+          )}
           <Button size="sm" onClick={onExport} disabled={total === 0} className="gap-2">
             <Download className="h-4 w-4" />
             Export CSV
