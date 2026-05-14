@@ -1360,7 +1360,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     onClick={runSuggestion}
                     disabled={!!loadingAction}
                     className={cn(
-                      "w-full flex items-center gap-4 p-4 rounded-2xl text-white shadow-lg transition-all group/sug relative overflow-hidden",
+                      "w-full h-16 flex items-center gap-4 p-5 rounded-2xl text-white shadow-lg transition-all group/sug relative overflow-hidden",
                       suggestion.priority === 'high' 
                         ? "bg-gradient-to-br from-rose-600 via-violet-600 to-indigo-600 shadow-rose-500/25 hover:shadow-rose-500/40"
                         : "bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 shadow-indigo-500/25 hover:shadow-indigo-500/40",
