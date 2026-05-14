@@ -1118,7 +1118,7 @@ export default function ProspectingPage() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 bg-background pt-2 mt-2">
             <Button variant="ghost" onClick={() => setIsLocalImportOpen(false)}>Cancelar</Button>
             <Button onClick={() => handleImportLocalLeads()} className="gap-2">
               <Upload className="h-4 w-4" /> Importar Registros
