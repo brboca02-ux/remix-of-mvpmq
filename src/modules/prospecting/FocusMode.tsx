@@ -483,33 +483,33 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 </div>
           </div>
 
-          <div className="lg:col-span-4 flex flex-col gap-6 min-h-0">
-            <Card className="bg-card border-border rounded-[2.5rem] overflow-hidden shadow-2xl border-l-4 border-l-primary h-full">
-              <CardHeader className="p-6 pb-2">
+          <div className="xl:col-span-4 flex flex-col gap-6 min-h-0">
+            <Card className="bg-card border-border rounded-3xl overflow-hidden shadow-2xl border-l-4 border-l-primary flex flex-col min-h-0">
+              <CardHeader className="p-4 sm:p-5 pb-2">
                 {/* Micro-explicações de Educação */}
-                <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-2xl mb-6">
-                  <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <Info className="w-3 h-3" /> Educação Prospecção Segura
+                <div className="bg-emerald-500/5 border border-emerald-500/10 p-3 rounded-2xl mb-4">
+                  <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <Info className="w-3 h-3" aria-hidden="true" /> Educação Prospecção Segura
                   </p>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div>
-                      <p className="text-xs font-bold text-white">Por que não abordar direto?</p>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">Contatos frios sem aquecimento aumentam o risco de denúncia e bloqueio no WhatsApp.</p>
+                      <p className="text-sm font-bold text-white">Por que não abordar direto?</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">Contatos frios sem aquecimento aumentam o risco de denúncia e bloqueio no WhatsApp.</p>
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Por que aguardar melhora resposta?</p>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">O tempo ideal entre o aquecimento no Instagram e o contato gera uma conexão natural.</p>
+                      <p className="text-sm font-bold text-white">Por que aguardar melhora resposta?</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">O tempo ideal entre o aquecimento no Instagram e o contato gera uma conexão natural.</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <button onClick={() => setActiveStrategyMode('playbook')} className={cn("text-xs font-black uppercase tracking-widest pb-1", activeStrategyMode === 'playbook' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>AI Playbook</button>
-                  <button onClick={() => setActiveStrategyMode('roadmap')} className={cn("text-xs font-black uppercase tracking-widest pb-1", activeStrategyMode === 'roadmap' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Roteiro</button>
-                  <button onClick={() => setActiveStrategyMode('audit')} className={cn("text-xs font-black uppercase tracking-widest pb-1", activeStrategyMode === 'audit' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Auditoria</button>
+                <div className="flex gap-4" role="tablist" aria-label="Modo de estratégia">
+                  <button role="tab" aria-selected={activeStrategyMode === 'playbook'} onClick={() => setActiveStrategyMode('playbook')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'playbook' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>AI Playbook</button>
+                  <button role="tab" aria-selected={activeStrategyMode === 'roadmap'} onClick={() => setActiveStrategyMode('roadmap')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'roadmap' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Roteiro</button>
+                  <button role="tab" aria-selected={activeStrategyMode === 'audit'} onClick={() => setActiveStrategyMode('audit')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'audit' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Auditoria</button>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 pt-2 overflow-y-auto">
+              <CardContent className="p-4 sm:p-5 pt-2 max-h-[calc(100dvh-22rem)] overflow-y-auto [overscroll-behavior:contain] [scrollbar-gutter:stable] min-h-0">
                 {activeStrategyMode === 'playbook' ? <LeadPlaybook leadId={lead.id} /> : 
                  activeStrategyMode === 'roadmap' ? (
                   <div className="text-muted-foreground text-sm space-y-4">
