@@ -16,9 +16,9 @@ import {
   RefreshCw,
   TrendingUp
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import { toast } from 'sonner';
-import { AnimatedPercent } from '@/components/ui/animated-value';
+import { AnimatedPercent } from '../../../components/ui/animated-value';
 
 interface AutonomousDecisionLayerProps {
   leadId: string;
