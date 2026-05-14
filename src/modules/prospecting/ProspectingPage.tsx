@@ -389,6 +389,9 @@ export default function ProspectingPage() {
         diagnosis: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        is_enriched: p.is_enriched || false,
+        digitalScore: computeDigitalScore(p).score,
+        digitalLevel: computeDigitalScore(p).level,
         ...p
       };
       
