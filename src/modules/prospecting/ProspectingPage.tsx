@@ -636,75 +636,75 @@ export default function ProspectingPage() {
     <div className="flex min-h-screen flex-col bg-slate-50/50">
       <SiteHeader />
       
-      <main className="flex-1 px-4 py-12 md:px-8">
-        <div className="mx-auto max-w-7xl space-y-12">
+      <main className="flex-1 px-4 py-8 md:px-8">
+        <div className="mx-auto max-w-7xl space-y-6">
           
           {/* Top Summary / Hero Section */}
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <Badge variant="outline" className="px-4 py-1 border-primary/20 bg-primary/5 text-primary animate-in fade-in slide-in-from-bottom-2">
+          <div className="text-center space-y-2 max-w-3xl mx-auto">
+            <Badge variant="outline" className="px-3 py-0.5 border-primary/20 bg-primary/5 text-primary text-[10px]">
               Plataforma de Captação IA v2.0
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
               Transforme Leads em <span className="text-primary">Clientes Reais</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-500 font-medium">
+            <p className="text-base md:text-lg text-slate-500 font-medium max-w-xl mx-auto">
               Prospecção baseada em comportamento humano: aqueça leads no Instagram, valide no Google e aborde com segurança máxima.
             </p>
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-6 max-w-2xl mx-auto mt-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">🔒</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">Menos Bloqueios</span>
+            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-4 max-w-xl mx-auto mt-4">
+              <div className="grid grid-cols-4 gap-2">
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">🔒</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Menos Bloqueios</span>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">📈</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">+ Respostas</span>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">📈</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">+ Respostas</span>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">🤝</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">Conexão Real</span>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">🤝</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Conexão Real</span>
                 </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-xl">⚡</span>
-                  <span className="text-[10px] font-black uppercase text-emerald-800">Alta Conversão</span>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-lg">⚡</span>
+                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Alta Conversão</span>
                 </div>
               </div>
-              <p className="text-[11px] text-emerald-600 font-bold mt-4">
-                “Sistema que guia você na abordagem correta, evitando bloqueios e aumentando a taxa de resposta com base em comportamento humano.”
+              <p className="text-[10px] text-emerald-600 font-bold mt-3">
+                “Sistema que guia você na abordagem correta, evitando bloqueios e aumentando a taxa de resposta.”
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 pt-6">
+            <div className="flex flex-wrap justify-center gap-3 pt-4">
               <Button 
                 onClick={openFocusMode}
-                size="lg" 
-                className="rounded-full px-10 bg-emerald-600 hover:bg-emerald-700 shadow-xl shadow-emerald-500/20 transition-all hover:-translate-y-0.5 font-black uppercase tracking-widest gap-2 h-14"
+                size="sm" 
+                className="rounded-full px-8 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 font-black uppercase tracking-widest gap-2 h-11 text-[10px]"
               >
-                <ShieldCheck className="h-5 w-5 fill-current" /> Prospecção Segura
+                <ShieldCheck className="h-4 w-4 fill-current" /> Prospecção Segura
               </Button>
-              <Button onClick={() => navigationService.handleCTA('start_now', {}, () => setIsAddDialogOpen(true))} size="lg" className="rounded-full px-8 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 h-14">
-                <Plus className="h-5 w-5 mr-2" /> Importar Leads
+              <Button onClick={() => navigationService.handleCTA('start_now', {}, () => setIsAddDialogOpen(true))} size="sm" className="rounded-full px-6 shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 h-11 text-[10px]">
+                <Plus className="h-4 w-4 mr-1.5" /> Importar Leads
               </Button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: 'Leads Captados', value: stats.total, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
               { label: 'Oportunidades Quentes', value: stats.hot, icon: TrendingUp, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
               { label: 'Sites Propostos', value: stats.sites, icon: Layout, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
               { label: 'Conversões Ativas', value: stats.contacted, icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
             ].map((stat, i) => (
-              <Card key={i} className="border border-slate-200/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden bg-white group rounded-3xl">
-                <CardContent className="p-6 flex items-center gap-4">
+              <Card key={i} className="border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-white group rounded-2xl">
+                <CardContent className="p-4 flex items-center gap-3">
                   <div className={cn(
-                    "p-3.5 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm border",
+                    "p-2.5 rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm border",
                     stat.bg, stat.color, stat.border
                   )}>
-                    <stat.icon className="h-6 w-6" />
+                    <stat.icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                    <p className="text-3xl font-black text-slate-900 mt-0.5 tracking-tight">{stat.value}</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                    <p className="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">{stat.value}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -713,31 +713,31 @@ export default function ProspectingPage() {
 
           <LayoutGroup>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
-            <div className="flex flex-col xl:flex-row justify-between gap-6 items-center bg-white/80 backdrop-blur-md p-4 md:p-5 rounded-[2rem] border border-slate-200/60 shadow-xl shadow-slate-200/20">
-              <TabsList className="bg-slate-100/80 p-1 rounded-2xl w-full xl:w-auto overflow-x-auto no-scrollbar justify-start flex-nowrap">
-                <TabsTrigger value="plan" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <CalendarIcon className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Plano</span>
+            <div className="flex flex-col lg:flex-row justify-between gap-4 items-center bg-white/80 backdrop-blur-md p-3 md:p-4 rounded-2xl border border-slate-200/60 shadow-lg shadow-slate-200/10">
+              <TabsList className="bg-slate-100/80 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar justify-start flex-nowrap h-10">
+                <TabsTrigger value="plan" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <CalendarIcon className="h-3 w-3" /> <span>Plano</span>
                 </TabsTrigger>
-                <TabsTrigger value="leads" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <ClipboardList className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Lista</span>
+                <TabsTrigger value="leads" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <ClipboardList className="h-3 w-3" /> <span>Lista</span>
                 </TabsTrigger>
-                <TabsTrigger value="pipeline" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <Target className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Funil</span>
+                <TabsTrigger value="pipeline" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <Target className="h-3 w-3" /> <span>Funil</span>
                 </TabsTrigger>
-                <TabsTrigger value="performance" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <TrendingUp className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Perf.</span>
+                <TabsTrigger value="performance" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <TrendingUp className="h-3 w-3" /> <span>Perf.</span>
                 </TabsTrigger>
-                <TabsTrigger value="revision" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <AlertCircle className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Revisão</span>
+                <TabsTrigger value="revision" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <AlertCircle className="h-3 w-3" /> <span>Revisão</span>
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
-                <div className="relative group flex-grow md:min-w-[300px]">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400 group-focus-within:text-primary transition-colors" />
+              <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto">
+                <div className="relative group flex-grow md:min-w-[240px]">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                   <Input 
                     placeholder="Buscar empresa ou @instagram..." 
-                    className="pl-11 h-12 w-full bg-slate-50/50 border-slate-200/60 focus-visible:ring-primary/20 rounded-2xl font-medium placeholder:text-slate-400"
+                    className="pl-10 h-10 w-full bg-slate-50/50 border-slate-200/60 focus-visible:ring-primary/20 rounded-xl text-xs font-medium placeholder:text-slate-400"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
