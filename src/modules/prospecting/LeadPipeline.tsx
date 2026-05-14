@@ -201,30 +201,30 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
 
   return (
     <div className="flex flex-col gap-6 md:gap-8">
-      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 min-h-[500px] md:min-h-[640px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+      <div className="flex gap-3 md:gap-4 overflow-x-auto pb-6 min-h-[500px] md:min-h-[600px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         {SALES_COLUMNS.map((column) => {
           const columnLeads = getLeadsByStatus(column.id);
           return (
-            <div key={column.id} className="flex-shrink-0 w-[300px] md:w-[340px] flex flex-col gap-5">
+            <div key={column.id} className="flex-shrink-0 w-[260px] md:w-[280px] flex flex-col gap-3">
               <div className={cn(
-                "flex items-center justify-between px-5 py-4 bg-white/80 backdrop-blur-md rounded-2xl border shadow-sm transition-all",
+                "flex items-center justify-between px-3 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border shadow-sm transition-all",
                 column.borderColor
               )}>
-                <div className={cn("flex items-center gap-3 font-black text-[12px] uppercase tracking-wider", column.color)}>
-                  <div className={cn("p-2 rounded-xl shadow-sm", column.bg)}>
+                <div className={cn("flex items-center gap-2 font-black text-[10px] uppercase tracking-wider", column.color)}>
+                  <div className={cn("p-1.5 rounded-lg shadow-sm", column.bg)}>
                     {column.icon}
                   </div>
                   {column.label}
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[11px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-2 py-0.5 rounded-full">
                     {columnLeads.length}
                   </span>
                 </div>
               </div>
 
               <div
-                className="flex-1 rounded-[2.5rem] p-3 flex flex-col gap-4 min-h-[580px] bg-slate-50/30 border border-slate-100/40 shadow-inner transition-all duration-300"
+                className="flex-1 rounded-[1.5rem] p-2 flex flex-col gap-2 min-h-[500px] bg-slate-50/30 border border-slate-100/40 shadow-inner transition-all duration-300"
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.currentTarget.classList.add('bg-primary/[0.04]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.005]');
