@@ -885,6 +885,7 @@ export default function ProspectingPage() {
               <PerformanceDashboard />
             </TabsContent>
           </Tabs>
+          </LayoutGroup>
 
         </div>
       </main>
