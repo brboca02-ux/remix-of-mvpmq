@@ -184,7 +184,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
         {SALES_COLUMNS.map((column) => {
           const columnLeads = getLeadsByStatus(column.id);
           return (
-            <div key={column.id} className="flex-shrink-0 w-[260px] md:w-[280px] flex flex-col gap-3">
+            <div key={column.id} className="flex-shrink-0 w-[220px] md:w-[260px] flex flex-col gap-2">
               <div className={cn(
                 "flex items-center justify-between px-3 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border shadow-sm transition-all",
                 column.borderColor
