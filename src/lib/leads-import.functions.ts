@@ -1,15 +1,15 @@
 // @ts-nocheck
 import { createServerFn } from "@tanstack/react-start";
-import { internalEnqueueJob, internalUpdateJobStatus } from "@/lib/jobs.server";
-import { normalizeLead, type StandardLead } from "@/lib/leads-shared";
-import { supabaseAdmin as getSupabase } from "@/integrations/supabase/client.server";
-import { logger as Logger } from "@/lib/logger";
-import { processCnpjEnrichment } from "@/lib/leads-cnpj-enrichment";
-import { parseUniversalCsv } from "@/lib/leads-parser";
-import { logger } from "@/lib/logger";
-import type { ImportError, JobSourceStats, FollowupHistoryItem, HealthCheck } from "@/types/database";
-import type { LeadUpdate } from "@/modules/crm/types";
-import type { JobStatus } from "@/types/jobs";
+import { internalEnqueueJob, internalUpdateJobStatus } from "./jobs.server";
+import { normalizeLead, type StandardLead } from "./leads-shared";
+import { supabaseAdmin as getSupabase } from "../integrations/supabase/client.server";
+import { logger as Logger } from "./logger";
+import { processCnpjEnrichment } from "./leads-cnpj-enrichment";
+import { parseUniversalCsv } from "./leads-parser";
+import { logger } from "./logger";
+import type { ImportError, JobSourceStats, FollowupHistoryItem, HealthCheck } from "../types/database";
+import type { LeadUpdate } from "../modules/crm/types";
+import type { JobStatus } from "../types/jobs";
 
 export const startImportJob = createServerFn({ method: "POST" })
 // ... keep existing code
