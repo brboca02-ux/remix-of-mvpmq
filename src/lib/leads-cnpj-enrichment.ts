@@ -28,6 +28,7 @@ export async function getCnpjPublicData(cnpj: string): Promise<Partial<StandardL
       cidade: localData.cidade,
       uf: localData.uf,
       cnae_principal: localData.cnae_principal,
+      data_abertura: localData.data_abertura,
       porte: localData.porte,
       status: localData.situacao_cadastral,
       source: "receita_federal_local"
@@ -48,6 +49,7 @@ export async function getCnpjPublicData(cnpj: string): Promise<Partial<StandardL
         cidade: data.municipio,
         uf: data.uf,
         cnae_principal: String(data.cnae_fiscal),
+        data_abertura: data.data_inicio_atividade,
         status: data.descricao_situacao_cadastral,
         socios: data.qsa || [],
         source: "brasil_api"
@@ -72,6 +74,7 @@ export async function getCnpjPublicData(cnpj: string): Promise<Partial<StandardL
           cidade: data.municipio,
           uf: data.uf,
           cnae_principal: data.atividade_principal?.[0]?.code,
+          data_abertura: data.abertura,
           status: data.situacao,
           source: "receita_ws"
         };
@@ -110,7 +113,7 @@ export async function processCnpjEnrichment(leadId: string, cnpj: string) {
     .single();
 
   if (currentLead) {
-    const fieldsToCompare: (keyof StandardLead)[] = ["razao_social", "cidade", "uf", "cnae_principal", "status"];
+    const fieldsToCompare: (keyof StandardLead)[] = ["razao_social", "cidade", "uf", "cnae_principal", "status", "data_abertura"];
     const conflictsFound = [];
 
     for (const field of fieldsToCompare) {
@@ -146,6 +149,7 @@ export async function processCnpjEnrichment(leadId: string, cnpj: string) {
     cidade: newData.cidade || currentLead?.cidade,
     uf: newData.uf || currentLead?.uf,
     cnae_principal: newData.cnae_principal || currentLead?.cnae_principal,
+    data_abertura: newData.data_abertura || currentLead?.data_abertura,
     status: newData.status || currentLead?.status,
     socios: newData.socios || currentLead?.socios || [],
     last_enriched_at: new Date().toISOString()

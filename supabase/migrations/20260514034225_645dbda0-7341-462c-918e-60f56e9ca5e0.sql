@@ -1,0 +1,1 @@
+ALTER TABLE public.leads_import ADD COLUMN IF NOT EXISTS data_abertura TEXT;

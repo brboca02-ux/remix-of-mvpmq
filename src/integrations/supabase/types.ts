@@ -1238,6 +1238,7 @@ export type Database = {
           confidence_score: number | null
           contact_notes: string | null
           created_at: string
+          data_abertura: string | null
           discard_reason: string | null
           email: string | null
           enrichment_data: Json | null
@@ -1291,6 +1292,7 @@ export type Database = {
           confidence_score?: number | null
           contact_notes?: string | null
           created_at?: string
+          data_abertura?: string | null
           discard_reason?: string | null
           email?: string | null
           enrichment_data?: Json | null
@@ -1344,6 +1346,7 @@ export type Database = {
           confidence_score?: number | null
           contact_notes?: string | null
           created_at?: string
+          data_abertura?: string | null
           discard_reason?: string | null
           email?: string | null
           enrichment_data?: Json | null
@@ -2446,6 +2449,7 @@ export type Database = {
           confidence_score: number | null
           contact_notes: string | null
           created_at: string
+          data_abertura: string | null
           discard_reason: string | null
           email: string | null
           enrichment_data: Json | null

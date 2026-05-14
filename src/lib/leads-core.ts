@@ -91,6 +91,7 @@ export interface StandardLead {
   status?: string | null;
   capital_social?: number | null;
   cnae_principal?: string | null;
+  data_abertura?: string | null;
   nicho: string;
   source: string;
   confidence_score: number;
@@ -156,6 +157,7 @@ export function normalizeLead(lead: Partial<StandardLead>): StandardLead {
     status: lead.status?.toLowerCase().trim() || "unknown",
     capital_social: Number(lead.capital_social) || 0,
     cnae_principal: lead.cnae_principal?.trim() || null,
+    data_abertura: lead.data_abertura?.trim() || null,
     nicho: lead.nicho || "geral",
     source: lead.source || "manual",
     raw: lead.raw || {},

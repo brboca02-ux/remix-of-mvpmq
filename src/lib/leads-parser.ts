@@ -87,6 +87,12 @@ const HEADER_MAP: Record<string, keyof StandardLead | "skip"> = {
   "linkedin": "site", // Mapping to site temporarily as StandardLead doesn't have linkedin
   "cargo": "raw",
   "role": "raw",
+  "abertura": "data_abertura",
+  "inicio": "data_abertura",
+  "data": "data_abertura",
+  "cnae": "cnae_principal",
+  "socios": "socios",
+  "qsa": "socios",
 };
 
 export function mapHeaders(headers: string[]): (keyof StandardLead | null)[] {
