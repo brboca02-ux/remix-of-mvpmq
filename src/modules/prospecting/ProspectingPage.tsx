@@ -116,7 +116,10 @@ import { LeadPlaybook } from './LeadPlaybook';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { hunterFindEmails, builtWithLookup } from '../../server/enrichment-paid-providers';
+// Imports handled via window.__server_fns in browser for TanStack Start
+const hunterFindEmails = (args: any) => (window as any).__server_fns?.hunterFindEmails?.(args);
+const builtWithLookup = (args: any) => (window as any).__server_fns?.builtWithLookup?.(args);
+
 import { analyzePageSpeed } from '../../lib/pagespeed.functions';
 
 
