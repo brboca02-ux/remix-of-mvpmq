@@ -164,6 +164,7 @@ export default function ProspectingPage() {
   const [isSocialDiscoveryOpen, setIsSocialDiscoveryOpen] = useState(false);
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [discoveryResult, setDiscoveryResult] = useState<SocialDiscoveryData | null>(null);
+  const [isImporting, setIsImporting] = useState(false); // Flag para controlar visibilidade do banner de jobs
   const [isOcrLoading, setIsOcrLoading] = useState(false);
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false);
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
