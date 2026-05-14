@@ -29,7 +29,7 @@ import { interpretSearch } from "@/lib/search.functions";
 import type { CompanyFilter, CompanyPorte } from "@/lib/company-types";
 import { emptyFilter } from "@/lib/company-types";
 import type { Company } from "@/lib/company-types";
-import { addLeadsToCRM } from "@/lib/crm-bridge";
+import { addLeadsToCRM, type IncomingLead } from "@/lib/crm-bridge";
 
 const VALID_PORTES = ["MEI", "Micro", "Pequena", "Média", "Grande"] as const;
 
