@@ -1473,8 +1473,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   <div className="grid grid-cols-1">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button className="flex items-center justify-center gap-2 h-10 rounded-xl bg-white border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-[10px] font-black text-slate-600">
-                          <CalendarDays className="h-3.5 w-3.5 text-blue-500" /> Próximo Passo
+                        <button className="flex items-center justify-center gap-2 h-12 rounded-xl bg-white border-2 border-slate-100 hover:border-blue-300 hover:bg-blue-50 transition-all text-xs font-black text-slate-600">
+                          <Zap className="h-4 w-4 text-blue-500" /> Próximo Passo
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="rounded-xl p-1 shadow-2xl border-slate-100 min-w-[160px]">
