@@ -1008,8 +1008,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 )}
               </div>
               {lead.opportunityLevel === 'quente' && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500 text-white text-[9px] font-black uppercase tracking-tighter animate-pulse shadow-md shadow-rose-200">
-                  <Sparkles className="h-3 w-3" /> Prioridade Máxima
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500 text-white text-[10px] font-black uppercase tracking-tighter animate-pulse shadow-md shadow-rose-200">
+                  <Sparkles className="h-3.5 w-3.5" /> Prioridade Máxima
                 </div>
             )}
           </div>
