@@ -1380,7 +1380,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                       <div className="text-[10px] font-black uppercase tracking-widest text-indigo-100/80 mb-0.5">
                         {suggestion.priority === 'high' ? '🔥 Recomendação Prioritária' : 'IA Smart Recommendation'}
                       </div>
-                      <div className="text-sm font-black tracking-tight">{suggestion.label}</div>
+                      <div className="text-base font-black tracking-tight">{suggestion.label}</div>
                       {suggestion.reason && (
                         <div className="text-[9px] font-medium text-white/60 mt-0.5 line-clamp-1">{suggestion.reason}</div>
                       )}
