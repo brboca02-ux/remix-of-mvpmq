@@ -247,7 +247,7 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
   if (!lead) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto selection:bg-primary/30">
+    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center min-h-0 px-4 sm:px-8 pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] overflow-y-auto selection:bg-primary/30 [scrollbar-gutter:stable]">
       <AnimatePresence>
         {perfectMomentAlert && (
           <motion.div 
@@ -312,40 +312,37 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
           </Button>
         </div>
 
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 min-h-0">
-          <div className="lg:col-span-8 flex flex-col gap-10 min-h-0">
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-10 min-h-0">
+          <div className="xl:col-span-8 flex flex-col gap-6 lg:gap-10 min-h-0">
             {/* MODO PESQUISA MANUAL GUIADA */}
-            <div className="bg-card/40 border border-white/10 p-8 rounded-[2.5rem] backdrop-blur-xl relative overflow-hidden group">
-              {/* Indicador de Segurança */}
-              <div className="absolute top-0 right-0 p-4 flex flex-col items-end gap-2">
-                <div className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-full border shadow-xl transition-all duration-500",
-                  lead.warmupStatus === 'Pronto' ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400" :
-                  lead.warmupStatus === 'Morno' ? "bg-amber-500/20 border-amber-500/50 text-amber-400" :
-                  "bg-rose-500/20 border-rose-500/50 text-rose-400"
-                )}>
-                  <ShieldCheck className={cn("w-4 h-4", lead.warmupStatus === 'Pronto' && "animate-pulse")} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">
-                    Modo Seguro: {lead.warmupStatus === 'Pronto' ? 'Seguro' : lead.warmupStatus === 'Morno' ? 'Atenção' : 'Risco'}
-                  </span>
+            <div className="bg-card/40 border border-white/10 p-5 sm:p-6 rounded-3xl backdrop-blur-xl relative overflow-hidden group">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                    <ShieldCheck className="w-5 h-5 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white">Prospecção Segura (Anti-Bloqueio)</h3>
+                    <p className="text-xs text-muted-foreground font-medium">Siga as etapas para garantir a melhor conversão e segurança</p>
+                  </div>
                 </div>
-                
-                <div className={cn(
-                  "flex items-center gap-2 px-4 py-1.5 rounded-full border transition-all duration-500",
-                  analysisTimer < 15 ? "bg-amber-500/10 border-amber-500/30 text-amber-500" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
-                )}>
-                  <Clock className={cn("w-3.5 h-3.5", analysisTimer < 15 && "animate-pulse")} />
-                  <span className="text-[11px] font-black uppercase tracking-widest">{analysisTimer}s de análise</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <ShieldCheck className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white">Prospecção Segura (Anti-Bloqueio)</h3>
-                  <p className="text-[10px] text-muted-foreground font-medium">Siga as etapas para garantir a melhor conversão e segurança</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider",
+                    lead.warmupStatus === 'Pronto' ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
+                    lead.warmupStatus === 'Morno' ? "bg-amber-500/15 border-amber-500/40 text-amber-300" :
+                    "bg-rose-500/15 border-rose-500/40 text-rose-300"
+                  )}>
+                    <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+                    Modo {lead.warmupStatus === 'Pronto' ? 'Seguro' : lead.warmupStatus === 'Morno' ? 'Atenção' : 'Risco'}
+                  </div>
+                  <div className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold tabular-nums",
+                    analysisTimer < 15 ? "bg-amber-500/10 border-amber-500/30 text-amber-300" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                  )}>
+                    <Clock className="w-3.5 h-3.5" aria-hidden="true" />
+                    {analysisTimer}s análise
+                  </div>
                 </div>
               </div>
 
@@ -486,33 +483,33 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 </div>
           </div>
 
-          <div className="lg:col-span-4 flex flex-col gap-6 min-h-0">
-            <Card className="bg-card border-border rounded-[2.5rem] overflow-hidden shadow-2xl border-l-4 border-l-primary h-full">
-              <CardHeader className="p-6 pb-2">
+          <div className="xl:col-span-4 flex flex-col gap-6 min-h-0">
+            <Card className="bg-card border-border rounded-3xl overflow-hidden shadow-2xl border-l-4 border-l-primary flex flex-col min-h-0">
+              <CardHeader className="p-4 sm:p-5 pb-2">
                 {/* Micro-explicações de Educação */}
-                <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-2xl mb-6">
-                  <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <Info className="w-3 h-3" /> Educação Prospecção Segura
+                <div className="bg-emerald-500/5 border border-emerald-500/10 p-3 rounded-2xl mb-4">
+                  <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <Info className="w-3 h-3" aria-hidden="true" /> Educação Prospecção Segura
                   </p>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div>
-                      <p className="text-xs font-bold text-white">Por que não abordar direto?</p>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">Contatos frios sem aquecimento aumentam o risco de denúncia e bloqueio no WhatsApp.</p>
+                      <p className="text-sm font-bold text-white">Por que não abordar direto?</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">Contatos frios sem aquecimento aumentam o risco de denúncia e bloqueio no WhatsApp.</p>
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white">Por que aguardar melhora resposta?</p>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">O tempo ideal entre o aquecimento no Instagram e o contato gera uma conexão natural.</p>
+                      <p className="text-sm font-bold text-white">Por que aguardar melhora resposta?</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">O tempo ideal entre o aquecimento no Instagram e o contato gera uma conexão natural.</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <button onClick={() => setActiveStrategyMode('playbook')} className={cn("text-xs font-black uppercase tracking-widest pb-1", activeStrategyMode === 'playbook' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>AI Playbook</button>
-                  <button onClick={() => setActiveStrategyMode('roadmap')} className={cn("text-xs font-black uppercase tracking-widest pb-1", activeStrategyMode === 'roadmap' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Roteiro</button>
-                  <button onClick={() => setActiveStrategyMode('audit')} className={cn("text-xs font-black uppercase tracking-widest pb-1", activeStrategyMode === 'audit' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Auditoria</button>
+                <div className="flex gap-4" role="tablist" aria-label="Modo de estratégia">
+                  <button role="tab" aria-selected={activeStrategyMode === 'playbook'} onClick={() => setActiveStrategyMode('playbook')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'playbook' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>AI Playbook</button>
+                  <button role="tab" aria-selected={activeStrategyMode === 'roadmap'} onClick={() => setActiveStrategyMode('roadmap')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'roadmap' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Roteiro</button>
+                  <button role="tab" aria-selected={activeStrategyMode === 'audit'} onClick={() => setActiveStrategyMode('audit')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'audit' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Auditoria</button>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 pt-2 overflow-y-auto">
+              <CardContent className="p-4 sm:p-5 pt-2 max-h-[calc(100dvh-22rem)] overflow-y-auto [overscroll-behavior:contain] [scrollbar-gutter:stable] min-h-0">
                 {activeStrategyMode === 'playbook' ? <LeadPlaybook leadId={lead.id} /> : 
                  activeStrategyMode === 'roadmap' ? (
                   <div className="text-muted-foreground text-sm space-y-4">
