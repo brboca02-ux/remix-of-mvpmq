@@ -1000,8 +1000,7 @@ function parseReceitaFederalLine(cols: string[]): Partial<StandardLead> | null {
     }
   }
   
-  const nome = fantasia || razaoSocial;
-  if (!nome || nome.length < 2) return null;
+  const nome = fantasia || razaoSocial || cnpj || "Empresa Importada";
   
   return {
     nome,
