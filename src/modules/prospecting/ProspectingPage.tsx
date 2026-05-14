@@ -116,8 +116,25 @@ import { LeadPlaybook } from './LeadPlaybook';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { hunterFindEmails, builtWithLookup } from '../../server/enrichment-paid-providers';
-import { analyzePageSpeed } from '../../lib/pagespeed.functions';
+import { createServerFn } from "@tanstack/react-start";
+import { analyzePageSpeed as analyzePageSpeedFn } from '../../lib/pagespeed.functions';
+
+const hunterFindEmails = createServerFn({ method: "POST" })
+  .handler(async (args: any) => {
+    const { hunterFindEmails: fn } = await import('../../server/enrichment-paid-providers');
+    return fn(args);
+  });
+
+const builtWithLookup = createServerFn({ method: "POST" })
+  .handler(async (args: any) => {
+    const { builtWithLookup: fn } = await import('../../server/enrichment-paid-providers');
+    return fn(args);
+  });
+
+const analyzePageSpeed = createServerFn({ method: "POST" })
+  .handler(async (args: any) => {
+    return analyzePageSpeedFn(args);
+  });
 
 
 export default function ProspectingPage() {
@@ -1045,7 +1062,7 @@ export default function ProspectingPage() {
 
       {/* Local Import Dialog */}
       <Dialog open={isLocalImportOpen} onOpenChange={setIsLocalImportOpen}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-primary" />
@@ -1101,7 +1118,7 @@ export default function ProspectingPage() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 bg-background pt-2 mt-2">
             <Button variant="ghost" onClick={() => setIsLocalImportOpen(false)}>Cancelar</Button>
             <Button onClick={() => handleImportLocalLeads()} className="gap-2">
               <Upload className="h-4 w-4" /> Importar Registros
@@ -1703,7 +1720,7 @@ export default function ProspectingPage() {
                                 try {
                                   const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
                                   if (!domain) return;
-                                  const res = await hunterFindEmails({ data: { domain, company: selectedLead.companyName } });
+                                  const res = await hunterFindEmails({ domain, company: selectedLead.companyName });
                                   if (res.success && res.data.emails?.length > 0) {
                                     const email = res.data.emails[0].email;
                                     setSelectedLead({ ...selectedLead, email });
@@ -1737,7 +1754,7 @@ export default function ProspectingPage() {
                                 try {
                                   const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
                                   if (!domain) return;
-                                  const res = await builtWithLookup({ data: { domain } });
+                                  const res = await builtWithLookup({ domain });
                                   if (res.success && res.data) {
                                     const techs = res.data.technologies?.map((t: any) => t.name) || [];
                                     const painPoints = [];
