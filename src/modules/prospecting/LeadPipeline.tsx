@@ -76,7 +76,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
               )}
             </div>
             <span className={cn(
-              "text-[min(11px,3vw)] font-black truncate leading-tight tracking-tight uppercase",
+              "text-base md:text-lg font-black truncate leading-tight tracking-tight uppercase",
               hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-900"
             )}>
               {lead.companyName || 'Sem nome'}
@@ -85,12 +85,12 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
 
           <div className="flex flex-wrap items-center gap-1">
             {lead.niche && (
-              <span className="text-[min(8px,2.5vw)] font-extrabold text-slate-500 bg-slate-100 px-1 py-0.5 rounded-md uppercase tracking-wider">
+              <span className="text-sm font-extrabold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
                 {lead.niche}
               </span>
             )}
             {lead.city && (
-              <span className="text-[min(8px,2.5vw)] font-bold text-slate-400 uppercase tracking-wide">
+              <span className="text-sm font-bold text-slate-400 uppercase tracking-wide">
                 • {lead.city}
               </span>
             )}
@@ -99,7 +99,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
 
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={cn(
-            "inline-flex items-center justify-center rounded-lg px-1 py-0.5 text-[min(10px,2.8vw)] font-black tabular-nums border shadow-sm",
+            "inline-flex items-center justify-center rounded-lg px-2 py-1 text-base font-black tabular-nums border shadow-sm",
             isInactive ? "text-slate-300 bg-slate-50 border-slate-200" : 
             lead.opportunityScore >= 80 ? "text-rose-700 bg-rose-50 border-rose-200" :
             lead.opportunityScore >= 60 ? "text-amber-700 bg-amber-50 border-amber-200" :
@@ -114,7 +114,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
         <div className="flex items-center gap-1.5">
            {lead.digitalScore !== undefined && (
              <div className={cn(
-               "text-[min(7px,2vw)] font-black px-1 py-0.5 rounded-md border shadow-sm",
+               "text-sm font-black px-1.5 py-0.5 rounded-md border shadow-sm",
                lead.digitalLevel ? digitalLevelColors[lead.digitalLevel] : 'bg-slate-50 text-slate-400 border-slate-200'
              )}>
                {lead.digitalScore}%
@@ -127,7 +127,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
            </div>
         </div>
         
-        <div className="text-[min(7px,2vw)] font-black text-slate-400 uppercase flex items-center gap-1">
+        <div className="text-xs font-black text-slate-400 uppercase flex items-center gap-1">
           <Clock className="h-2 w-2" />
           {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: false, locale: ptBR }) : 'Agora'}
         </div>
@@ -189,21 +189,21 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
                 "flex items-center justify-between px-3 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border shadow-sm transition-all",
                 column.borderColor
               )}>
-                <div className={cn("flex items-center gap-1.5 font-black text-[9px] uppercase tracking-wider", column.color)} title={column.label}>
+                <div className={cn("flex items-center gap-1.5 font-black text-sm uppercase tracking-wider", column.color)} title={column.label}>
                   <div className={cn("p-1.5 rounded-lg shadow-sm", column.bg)}>
                     {column.icon}
                   </div>
                   <span className="truncate max-w-[80px] sm:max-w-[120px]">{column.label}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[9px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-1.5 py-0.5 rounded-full">
+                  <span className="text-xs font-black text-slate-500 tabular-nums bg-slate-100/80 px-1.5 py-0.5 rounded-full">
                     {columnLeads.length}
                   </span>
                 </div>
               </div>
 
               <div
-                className="flex-1 rounded-[1.5rem] p-2 flex flex-col gap-2 min-h-[500px] bg-slate-50/30 border border-slate-100/40 shadow-inner transition-all duration-300"
+                className="flex-1 rounded-[1.5rem] p-2 flex flex-col gap-2 h-[500px] md:h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent bg-slate-50/30 border border-slate-100/40 shadow-inner transition-all duration-300"
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.currentTarget.classList.add('bg-primary/[0.04]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.005]');
