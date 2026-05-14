@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useProspectingStore } from '../prospecting-store';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
 import { 
   PlayCircle, 
   AlertTriangle, 
