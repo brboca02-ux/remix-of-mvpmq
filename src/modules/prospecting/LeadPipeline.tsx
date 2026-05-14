@@ -54,42 +54,43 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       className={cn(
-        "group flex flex-col gap-2 rounded-xl border border-slate-200/50 bg-white",
-        "p-3 cursor-grab active:cursor-grabbing transition-all duration-300",
-        "hover:shadow-lg hover:border-primary/40 hover:-translate-y-1 hover:bg-slate-50/50",
+        "group flex flex-col gap-1.5 rounded-xl border border-slate-200/50 bg-white",
+        "p-2.5 cursor-grab active:cursor-grabbing transition-all duration-300",
+        "hover:shadow-lg hover:border-primary/40 hover:-translate-y-0.5 hover:bg-slate-50/50",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+        "w-full max-w-full overflow-hidden",
         hasAlert && "ring-1 ring-rose-500/30 border-rose-200 bg-rose-50/10",
         isInactive && "opacity-60 grayscale bg-slate-50"
       )}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-1.5">
         <div className="flex flex-col min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 mb-1.5">
+          <div className="flex items-center gap-1.5 mb-1">
             <div className="relative shrink-0">
               {isDiscarded || isNoInterest ? (
                 <div className="h-2 w-2 flex items-center justify-center">
                   {isDiscarded ? <Ban className="h-2.5 w-2.5 text-slate-400" /> : <UserMinus className="h-2.5 w-2.5 text-slate-400" />}
                 </div>
               ) : (
-                <span aria-hidden className={cn("block h-2.5 w-2.5 rounded-full border-2 border-white shadow-sm", dotClass)} />
+                <span aria-hidden className={cn("block h-2 w-2 rounded-full border-2 border-white shadow-sm", dotClass)} />
               )}
             </div>
             <span className={cn(
-              "text-[12px] font-black truncate leading-tight tracking-tight uppercase",
+              "text-[min(11px,3vw)] font-black truncate leading-tight tracking-tight uppercase",
               hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-900"
             )}>
               {lead.companyName || 'Sem nome'}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             {lead.niche && (
-              <span className="text-[9px] font-extrabold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+              <span className="text-[min(8px,2.5vw)] font-extrabold text-slate-500 bg-slate-100 px-1 py-0.5 rounded-md uppercase tracking-wider">
                 {lead.niche}
               </span>
             )}
             {lead.city && (
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">
+              <span className="text-[min(8px,2.5vw)] font-bold text-slate-400 uppercase tracking-wide">
                 • {lead.city}
               </span>
             )}
@@ -98,7 +99,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
 
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={cn(
-            "inline-flex items-center justify-center rounded-lg px-1.5 py-0.5 text-[11px] font-black tabular-nums border shadow-sm",
+            "inline-flex items-center justify-center rounded-lg px-1 py-0.5 text-[min(10px,2.8vw)] font-black tabular-nums border shadow-sm",
             isInactive ? "text-slate-300 bg-slate-50 border-slate-200" : 
             lead.opportunityScore >= 80 ? "text-rose-700 bg-rose-50 border-rose-200" :
             lead.opportunityScore >= 60 ? "text-amber-700 bg-amber-50 border-amber-200" :
@@ -109,25 +110,25 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100/80">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-slate-100/80">
+        <div className="flex items-center gap-1.5">
            {lead.digitalScore !== undefined && (
              <div className={cn(
-               "text-[8px] font-black px-1.5 py-0.5 rounded-md border shadow-sm",
+               "text-[min(7px,2vw)] font-black px-1 py-0.5 rounded-md border shadow-sm",
                lead.digitalLevel ? digitalLevelColors[lead.digitalLevel] : 'bg-slate-50 text-slate-400 border-slate-200'
              )}>
-               SCORE: {lead.digitalScore}%
+               {lead.digitalScore}%
              </div>
            )}
-           <div className="flex items-center gap-1.5">
-             {lead.whatsapp && <MessageCircle className="h-3 w-3 text-emerald-600 drop-shadow-sm" />}
-             {lead.websiteUrl && <GlobeIcon className="h-3 w-3 text-blue-600 drop-shadow-sm" />}
-             {lead.instagramHandle && <Instagram className="h-3 w-3 text-pink-600 drop-shadow-sm" />}
+           <div className="flex items-center gap-1">
+             {lead.whatsapp && <MessageCircle className="h-2.5 w-2.5 text-emerald-600" />}
+             {lead.websiteUrl && <GlobeIcon className="h-2.5 w-2.5 text-blue-600" />}
+             {lead.instagramHandle && <Instagram className="h-2.5 w-2.5 text-pink-600" />}
            </div>
         </div>
         
-        <div className="text-[8px] font-black text-slate-400 uppercase flex items-center gap-1">
-          <Clock className="h-2.5 w-2.5" />
+        <div className="text-[min(7px,2vw)] font-black text-slate-400 uppercase flex items-center gap-1">
+          <Clock className="h-2 w-2" />
           {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: false, locale: ptBR }) : 'Agora'}
         </div>
       </div>
@@ -183,19 +184,19 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
         {SALES_COLUMNS.map((column) => {
           const columnLeads = getLeadsByStatus(column.id);
           return (
-            <div key={column.id} className="flex-shrink-0 w-[260px] md:w-[280px] flex flex-col gap-3">
+            <div key={column.id} className="flex-shrink-0 w-[180px] sm:w-[220px] md:w-[260px] flex flex-col gap-2">
               <div className={cn(
                 "flex items-center justify-between px-3 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border shadow-sm transition-all",
                 column.borderColor
               )}>
-                <div className={cn("flex items-center gap-2 font-black text-[10px] uppercase tracking-wider", column.color)}>
+                <div className={cn("flex items-center gap-1.5 font-black text-[9px] uppercase tracking-wider", column.color)} title={column.label}>
                   <div className={cn("p-1.5 rounded-lg shadow-sm", column.bg)}>
                     {column.icon}
                   </div>
-                  {column.label}
+                  <span className="truncate max-w-[80px] sm:max-w-[120px]">{column.label}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-[10px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-2 py-0.5 rounded-full">
+                  <span className="text-[9px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-1.5 py-0.5 rounded-full">
                     {columnLeads.length}
                   </span>
                 </div>
