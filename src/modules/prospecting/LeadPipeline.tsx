@@ -54,13 +54,13 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       className={cn(
-        "group flex flex-col gap-1.5 rounded-xl border border-slate-200/50 bg-white",
-        "p-2.5 cursor-grab active:cursor-grabbing transition-all duration-300",
-        "hover:shadow-lg hover:border-primary/40 hover:-translate-y-0.5 hover:bg-slate-50/50",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+        "group flex flex-col gap-3 rounded-[1.5rem] border border-slate-200 bg-white shadow-sm",
+        "p-4 cursor-grab active:cursor-grabbing transition-all duration-500",
+        "hover:shadow-2xl hover:border-primary/50 hover:-translate-y-2 hover:bg-white",
+        "focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10",
         "w-full max-w-full overflow-hidden",
-        hasAlert && "ring-1 ring-rose-500/30 border-rose-200 bg-rose-50/10",
-        isInactive && "opacity-60 grayscale bg-slate-50"
+        hasAlert && "ring-2 ring-rose-500/20 border-rose-300 bg-rose-50/10",
+        isInactive && "opacity-60 grayscale bg-slate-50 border-slate-100"
       )}
     >
       <div className="flex items-start justify-between gap-1.5">
@@ -76,7 +76,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
               )}
             </div>
             <span className={cn(
-              "text-base md:text-lg font-black truncate leading-tight tracking-tight uppercase",
+              "text-lg md:text-xl font-black truncate leading-tight tracking-tight uppercase",
               hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-900"
             )}>
               {lead.companyName || 'Sem nome'}
@@ -85,12 +85,12 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
 
           <div className="flex flex-wrap items-center gap-1">
             {lead.niche && (
-              <span className="text-sm font-extrabold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+              <span className="text-xs font-black text-slate-500 bg-slate-100 px-2 py-1 rounded-lg uppercase tracking-[0.1em] border border-slate-200/50">
                 {lead.niche}
               </span>
             )}
             {lead.city && (
-              <span className="text-sm font-bold text-slate-400 uppercase tracking-wide">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                 • {lead.city}
               </span>
             )}
@@ -99,7 +99,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
 
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={cn(
-            "inline-flex items-center justify-center rounded-lg px-2 py-1 text-base font-black tabular-nums border shadow-sm",
+            "inline-flex items-center justify-center rounded-xl px-3 py-1.5 text-lg font-black tabular-nums border-2 shadow-sm",
             isInactive ? "text-slate-300 bg-slate-50 border-slate-200" : 
             lead.opportunityScore >= 80 ? "text-rose-700 bg-rose-50 border-rose-200" :
             lead.opportunityScore >= 60 ? "text-amber-700 bg-amber-50 border-amber-200" :
@@ -113,21 +113,21 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
       <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-slate-100/80">
         <div className="flex items-center gap-1.5">
            {lead.digitalScore !== undefined && (
-             <div className={cn(
-               "text-sm font-black px-1.5 py-0.5 rounded-md border shadow-sm",
+              <div className={cn(
+                "text-xs font-black px-2 py-1 rounded-lg border-2 shadow-sm uppercase tracking-tighter",
                lead.digitalLevel ? digitalLevelColors[lead.digitalLevel] : 'bg-slate-50 text-slate-400 border-slate-200'
              )}>
                {lead.digitalScore}%
              </div>
            )}
            <div className="flex items-center gap-1">
-             {lead.whatsapp && <MessageCircle className="h-2.5 w-2.5 text-emerald-600" />}
-             {lead.websiteUrl && <GlobeIcon className="h-2.5 w-2.5 text-blue-600" />}
-             {lead.instagramHandle && <Instagram className="h-2.5 w-2.5 text-pink-600" />}
+             {lead.whatsapp && <MessageCircle className="h-4 w-4 text-emerald-600 drop-shadow-sm" />}
+             {lead.websiteUrl && <GlobeIcon className="h-4 w-4 text-blue-600 drop-shadow-sm" />}
+             {lead.instagramHandle && <Instagram className="h-4 w-4 text-pink-600 drop-shadow-sm" />}
            </div>
         </div>
         
-        <div className="text-xs font-black text-slate-400 uppercase flex items-center gap-1">
+        <div className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
           <Clock className="h-2 w-2" />
           {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: false, locale: ptBR }) : 'Agora'}
         </div>
@@ -179,31 +179,31 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
   };
 
   return (
-    <div className="flex flex-col gap-6 md:gap-8">
-      <div className="flex gap-3 md:gap-4 overflow-x-auto pb-6 min-h-[500px] md:min-h-[600px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+    <div className="flex flex-col gap-10">
+      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-10 min-h-[600px] md:min-h-[750px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         {SALES_COLUMNS.map((column) => {
           const columnLeads = getLeadsByStatus(column.id);
           return (
-            <div key={column.id} className="flex-shrink-0 w-[180px] sm:w-[220px] md:w-[260px] flex flex-col gap-2">
+            <div key={column.id} className="flex-shrink-0 w-[240px] sm:w-[280px] md:w-[320px] flex flex-col gap-4">
               <div className={cn(
                 "flex items-center justify-between px-3 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border shadow-sm transition-all",
                 column.borderColor
               )}>
-                <div className={cn("flex items-center gap-1.5 font-black text-sm uppercase tracking-wider", column.color)} title={column.label}>
-                  <div className={cn("p-1.5 rounded-lg shadow-sm", column.bg)}>
+                <div className={cn("flex items-center gap-2.5 font-black text-base uppercase tracking-[0.1em]", column.color)} title={column.label}>
+                  <div className={cn("p-2.5 rounded-xl shadow-sm border border-white/50", column.bg)}>
                     {column.icon}
                   </div>
-                  <span className="truncate max-w-[80px] sm:max-w-[120px]">{column.label}</span>
+                  <span className="truncate max-w-[120px] sm:max-w-[180px]">{column.label}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-xs font-black text-slate-500 tabular-nums bg-slate-100/80 px-1.5 py-0.5 rounded-full">
+                  <span className="text-sm font-black text-slate-500 tabular-nums bg-slate-100/80 px-2.5 py-1 rounded-full border border-slate-200/50">
                     {columnLeads.length}
                   </span>
                 </div>
               </div>
 
               <div
-                className="flex-1 rounded-[1.5rem] p-2 flex flex-col gap-2 h-[500px] md:h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent bg-slate-50/30 border border-slate-100/40 shadow-inner transition-all duration-300"
+                className="flex-1 rounded-[2.5rem] p-3 flex flex-col gap-3 h-[600px] md:h-[750px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent bg-slate-50 border border-slate-200/50 shadow-inner transition-all duration-300"
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.currentTarget.classList.add('bg-primary/[0.04]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.005]');

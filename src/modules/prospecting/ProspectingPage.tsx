@@ -633,45 +633,49 @@ export default function ProspectingPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50/50">
+    <div className="flex min-h-screen flex-col bg-slate-50">
       <SiteHeader />
       
-      <main className="flex-1 px-4 py-8 md:px-8">
-        <div className="mx-auto max-w-7xl space-y-6">
+      <main className="flex-1 px-4 py-12 md:px-8 max-w-[1600px] mx-auto w-full">
+        <div className="space-y-12">
           
           {/* Top Summary / Hero Section */}
-          <div className="text-center space-y-2 max-w-3xl mx-auto">
-            <Badge variant="outline" className="px-3 py-0.5 border-primary/20 bg-primary/5 text-primary text-[10px]">
-              Plataforma de Captação IA v2.0
-            </Badge>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          <div className="text-center space-y-6 max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[11px] font-black uppercase tracking-widest">
+              <Sparkles className="h-3 w-3" /> Plataforma de Captação IA v2.0
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-[1.1] uppercase">
               Transforme Leads em <span className="text-primary">Clientes Reais</span>
             </h1>
-            <p className="text-base md:text-lg text-slate-500 font-medium max-w-xl mx-auto">
+            <p className="text-lg md:text-xl text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">
               Prospecção baseada em comportamento humano: aqueça leads no Instagram, valide no Google e aborde com segurança máxima.
             </p>
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-4 max-w-xl mx-auto mt-4">
-              <div className="grid grid-cols-4 gap-2">
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">🔒</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Menos Bloqueios</span>
+            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-6 max-w-4xl mx-auto mt-8 shadow-sm">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-emerald-100 rounded-2xl">
+                    <ShieldCheck className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-lg font-black text-emerald-900 uppercase tracking-tight">Prospecção Segura (Anti-Bloqueio)</h3>
+                    <p className="text-sm text-emerald-600 font-bold">Siga as etapas para garantir a melhor conversão e segurança</p>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">📈</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">+ Respostas</span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">🤝</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Conexão Real</span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">⚡</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Alta Conversão</span>
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">🔒</div>
+                    <span className="text-[9px] font-black uppercase text-emerald-800">Seguro</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">📈</div>
+                    <span className="text-[9px] font-black uppercase text-emerald-800">Escalável</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">🤝</div>
+                    <span className="text-[9px] font-black uppercase text-emerald-800">Conexão</span>
+                  </div>
                 </div>
               </div>
-              <p className="text-[10px] text-emerald-600 font-bold mt-3">
-                “Sistema que guia você na abordagem correta, evitando bloqueios e aumentando a taxa de resposta.”
-              </p>
             </div>
             <div className="flex flex-wrap justify-center gap-3 pt-4">
               <Button 
@@ -687,24 +691,24 @@ export default function ProspectingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { label: 'Leads Captados', value: stats.total, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
               { label: 'Oportunidades Quentes', value: stats.hot, icon: TrendingUp, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
               { label: 'Sites Propostos', value: stats.sites, icon: Layout, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
               { label: 'Conversões Ativas', value: stats.contacted, icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
             ].map((stat, i) => (
-              <Card key={i} className="border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-white group rounded-2xl">
-                <CardContent className="p-4 flex items-center gap-3">
+              <Card key={i} className="border-none shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden bg-white group rounded-[2rem]">
+                <CardContent className="p-6 flex items-center gap-4">
                   <div className={cn(
-                    "p-2.5 rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm border",
-                    stat.bg, stat.color, stat.border
+                    "p-4 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-sm",
+                    stat.bg, stat.color
                   )}>
-                    <stat.icon className="h-5 w-5" />
+                    <stat.icon className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                    <p className="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">{stat.value}</p>
+                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">{stat.label}</p>
+                    <p className="text-3xl font-black text-slate-900 mt-1 tracking-tighter">{stat.value}</p>
                   </div>
                 </CardContent>
               </Card>
