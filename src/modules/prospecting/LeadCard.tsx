@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { cn } from "@/lib/utils";
 import { navigationService } from '@/lib/navigation-service';
@@ -32,7 +32,7 @@ import {
   Target,
   Mail
 } from "@/lib/icons";
-import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Clock, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Globe, Phone, TrendingUp } from "lucide-react";
+import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Globe, Phone, TrendingUp } from "lucide-react";
 import { useProspectingStore } from './prospecting-store';
 import { addDays } from 'date-fns';
 import { calculateOpportunityScore } from './opportunity-score';
@@ -536,12 +536,12 @@ export const LeadCard: React.FC<LeadCardProps> = ({
     if (contactStatus === 'Erro no envio') {
       badges.push(<Badge key="error" variant="secondary" className={cn(commonClasses, "bg-rose-50 text-rose-700 border-rose-200")}><AlertTriangle className="h-3 w-3" /> Erro Envio</Badge>);
     } else if (contactStatus === 'Reenvio vencido') {
-      badges.push(<Badge key="overdue" variant="secondary" className={cn(commonClasses, "bg-rose-500 text-white border-rose-600 shadow-rose-200 animate-pulse")}><Clock className="h-3 w-3" /> Reenvio Vencido</Badge>);
+      badges.push(<Badge key="overdue" variant="secondary" className={cn(commonClasses, "bg-rose-500 text-white border-rose-600 shadow-rose-200 animate-pulse")}><Zap className="h-3 w-3" /> Reenvio Vencido</Badge>);
     }
 
     // Prioridade 3: Estados Ativos
     if (contactStatus === 'Reenvio agendado') {
-      badges.push(<Badge key="scheduled" variant="secondary" className={cn(commonClasses, "bg-blue-50 text-blue-700 border-blue-200")}><Clock className="h-3 w-3" /> Reenvio Agendado</Badge>);
+      badges.push(<Badge key="scheduled" variant="secondary" className={cn(commonClasses, "bg-blue-50 text-blue-700 border-blue-200")}><Zap className="h-3 w-3" /> Reenvio Agendado</Badge>);
     } else if (contactStatus === 'Contato enviado hoje') {
       badges.push(<Badge key="today" variant="secondary" className={cn(commonClasses, "bg-emerald-50 text-emerald-700 border-emerald-100")}><CheckCircle2 className="h-3 w-3" /> Enviado Hoje</Badge>);
     } else if (contactStatus === 'Cliente respondeu' || status === 'Interessado') {
@@ -655,7 +655,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
                   {lead.timingIntel?.isIdealTime && (
                     <Badge variant="outline" className="bg-blue-100 text-blue-700 text-[9px] font-black uppercase px-1.5 h-5 border-transparent">
-                      <Clock className="h-2.5 w-2.5" /> Timing Ideal
+                      <Zap className="h-2.5 w-2.5" /> Timing Ideal
                     </Badge>
                   )}
                   {(lead.saturationIndex || 0) > 50 && (
@@ -874,12 +874,6 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     {lead.companyName?.substring(0, 1).toUpperCase() || 'E'}
                   </div>
                 )}
-                {isInactive(lead.updatedAt, lead.status) && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500 border-2 border-white shadow-sm"></span>
-                  </span>
-                )}
               </div>
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
@@ -894,8 +888,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    <CalendarDays className="h-3 w-3" />
-                    {formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: true, locale: ptBR })}
+                    {format(new Date(lead.updatedAt), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -913,13 +906,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
             <div className="flex items-center gap-4">
               <div className={cn(
-                "h-12 w-12 rounded-full border-[3px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
-                lead.opportunityScore >= 80 ? "border-rose-500/30 text-rose-600 bg-rose-50" : 
-                lead.opportunityScore >= 50 ? "border-amber-400/30 text-amber-600 bg-amber-50" : 
+                "h-14 w-14 rounded-full border-[4px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
+                lead.opportunityScore >= 80 ? "border-emerald-500/30 text-emerald-600 bg-emerald-50" : 
+                lead.opportunityScore >= 50 ? "border-primary-400/30 text-primary-600 bg-primary-50" : 
                 "border-slate-200 text-slate-500 bg-slate-50"
               )}>
-                <span className="text-sm font-black leading-none">{lead.opportunityScore}</span>
-                <span className="text-[7px] font-black uppercase tracking-tighter opacity-70">Score</span>
+                <span className="text-base font-black leading-none">{lead.opportunityScore}</span>
+                <span className="text-[8px] font-black uppercase tracking-tighter opacity-70">Score</span>
               </div>
               <div className="flex items-center gap-1">
               <Button 
@@ -960,8 +953,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
           {/* Contact Chips Section */}
           <div className="flex flex-wrap gap-2 pt-1">
             {lead.whatsapp && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[11px] font-bold shadow-sm">
-                <Phone className="h-3 w-3" /> {lead.whatsapp}
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[12px] font-bold shadow-sm">
+                <Phone className="h-3.5 w-3.5" /> {lead.whatsapp}
               </div>
             )}
             
@@ -974,13 +967,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 }}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-50 border border-pink-100/50 text-pink-700 text-[11px] font-bold shadow-sm hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-50 border border-pink-100/50 text-pink-700 text-[12px] font-bold shadow-sm hover:scale-105 transition-all"
               >
-                <Instagram className="h-3 w-3" /> @{lead.instagramHandle || lead.socialDiscovery?.instagramHandle}
+                <Instagram className="h-3.5 w-3.5" /> @{lead.instagramHandle || lead.socialDiscovery?.instagramHandle}
               </a>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[10px] font-bold opacity-60">
-                <Instagram className="h-3 w-3" /> Instagram N/A
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[11px] font-bold opacity-60">
+                <Instagram className="h-3.5 w-3.5" /> Instagram N/A
               </div>
             )}
 
@@ -990,13 +983,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 onClick={(e) => { e.stopPropagation(); navigationService.openExternal(lead.websiteUrl || ''); }}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[11px] font-bold shadow-sm hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[12px] font-bold shadow-sm hover:scale-105 transition-all"
               >
-                <Globe className="h-3 w-3" /> Ver Site
+                <Globe className="h-3.5 w-3.5" /> Ver Site
               </a>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold shadow-sm">
-                <AlertCircle className="h-3 w-3" /> Sem Site
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold shadow-sm">
+                <AlertCircle className="h-3.5 w-3.5" /> Sem Site
               </div>
             )}
           </div>
@@ -1015,8 +1008,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 )}
               </div>
               {lead.opportunityLevel === 'quente' && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500 text-white text-[9px] font-black uppercase tracking-tighter animate-pulse shadow-md shadow-rose-200">
-                  <Sparkles className="h-3 w-3" /> Prioridade Máxima
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500 text-white text-[10px] font-black uppercase tracking-tighter animate-pulse shadow-md shadow-rose-200">
+                  <Sparkles className="h-3.5 w-3.5" /> Prioridade Máxima
                 </div>
             )}
           </div>
@@ -1029,17 +1022,17 @@ export const LeadCard: React.FC<LeadCardProps> = ({
             onUpdate={(analysis) => updateManualAnalysis(lead.id, analysis)} 
           />
 
-          <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-50 mt-4 pt-4">
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-50 mt-4">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-8 rounded-full border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 font-bold text-[10px] px-4"
+                    className="h-9 rounded-full border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 font-bold text-[11px] px-5"
                     onClick={handleGoogleSearch}
                   >
-                    <Search className="h-3 w-3" />
+                    <Search className="h-3.5 w-3.5" />
                     Pesquisar no Google
                   </Button>
                 </TooltipTrigger>
@@ -1051,20 +1044,20 @@ export const LeadCard: React.FC<LeadCardProps> = ({
           </div>
 
             {/* Quick Contact Actions if Ready */}
-            {(lead.warmupStatus === 'Pronto' || lead.warmupStatus === 'Morno') && lead.whatsapp && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-200">
-                    <MessageCircle className="h-5 w-5 fill-current" />
+            {useMemo(() => (lead.warmupStatus === 'Pronto' || lead.warmupStatus === 'Morno') && lead.whatsapp && (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2 mt-4 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                    <MessageCircle className="h-6 w-6 fill-current" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Abordagem Liberada</p>
-                    <p className="text-xs font-bold text-emerald-700">Lead Seguro para WhatsApp</p>
+                    <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Abordagem Liberada</p>
+                    <p className="text-sm font-bold text-emerald-700 leading-tight">Lead Seguro para WhatsApp</p>
                   </div>
                 </div>
                 <Button 
                   size="sm" 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold px-4"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold px-6 h-11"
                   onClick={(e) => {
                     e.stopPropagation();
                     const { normalized } = normalizeWhatsApp(lead.whatsapp || '');
@@ -1080,7 +1073,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   Abrir Whats
                 </Button>
               </div>
-            )}
+            ), [lead.warmupStatus, lead.whatsapp, lead.id])}
 
             {/* ===== Ações & Inteligência ===== */}
             {(() => {
@@ -1124,7 +1117,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
               const timelineEvents = [
                 ...(lead.statusNotes || []).map(n => ({ id: n.id, date: n.createdAt, title: n.status, message: n.message, icon: MessageSquare, color: 'text-slate-400' })),
                 ...(lead.contactHistory || []).map(h => ({ id: h.id, date: h.timestamp, title: `Contato via ${h.channel}`, message: h.message, icon: Send, color: h.status === 'erro' ? 'text-rose-500' : 'text-emerald-500' })),
-                ...(lead.socialDiscovery?.lastCheckedAt ? [{ id: 'ia-check', date: lead.socialDiscovery.lastCheckedAt, title: 'Análise IA Concluída', message: 'Dados de redes sociais atualizados', icon: Brain, color: 'text-violet-500' }] : [])
+                ...(lead.socialDiscovery?.lastCheckedAt ? [{ id: 'ia-check', date: lead.socialDiscovery.lastCheckedAt, title: 'Análise IA Concluída', message: 'Dados de redes sociais atualizados', icon: Zap, color: 'text-violet-500' }] : [])
               ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
               const recentEvents = timelineEvents.slice(0, 3);
@@ -1132,16 +1125,16 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
               return (
                 <div
-                  className="bg-slate-50/80 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-5 space-y-4 shadow-sm relative overflow-hidden group/intel"
+                  className="bg-slate-50/80 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-6 space-y-5 shadow-sm relative overflow-hidden group/intel"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none group-hover/intel:bg-primary/10 transition-colors" />
 
                   {/* Cabeçalho & Alertas Preventivos */}
-                  <div className="flex flex-col gap-3 relative z-10">
+                  <div className="flex flex-col gap-4 relative z-10">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
-                        <Brain className="h-4 w-4 text-primary animate-pulse" /> IA Strategy Hub
+                      <div className="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                        <Zap className="h-4 w-4 text-primary animate-pulse" /> IA Strategy Hub
                       </div>
                       
                       {lead.sequence && lead.sequence.isActive && (
@@ -1171,11 +1164,11 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="p-1 rounded-md bg-amber-100 text-amber-600 cursor-help border border-amber-200">
-                                  <Clock className="h-3.5 w-3.5" />
+                                  <Zap className="h-3.5 w-3.5" />
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Aguardando aquecimento (12h-24h recomendados)</p>
+                                <p>Em processo de aquecimento (comportamento humano)</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -1257,7 +1250,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                           isInstagramRecent ? "bg-amber-50 border-amber-100 text-amber-700 animate-pulse" : (lead.instagramInteractedAt ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
                           <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", isInstagramRecent ? "bg-amber-500 text-white" : "bg-slate-300 text-white")}>
-                            {isInstagramRecent ? <Clock className="h-2 w-2" /> : "3"}
+                            {isInstagramRecent ? <Zap className="h-2 w-2" /> : "3"}
                           </div>
                           <span className="text-[8px] font-bold">Pausa</span>
                         </div>

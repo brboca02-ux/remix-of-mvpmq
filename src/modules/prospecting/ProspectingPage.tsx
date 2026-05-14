@@ -114,6 +114,8 @@ import { PerformanceDashboard } from './PerformanceDashboard';
 import { DailyAiPlan } from './DailyAiPlan';
 import { LeadPlaybook } from './LeadPlaybook';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { hunterFindEmails, builtWithLookup } from '@/server/enrichment-paid-providers';
 import { analyzePageSpeed } from '@/lib/pagespeed.functions';
 
@@ -194,10 +196,10 @@ export default function ProspectingPage() {
                 source: 'supabase_import',
                 status: dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo'),
                 opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
-                opportunityLevel: 'média',
+                opportunityLevel: (dbLead.confidence_score || 0.5) >= 0.8 ? 'quente' : (dbLead.confidence_score || 0.5) >= 0.5 ? 'boa' : 'média',
                 diagnosis: dbLead.atividade || '',
                 createdAt: dbLead.created_at || new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                updatedAt: dbLead.created_at || new Date().toISOString(),
               });
             }
           });
@@ -485,7 +487,7 @@ export default function ProspectingPage() {
   };
 
   const handleMoveLead = (id: string, newStatus: ProspectLead['status']) => {
-    moveLead(id, newStatus);
+    updateLead(id, { status: newStatus, updatedAt: new Date().toISOString() });
     const lead = leads.find(l => l.id === id);
     toast.info(`Lead movido para: ${newStatus}`, {
       description: `O lead "${lead?.companyName}" agora está na etapa ${newStatus}.`,
