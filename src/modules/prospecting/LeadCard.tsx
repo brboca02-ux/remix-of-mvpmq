@@ -906,7 +906,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <h3 className="text-lg font-black text-slate-900 leading-tight tracking-tight group-hover:text-primary transition-colors truncate">
+                  <h3 className="text-xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-primary transition-colors truncate">
                     {lead.companyName || 'Empresa sem nome'}
                   </h3>
                   {lead.opportunityLevel === 'quente' && (
