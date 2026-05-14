@@ -95,23 +95,33 @@ export const updateOpportunityWithSocial = (lead: ProspectLead) => {
   const hasInstagram = !!(lead.instagramHandle || lead.socialDiscovery?.instagramHandle);
   const hasSocials = !!(lead.socialDiscovery?.facebookUrl || lead.socialDiscovery?.instagramUrl);
   const hasWebsite = !!lead.websiteUrl;
-
-  // - Sem Instagram encontrado: +15
-  if (!hasInstagram) {
+  
+  // Pontuação baseada em pontos de dor reais
+  if (lead.pageSpeedStatus === 'crítico' || lead.pageSpeedStatus === 'ruim') {
+    extraScore += 25; // Oportunidade quente para vender performance
+  }
+  
+  if (lead.techPainPoints?.includes("Tecnologia Obsoleta")) {
     extraScore += 15;
   }
+  
+  if (lead.techPainPoints?.includes("Falta Analytics")) {
+    extraScore += 10;
+  }
 
-  // - Tem Instagram mas sem site: +20
+  // Lógica original de presença
+  if (!hasInstagram) {
+    extraScore += 10;
+  }
+
   if (hasInstagram && !hasWebsite) {
     extraScore += 20;
   }
 
-  // - Tem redes sociais mas sem site: +30
   if (hasSocials && !hasWebsite) {
-    extraScore += 30;
+    extraScore += 25;
   }
 
-  // Update original score (capped at 100)
   const newScore = Math.min(lead.opportunityScore + extraScore, 100);
   
   let level = lead.opportunityLevel;
