@@ -1989,71 +1989,116 @@ export default function ProspectingPage() {
                         <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl shadow-inner">
                           {selectedLead.companyName?.substring(0, 2).toUpperCase()}
                         </div>
-                        <div>
-                          <h4 className="font-black text-slate-900 leading-tight">{selectedLead.companyName}</h4>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-black text-slate-900 leading-tight truncate">{selectedLead.companyName}</h4>
                           <Badge variant="secondary" className="mt-1 text-[9px] font-black uppercase tracking-tighter h-5">{selectedLead.niche}</Badge>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 gap-3">
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                        {/* Instagram */}
+                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
                           <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <Instagram className="h-3.5 w-3.5 text-pink-500" /> Instagram
+                            <Instagram className="h-4 w-4 text-pink-500" /> 
+                            <span className="hidden sm:inline">Instagram</span>
                           </div>
-                          {normalizeInstagram(selectedLead.instagramUrl || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Vinculado
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Não vinculado
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {normalizeInstagram(selectedLead.instagramUrl || selectedLead.instagramHandle || '').isValid ? (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 px-2 rounded-lg text-[10px] font-black uppercase text-pink-600 hover:bg-pink-50"
+                                  onClick={() => window.open(normalizeInstagram(selectedLead.instagramUrl || selectedLead.instagramHandle || '').url, '_blank')}
+                                >
+                                  Abrir
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 rounded-lg text-slate-400 hover:text-primary"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(normalizeInstagram(selectedLead.instagramUrl || selectedLead.instagramHandle || '').url);
+                                    toast.success("Link do Instagram copiado!");
+                                  }}
+                                >
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-300 uppercase">Não vinculado</span>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                        {/* Website */}
+                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
                           <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <MapPin className="h-3.5 w-3.5 text-rose-500" /> Google Maps
+                            <Globe className="h-4 w-4 text-blue-500" /> 
+                            <span className="hidden sm:inline">Website</span>
                           </div>
-                          {normalizeGoogleMaps(selectedLead.address || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Vinculado
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Não vinculado
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {selectedLead.websiteUrl ? (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 px-2 rounded-lg text-[10px] font-black uppercase text-blue-600 hover:bg-blue-50"
+                                  onClick={() => window.open(selectedLead.websiteUrl?.startsWith('http') ? selectedLead.websiteUrl : `https://${selectedLead.websiteUrl}`, '_blank')}
+                                >
+                                  Abrir
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 rounded-lg text-slate-400 hover:text-primary"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(selectedLead.websiteUrl!);
+                                    toast.success("Link do site copiado!");
+                                  }}
+                                >
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-300 uppercase">Sem site</span>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                        {/* WhatsApp */}
+                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
                           <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <MessageSquare className="h-3.5 w-3.5 text-emerald-500" /> WhatsApp
+                            <MessageCircleIcon className="h-4 w-4 text-emerald-500" /> 
+                            <span className="hidden sm:inline">WhatsApp</span>
                           </div>
-                          {normalizeWhatsApp(selectedLead.whatsapp || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Válido
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Inválido
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
-                          <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <Globe className="h-3.5 w-3.5 text-blue-500" /> Website
+                          <div className="flex items-center gap-1.5">
+                            {selectedLead.whatsapp ? (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 px-2 rounded-lg text-[10px] font-black uppercase text-emerald-600 hover:bg-emerald-50"
+                                  onClick={() => window.open(`https://wa.me/${selectedLead.whatsapp?.replace(/\D/g, '')}`, '_blank')}
+                                >
+                                  Chat
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 rounded-lg text-slate-400 hover:text-primary"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(selectedLead.whatsapp!);
+                                    toast.success("Número do WhatsApp copiado!");
+                                  }}
+                                >
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-300 uppercase">Sem contato</span>
+                            )}
                           </div>
-                          {normalizeWebsite(selectedLead.websiteUrl || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Ativo
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Não verificado
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
