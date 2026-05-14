@@ -652,30 +652,30 @@ export default function ProspectingPage() {
             <p className="text-lg md:text-xl text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">
               Prospecção baseada em comportamento humano: aqueça leads no Instagram, valide no Google e aborde com segurança máxima.
             </p>
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-6 max-w-4xl mx-auto mt-8 shadow-sm">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-5 max-w-4xl mx-auto mt-6 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-emerald-100 rounded-2xl">
+                  <div className="p-3 bg-emerald-100 rounded-2xl shadow-sm">
                     <ShieldCheck className="h-6 w-6 text-emerald-600" />
                   </div>
                   <div className="text-left">
-                    <h3 className="text-lg font-black text-emerald-900 uppercase tracking-tight">Prospecção Segura (Anti-Bloqueio)</h3>
-                    <p className="text-sm text-emerald-600 font-bold">Siga as etapas para garantir a melhor conversão e segurança</p>
+                    <h3 className="text-lg md:text-xl font-black text-emerald-900 uppercase tracking-tight">Prospecção Segura (Anti-Bloqueio)</h3>
+                    <p className="text-sm md:text-base text-emerald-600 font-bold">Siga as etapas para garantir a melhor conversão e segurança</p>
                   </div>
                 </div>
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">🔒</div>
-                    <span className="text-[9px] font-black uppercase text-emerald-800">Seguro</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">📈</div>
-                    <span className="text-[9px] font-black uppercase text-emerald-800">Escalável</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">🤝</div>
-                    <span className="text-[9px] font-black uppercase text-emerald-800">Conexão</span>
-                  </div>
+                <div className="flex gap-3">
+                  {[
+                    { icon: '🔒', label: 'Seguro' },
+                    { icon: '📈', label: 'Escalável' },
+                    { icon: '🤝', label: 'Conexão' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-1 group/item">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-base shadow-sm group-hover/item:scale-110 group-hover/item:border-emerald-300 transition-all duration-300">
+                        {item.icon}
+                      </div>
+                      <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider">{item.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
