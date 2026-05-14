@@ -967,57 +967,6 @@ function parseReceitaFederalLine(cols: string[]): Partial<StandardLead> | null {
     }
   };
 }
-  // - razao_social (always present, usually longer)
-  let fantasia = "";
-  let razaoSocial = "";
-  
-  // Find the index of the CNPJ field in the original cols array
-  let cnpjIdx = -1;
-  if (cnpj) {
-    for (let i = 0; i < cols.length; i++) {
-      if ((cols[i] || "").trim().replace(/\D/g, "") === cnpj) {
-        cnpjIdx = i;
-        break;
-      }
-    }
-  }
-  
-  if (textFields.length >= 1) {
-    // Text fields before CNPJ are nome/fantasia/razao_social
-    const beforeCnpj = cnpjIdx >= 0 
-      ? textFields.filter(f => f.idx < cnpjIdx) 
-      : textFields.slice(0, 2);
-    
-    if (beforeCnpj.length >= 2) {
-      fantasia = beforeCnpj[0].value;
-      razaoSocial = beforeCnpj[1].value;
-    } else if (beforeCnpj.length === 1) {
-      // Only one text field before CNPJ - it's the razao_social
-      razaoSocial = beforeCnpj[0].value;
-    } else {
-      // No text fields before CNPJ (shouldn't happen, but fallback)
-      razaoSocial = textFields[0].value;
-    }
-  }
-  
-  const nome = fantasia || razaoSocial || cnpj || "Empresa Importada";
-  
-  return {
-    nome,
-    fantasia: fantasia || undefined,
-    razao_social: razaoSocial || undefined,
-    telefone: telefone || undefined,
-    cnpj: cnpj.length === 14 ? cnpj : undefined,
-    capital_social: capital,
-    porte: porte || undefined,
-    atividade: atividade || undefined,
-    status: status === "ATIVA" ? "Novo" : status || undefined,
-    cidade: cidade || undefined,
-    bairro: bairro || undefined,
-    uf: uf || undefined,
-    cep: cep && cep.length === 8 ? cep : undefined,
-    raw: { logradouro, numero, complemento, tipo, source_format: "receita-federal" },
-  };
 
 /**
  * Map columns by position (fallback when no headers)
