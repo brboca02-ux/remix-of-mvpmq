@@ -90,7 +90,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
               </span>
             )}
             {lead.city && (
-              <span className="text-sm font-bold text-slate-400 uppercase tracking-wide">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                 • {lead.city}
               </span>
             )}
