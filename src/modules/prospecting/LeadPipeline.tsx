@@ -76,7 +76,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
               )}
             </div>
             <span className={cn(
-              "text-base md:text-lg font-black truncate leading-tight tracking-tight uppercase",
+              "text-lg md:text-xl font-black truncate leading-tight tracking-tight uppercase",
               hasAlert ? "text-rose-900" : isInactive ? "text-slate-400 italic" : "text-slate-900"
             )}>
               {lead.companyName || 'Sem nome'}
