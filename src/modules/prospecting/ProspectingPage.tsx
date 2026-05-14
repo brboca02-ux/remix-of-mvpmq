@@ -121,23 +121,20 @@ import { createServerFn } from "@tanstack/react-start";
 import { analyzePageSpeed as analyzePageSpeedFn } from '../../lib/pagespeed.functions';
 
 const hunterFindEmails = createServerFn({ method: "POST" })
-  .validator((d: { domain: string; company?: string }) => d)
-  .handler(async ({ data }) => {
+  .handler(async (ctx: any) => {
     const { hunterFindEmails: fn } = await import('../../server/enrichment-paid-providers');
-    return fn(data);
+    return fn(ctx.data);
   });
 
 const builtWithLookup = createServerFn({ method: "POST" })
-  .validator((d: { domain: string }) => d)
-  .handler(async ({ data }) => {
+  .handler(async (ctx: any) => {
     const { builtWithLookup: fn } = await import('../../server/enrichment-paid-providers');
-    return fn(data);
+    return fn(ctx.data);
   });
 
 const analyzePageSpeed = createServerFn({ method: "POST" })
-  .validator((d: { url: string }) => d)
-  .handler(async ({ data }) => {
-    return analyzePageSpeedFn(data);
+  .handler(async (ctx: any) => {
+    return analyzePageSpeedFn(ctx.data);
   });
 
 
