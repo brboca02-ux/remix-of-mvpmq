@@ -14,7 +14,7 @@ import {
   Sparkles, Star, Tablet, Target, Tractor, Trash2, TrendingUp, Trophy, Twitter, Upload,
   User, UserCheck, Users, X, XCircle, Youtube, Zap, Tag, PieChart, Layers, Shapes, Sticker,
   ArrowUpRight, ArrowDownRight, Hash, Link, ListFilter, MousePointer2, Settings, ListChecks, CheckCircle,
-  UserMinus, Ban,
+  UserMinus, Ban, Accessibility,
   type LucideProps,
 } from "lucide-react";
 import { logger } from "@/lib/logger";
