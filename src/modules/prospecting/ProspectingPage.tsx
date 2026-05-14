@@ -603,6 +603,7 @@ export default function ProspectingPage() {
             ))}
           </div>
 
+          <LayoutGroup>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
             <div className="flex flex-col xl:flex-row justify-between gap-6 items-center bg-white/80 backdrop-blur-md p-4 md:p-5 rounded-[2rem] border border-slate-200/60 shadow-xl shadow-slate-200/20">
               <TabsList className="bg-slate-100/80 p-1 rounded-2xl w-full xl:w-auto overflow-x-auto no-scrollbar justify-start flex-nowrap">
