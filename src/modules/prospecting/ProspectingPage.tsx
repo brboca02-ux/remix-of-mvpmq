@@ -1755,7 +1755,7 @@ export default function ProspectingPage() {
                                 try {
                                   const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
                                   if (!domain) return;
-                                  const res = await builtWithLookup({ domain });
+                                  const res = await builtWithLookup({ data: { domain } });
                                   if (res.success && res.data) {
                                     const techs = res.data.technologies?.map((t: any) => t.name) || [];
                                     const painPoints = [];
