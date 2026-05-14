@@ -208,22 +208,65 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
     }
 
     // ============================================================================
-    // SMART DETECTION: Google Maps format (no headers, commas in data)
+    // SMART DETECTION: Receita Federal / CNPJ format (no headers, 10+ comma fields)
     // ============================================================================
     const firstLine = lines[0];
+    const sampleLines = lines.slice(0, Math.min(5, lines.length));
+    
+    // Receita Federal detection: 10+ comma-separated fields with CNPJ or MATRIZ/FILIAL
+    const isReceitaFederalFormat = sampleLines.some(l => {
+      const fields = l.split(",");
+      if (fields.length < 10) return false;
+      // Check for CNPJ (14 digits) in any of the first 6 fields
+      const hasCnpj = fields.slice(0, 6).some(f => {
+        const digits = f.trim().replace(/\D/g, "");
+        return digits.length === 14;
+      });
+      // Check for MATRIZ/FILIAL
+      const hasTipo = fields.some(f => /^(MATRIZ|FILIAL)$/i.test(f.trim()));
+      return hasCnpj || hasTipo;
+    });
+    
+    // Also check: first line doesn't look like a header
+    const firstLineLooksLikeHeader = /^(nome|name|empresa|razao|telefone|phone|email)/i.test(firstLine.trim());
+
+    if (isReceitaFederalFormat && !firstLineLooksLikeHeader) {
+      // Receita Federal format - no headers, all lines are data
+      const warnings: string[] = [
+        "Formato Receita Federal (CNPJ) detectado. Usando parser especializado.",
+        "Campos detectados automaticamente: Nome/Razão Social, CNPJ, Telefone, Atividade, Endereço, Cidade, UF.",
+      ];
+
+      const previewRows = lines.slice(0, 3).map((l) => [l.substring(0, 120) + (l.length > 120 ? "..." : "")]);
+
+      return {
+        valid: true,
+        delimiter: ",",
+        delimiterLabel: "vírgula (,) - formato Receita Federal",
+        encoding,
+        headers: ["Nome", "CNPJ", "Telefone", "Atividade", "Cidade", "UF"],
+        mappedHeaders: ["Nome", "CNPJ", "Telefone", "Atividade", "Cidade", "UF"],
+        unmappedHeaders: [],
+        rowCount: lines.length,
+        previewRows,
+        warnings,
+      };
+    }
+
+    // ============================================================================
+    // SMART DETECTION: Google Maps format (no headers, commas in data)
+    // ============================================================================
     
     // Check multiple lines for Google Maps pattern (first line might be atypical)
-    const sampleLines = lines.slice(0, Math.min(5, lines.length));
     const hasPhonePattern = sampleLines.some(l => /\(\d{2,3}\)\s*[\d\s-]+/.test(l));
     const hasRatingPattern = sampleLines.some(l => /\d,\d\s*\(\d+\)/.test(l));
     const hasEmptyFieldPattern = sampleLines.some(l => /,,/.test(l));
     const hasAddressPattern = sampleLines.some(l => /\b(rua|r\.|av\.|avenida|tv\.)\b/i.test(l));
     
     // Google Maps format: has phone patterns AND (rating with comma OR empty fields + address)
-    const isGoogleMapsFormat = hasPhonePattern && (hasRatingPattern || (hasEmptyFieldPattern && hasAddressPattern));
+    // BUT NOT if it's Receita Federal (already handled above)
+    const isGoogleMapsFormat = !isReceitaFederalFormat && hasPhonePattern && (hasRatingPattern || (hasEmptyFieldPattern && hasAddressPattern));
     
-    // Also check: first line doesn't look like a header
-    const firstLineLooksLikeHeader = /^(nome|name|empresa|razao|telefone|phone|email)/i.test(firstLine.trim());
     const isNoHeaderFormat = isGoogleMapsFormat && !firstLineLooksLikeHeader;
 
     if (isNoHeaderFormat) {
