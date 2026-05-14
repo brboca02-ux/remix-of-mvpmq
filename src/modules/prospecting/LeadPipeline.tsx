@@ -85,7 +85,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
 
           <div className="flex flex-wrap items-center gap-1">
             {lead.niche && (
-              <span className="text-[min(8px,2.5vw)] font-extrabold text-slate-500 bg-slate-100 px-1 py-0.5 rounded-md uppercase tracking-wider">
+              <span className="text-sm font-extrabold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
                 {lead.niche}
               </span>
             )}
