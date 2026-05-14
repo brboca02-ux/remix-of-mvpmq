@@ -117,6 +117,7 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { createServerFn } from "@tanstack/react-start";
+import { analyzePageSpeed as analyzePageSpeedFn } from '../../lib/pagespeed.functions';
 
 const hunterFindEmails = createServerFn({ method: "POST" })
   .handler(async (args: any) => {
@@ -130,7 +131,10 @@ const builtWithLookup = createServerFn({ method: "POST" })
     return fn(args);
   });
 
-import { analyzePageSpeed } from '../../lib/pagespeed.functions';
+const analyzePageSpeed = createServerFn({ method: "POST" })
+  .handler(async (args: any) => {
+    return analyzePageSpeedFn(args);
+  });
 
 
 export default function ProspectingPage() {
