@@ -275,6 +275,8 @@ export default function ProspectingPage() {
       toast.error("Nenhum dado válido encontrado para importar.");
       return;
     }
+    
+    setIsImporting(true); // Ativa o banner de jobs apenas durante a importação
 
     let importedCount = 0;
     let duplicateCount = 0;
