@@ -116,9 +116,19 @@ import { LeadPlaybook } from './LeadPlaybook';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-// Imports handled via window.__server_fns in browser for TanStack Start
-const hunterFindEmails = (args: any) => (window as any).__server_fns?.hunterFindEmails?.(args);
-const builtWithLookup = (args: any) => (window as any).__server_fns?.builtWithLookup?.(args);
+import { createServerFn } from "@tanstack/react-start";
+
+const hunterFindEmails = createServerFn({ method: "POST" })
+  .handler(async (args: any) => {
+    const { hunterFindEmails: fn } = await import('../../server/enrichment-paid-providers');
+    return fn(args);
+  });
+
+const builtWithLookup = createServerFn({ method: "POST" })
+  .handler(async (args: any) => {
+    const { builtWithLookup: fn } = await import('../../server/enrichment-paid-providers');
+    return fn(args);
+  });
 
 import { analyzePageSpeed } from '../../lib/pagespeed.functions';
 
