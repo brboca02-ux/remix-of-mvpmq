@@ -1806,7 +1806,7 @@ export default function ProspectingPage() {
                               onClick={async () => {
                                 setIsEnrichingExtra(true);
                                 try {
-                                  const res = await analyzePageSpeed({ data: { url: selectedLead.websiteUrl! } });
+                                  const res = await analyzePageSpeed({ data: { url: selectedLead.websiteUrl! } } as any);
                                   if (res.ok) {
                                     setSelectedLead({ 
                                       ...selectedLead, 
