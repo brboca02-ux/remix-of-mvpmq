@@ -20,13 +20,13 @@ import {
   Flame,
   Brain
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { AnimatedCurrency } from "@/components/ui/animated-value";
-import { LiveProgress } from "@/components/ui/live-progress";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Progress } from "../../components/ui/progress";
+import { AnimatedCurrency } from "../../components/ui/animated-value";
+import { LiveProgress } from "../../components/ui/live-progress";
+import { Badge } from "../../components/ui/badge";
+import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from 'sonner';
 
