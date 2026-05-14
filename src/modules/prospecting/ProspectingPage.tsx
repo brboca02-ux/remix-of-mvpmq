@@ -97,7 +97,9 @@ import {
   Eye,
   Cloud,
   Calendar as CalendarIcon,
-  Ban
+  Ban,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { syncAllLeadsToBackend } from './sync-service';
 import { 
@@ -1989,106 +1991,165 @@ export default function ProspectingPage() {
                         <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl shadow-inner">
                           {selectedLead.companyName?.substring(0, 2).toUpperCase()}
                         </div>
-                        <div>
-                          <h4 className="font-black text-slate-900 leading-tight">{selectedLead.companyName}</h4>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-black text-slate-900 leading-tight truncate">{selectedLead.companyName}</h4>
                           <Badge variant="secondary" className="mt-1 text-[9px] font-black uppercase tracking-tighter h-5">{selectedLead.niche}</Badge>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 gap-3">
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                        {/* Instagram */}
+                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
                           <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <Instagram className="h-3.5 w-3.5 text-pink-500" /> Instagram
+                            <Instagram className="h-4 w-4 text-pink-500" /> 
+                            <span className="hidden sm:inline">Instagram</span>
                           </div>
-                          {normalizeInstagram(selectedLead.instagramUrl || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Vinculado
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Não vinculado
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {normalizeInstagram(selectedLead.instagramUrl || selectedLead.instagramHandle || '').isValid ? (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 px-2 rounded-lg text-[10px] font-black uppercase text-pink-600 hover:bg-pink-50"
+                                  onClick={() => window.open(normalizeInstagram(selectedLead.instagramUrl || selectedLead.instagramHandle || '').url, '_blank')}
+                                >
+                                  Abrir
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 rounded-lg text-slate-400 hover:text-primary"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(normalizeInstagram(selectedLead.instagramUrl || selectedLead.instagramHandle || '').url);
+                                    toast.success("Link do Instagram copiado!");
+                                  }}
+                                >
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-300 uppercase">Não vinculado</span>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                        {/* Website */}
+                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
                           <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <MapPin className="h-3.5 w-3.5 text-rose-500" /> Google Maps
+                            <Globe className="h-4 w-4 text-blue-500" /> 
+                            <span className="hidden sm:inline">Website</span>
                           </div>
-                          {normalizeGoogleMaps(selectedLead.address || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Vinculado
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Não vinculado
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {selectedLead.websiteUrl ? (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 px-2 rounded-lg text-[10px] font-black uppercase text-blue-600 hover:bg-blue-50"
+                                  onClick={() => window.open(selectedLead.websiteUrl?.startsWith('http') ? selectedLead.websiteUrl : `https://${selectedLead.websiteUrl}`, '_blank')}
+                                >
+                                  Abrir
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 rounded-lg text-slate-400 hover:text-primary"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(selectedLead.websiteUrl!);
+                                    toast.success("Link do site copiado!");
+                                  }}
+                                >
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-300 uppercase">Sem site</span>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                        {/* WhatsApp */}
+                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
                           <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <MessageSquare className="h-3.5 w-3.5 text-emerald-500" /> WhatsApp
+                            <MessageCircleIcon className="h-4 w-4 text-emerald-500" /> 
+                            <span className="hidden sm:inline">WhatsApp</span>
                           </div>
-                          {normalizeWhatsApp(selectedLead.whatsapp || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Válido
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Inválido
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
-                          <div className="flex items-center gap-2 font-bold text-slate-600">
-                            <Globe className="h-3.5 w-3.5 text-blue-500" /> Website
+                          <div className="flex items-center gap-1.5">
+                            {selectedLead.whatsapp ? (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 px-2 rounded-lg text-[10px] font-black uppercase text-emerald-600 hover:bg-emerald-50"
+                                  onClick={() => window.open(`https://wa.me/${selectedLead.whatsapp?.replace(/\D/g, '')}`, '_blank')}
+                                >
+                                  Chat
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 rounded-lg text-slate-400 hover:text-primary"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(selectedLead.whatsapp!);
+                                    toast.success("Número do WhatsApp copiado!");
+                                  }}
+                                >
+                                  <Save className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-[10px] font-black text-slate-300 uppercase">Sem contato</span>
+                            )}
                           </div>
-                          {normalizeWebsite(selectedLead.websiteUrl || '').isValid ? (
-                            <div className="flex items-center gap-1.5 text-emerald-600 font-black text-[10px] uppercase">
-                              <CheckCircle className="h-3.5 w-3.5" /> Ativo
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 font-black text-[10px] uppercase">
-                              <XCircle className="h-3.5 w-3.5" /> Não verificado
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
                   </TabsContent>
 
                   <TabsContent value="history" className="mt-0">
-                    <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 max-h-[300px] overflow-y-auto space-y-4">
+                    <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 max-h-[400px] overflow-y-auto space-y-4 scrollbar-thin">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Linha do Tempo</h4>
+                        <Badge variant="outline" className="text-[9px] font-black">{auditLogs.filter((log: any) => log.leadId === selectedLead.id).length} eventos</Badge>
+                      </div>
                       {auditLogs
                         .filter((log: any) => log.leadId === selectedLead.id)
-                        .slice(0, 10)
+                        .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
                         .map((log: any) => (
-                          <div key={log.id} className="relative pl-6 pb-4 border-l-2 border-slate-200 last:pb-0">
+                          <div key={log.id} className="relative pl-6 pb-6 border-l-2 border-slate-200 last:pb-0">
                             <div className="absolute left-[-9px] top-0 h-4 w-4 rounded-full bg-white border-2 border-primary shadow-sm" />
                             <div className="flex justify-between items-start mb-1">
-                              <span className="text-[10px] font-black text-slate-900 uppercase">
-                                {log.action === 'update' ? 'Alteração' : log.action === 'add' ? 'Criação' : 'Ação'}
+                              <span className={cn(
+                                "text-[10px] font-black uppercase px-1.5 py-0.5 rounded",
+                                log.action === 'add' ? "bg-emerald-100 text-emerald-700" : 
+                                log.action === 'delete' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700"
+                              )}>
+                                {log.action === 'update' ? 'Alteração' : log.action === 'add' ? 'Criação' : log.action === 'delete' ? 'Remoção' : 'Ação'}
                               </span>
-                              <span className="text-[9px] text-slate-400 font-bold">
-                                {new Date(log.timestamp).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+                              <span className="text-[9px] text-slate-400 font-bold flex items-center gap-1">
+                                <Clock className="h-2.5 w-2.5" />
+                                {new Date(log.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
-                            <div className="space-y-1">
-                              {log.changes.map((change: any, idx: number) => (
-                                <p key={idx} className="text-[11px] text-slate-500 leading-tight">
-                                  <span className="font-bold text-slate-700 capitalize">{change.field}:</span>{' '}
-                                  {String(change.before || 'Vazio')} → <span className="text-primary font-bold">{String(change.after || 'Removido')}</span>
-                                </p>
+                            <div className="space-y-1.5 mt-2 bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm">
+                              {log.changes?.map((change: any, idx: number) => (
+                                <div key={idx} className="text-[11px] text-slate-500 leading-tight">
+                                  <div className="font-black text-slate-700 uppercase text-[9px] tracking-tighter mb-0.5">{change.field}</div>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="opacity-60 line-through truncate max-w-[100px]">{String(change.before || 'Vazio')}</span>
+                                    <ArrowRight className="h-2.5 w-2.5 text-primary shrink-0" />
+                                    <span className="text-primary font-bold">{String(change.after || 'Removido')}</span>
+                                  </div>
+                                </div>
                               ))}
+                              {log.message && <p className="text-[10px] text-slate-400 italic mt-1 border-t border-slate-50 pt-1">{log.message}</p>}
                             </div>
                           </div>
                         ))}
                       {auditLogs.filter((log: any) => log.leadId === selectedLead.id).length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-8 text-slate-300">
-                          <History className="h-8 w-8 mb-2 opacity-20" />
-                          <p className="text-xs font-bold">Nenhum histórico recente</p>
+                        <div className="flex flex-col items-center justify-center py-12 text-slate-300">
+                          <History className="h-10 w-10 mb-2 opacity-10" />
+                          <p className="text-xs font-black uppercase tracking-widest opacity-40">Nenhum histórico</p>
                         </div>
                       )}
                     </div>
@@ -2138,34 +2199,46 @@ export default function ProspectingPage() {
                     >
                       Cancelar
                     </Button>
-                    {normalizeInstagram(selectedLead.instagramUrl || '').isValid && (
+                    <div className="flex gap-2">
+                      {selectedLead.instagramUrl && (
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-2xl border-slate-100 text-pink-500 shadow-sm"
+                          onClick={() => window.open(normalizeInstagram(selectedLead.instagramUrl!).url, '_blank')}
+                        >
+                          <Instagram className="h-5 w-5" />
+                        </Button>
+                      )}
+                      {selectedLead.whatsapp && (
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-2xl border-slate-100 text-emerald-500 shadow-sm"
+                          onClick={() => window.open(`https://wa.me/${selectedLead.whatsapp?.replace(/\D/g, '')}`, '_blank')}
+                        >
+                          <MessageCircleIcon className="h-5 w-5" />
+                        </Button>
+                      )}
+                      {selectedLead.websiteUrl && (
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-2xl border-slate-100 text-blue-500 shadow-sm"
+                          onClick={() => window.open(selectedLead.websiteUrl?.startsWith('http') ? selectedLead.websiteUrl : `https://${selectedLead.websiteUrl}`, '_blank')}
+                        >
+                          <Globe className="h-5 w-5" />
+                        </Button>
+                      )}
                       <Button 
                         variant="outline" 
-                        size="icon" 
-                        className="h-12 w-12 rounded-2xl border-slate-100 text-pink-500 shadow-sm"
-                        onClick={() => window.open(normalizeInstagram(selectedLead.instagramUrl || '').url, '_blank')}
+                        onClick={() => setIsDiscardDialogOpen(true)} 
+                        className="h-12 w-12 rounded-2xl border-rose-100 text-rose-500 shadow-sm hover:bg-rose-50"
+                        title="Descartar Lead"
                       >
-                        <Instagram className="h-5 w-5" />
+                        <Trash2 className="h-5 w-5" />
                       </Button>
-                    )}
-                    {normalizeGoogleMaps(selectedLead.address || '').isValid && (
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-12 w-12 rounded-2xl border-slate-100 text-rose-500 shadow-sm"
-                        onClick={() => window.open(normalizeGoogleMaps(selectedLead.address || '').url, '_blank')}
-                      >
-                        <MapPin className="h-5 w-5" />
-                      </Button>
-                    )}
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsDiscardDialogOpen(true)} 
-                      className="h-12 w-12 rounded-2xl border-rose-100 text-rose-500 shadow-sm hover:bg-rose-50"
-                      title="Descartar Lead"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </div>
