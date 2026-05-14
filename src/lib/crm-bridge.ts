@@ -33,9 +33,14 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
   const store = useProspectingStore.getState();
   const existing = store.leads;
 
-  // Filtra leads que ainda não estão no CRM (pelo CNPJ ou Telefone) antes de aplicar limite
+  // Índices para detecção rigorosa de duplicatas
   const phoneIndex = new Set(
     existing.map((l) => normPhone(l.whatsapp)).filter((p) => p.length >= 10)
+  );
+  const businessIndex = new Set(
+    existing
+      .filter((l) => l.companyName)
+      .map((l) => `${normKey(l.companyName)}|${normKey(l.city)}`)
   );
   const cnpjIndex = new Set(
     existing
@@ -44,14 +49,22 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
       .map((c: string) => c.replace(/\D/g, ''))
   );
 
+  // Filtra o que já está no CRM de qualquer forma
   const trulyNewLeads = leads.filter(lead => {
     const phone = normPhone(lead.phone);
     const cnpj = (lead.raw?.cnpj as string || '').replace(/\D/g, '');
-    const isDuplicate = (cnpj && cnpjIndex.has(cnpj)) || (phone.length >= 10 && phoneIndex.has(phone));
+    const name = (lead.name ?? lead.business_name ?? '').trim();
+    const businessKey = `${normKey(lead.business_name ?? name)}|${normKey(lead.city)}`;
+
+    const isDuplicate = 
+      (cnpj && cnpjIndex.has(cnpj)) || 
+      (phone.length >= 10 && phoneIndex.has(phone)) ||
+      businessIndex.has(businessKey);
+
     return !isDuplicate;
   });
 
-  // Limite de 100 leads por dia
+  // Limite de 100 leads por dia (apenas para leads vindos do buscador)
   const today = new Date().toISOString().split('T')[0];
   const sentTodayCount = existing.filter(l => 
     l.createdAt && l.createdAt.startsWith(today) && l.source === 'buscador'
@@ -63,13 +76,6 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
 
   const remainingQuota = 100 - sentTodayCount;
   const leadsToProcess = trulyNewLeads.slice(0, remainingQuota);
-
-  // Re-índice para business name check (mais custoso)
-  const businessIndex = new Set(
-    existing
-      .filter((l) => l.companyName)
-      .map((l) => `${normKey(l.companyName)}|${normKey(l.city)}`)
-  );
 
   let created = 0;
   let skipped = 0;
@@ -87,7 +93,7 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
     const businessKey = `${normKey(lead.business_name ?? name)}|${normKey(lead.city)}`;
     const cnpj = (lead.raw?.cnpj as string || '').replace(/\D/g, '');
 
-    // Verificação de duplicados (regra mantida para evitar lixo no CRM)
+    // Bloqueio rigoroso (check extra para o lote atual)
     if ((cnpj && cnpjIndex.has(cnpj)) || (phone.length >= 10 && phoneIndex.has(phone)) || businessIndex.has(businessKey)) {
       skipped++;
       duplicates.push({ name, reason: 'duplicate' });
@@ -126,13 +132,15 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
     Object.assign(newLead, applyStageChange(newLead, 'novo'));
     store.addLead(newLead, 'manual');
 
+    // Atualiza índices locais
     if (cnpj) cnpjIndex.add(cnpj);
     if (phone.length >= 10) phoneIndex.add(phone);
     businessIndex.add(businessKey);
     created++;
   }
 
-  return { created, skipped: skipped + (leads.length - leadsToProcess.length), duplicates };
+  const totalSkipped = skipped + (leads.length - trulyNewLeads.length) + (trulyNewLeads.length - leadsToProcess.length);
+  return { created, skipped: totalSkipped, duplicates };
 }
 
 /** Muda estágio do pipeline e renova SLA. */
