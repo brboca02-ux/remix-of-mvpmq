@@ -1421,7 +1421,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
                   {/* Ações Operacionais */}
                   <div className="flex flex-col gap-2">
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {/* Botão de Envio agora via Make */}
                       <button
                         onClick={() => {
@@ -1432,15 +1432,15 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                           }
                         }}
                         className={cn(
-                          "flex items-center justify-center gap-2 h-10 rounded-xl transition-all text-[10px] font-black",
+                          "flex items-center justify-center gap-2 h-12 rounded-xl transition-all text-xs font-black",
                           suggestion.id === 'make' || lead.warmupStatus === 'Pronto'
                             ? "bg-violet-600 text-white shadow-md hover:bg-violet-700" 
-                            : "bg-white border border-slate-200 hover:border-violet-300 hover:bg-violet-50 text-slate-600",
+                            : "bg-white border-2 border-slate-100 hover:border-violet-300 hover:bg-violet-50 text-slate-600",
                           lead.warmupStatus === 'Frio' && hasInstagram && "border-amber-200 bg-amber-50/50"
                         )}
                       >
-                        <Send className={cn("h-3.5 w-3.5", suggestion.id === 'make' || lead.warmupStatus === 'Pronto' ? "text-white" : "text-violet-500")} /> 
-                        {lead.sequence?.isActive ? `Etapa ${lead.sequence.currentStep + 1}/${lead.sequence.totalSteps}` : "Enviar Agora"}
+                        <Send className={cn("h-4 w-4", suggestion.id === 'make' || lead.warmupStatus === 'Pronto' ? "text-white" : "text-violet-500")} /> 
+                        {lead.sequence?.isActive ? `Etapa ${lead.sequence.currentStep + 1}` : "Enviar via Make"}
                       </button>
 
                       {/* Modo de Automação */}
