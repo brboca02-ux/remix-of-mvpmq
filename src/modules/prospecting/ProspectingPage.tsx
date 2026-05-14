@@ -713,31 +713,31 @@ export default function ProspectingPage() {
 
           <LayoutGroup>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
-            <div className="flex flex-col xl:flex-row justify-between gap-6 items-center bg-white/80 backdrop-blur-md p-4 md:p-5 rounded-[2rem] border border-slate-200/60 shadow-xl shadow-slate-200/20">
-              <TabsList className="bg-slate-100/80 p-1 rounded-2xl w-full xl:w-auto overflow-x-auto no-scrollbar justify-start flex-nowrap">
-                <TabsTrigger value="plan" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <CalendarIcon className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Plano</span>
+            <div className="flex flex-col lg:flex-row justify-between gap-4 items-center bg-white/80 backdrop-blur-md p-3 md:p-4 rounded-2xl border border-slate-200/60 shadow-lg shadow-slate-200/10">
+              <TabsList className="bg-slate-100/80 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar justify-start flex-nowrap h-10">
+                <TabsTrigger value="plan" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <CalendarIcon className="h-3 w-3" /> <span>Plano</span>
                 </TabsTrigger>
-                <TabsTrigger value="leads" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <ClipboardList className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Lista</span>
+                <TabsTrigger value="leads" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <ClipboardList className="h-3 w-3" /> <span>Lista</span>
                 </TabsTrigger>
-                <TabsTrigger value="pipeline" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <Target className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Funil</span>
+                <TabsTrigger value="pipeline" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <Target className="h-3 w-3" /> <span>Funil</span>
                 </TabsTrigger>
-                <TabsTrigger value="performance" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <TrendingUp className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Perf.</span>
+                <TabsTrigger value="performance" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <TrendingUp className="h-3 w-3" /> <span>Perf.</span>
                 </TabsTrigger>
-                <TabsTrigger value="revision" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-                  <AlertCircle className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Revisão</span>
+                <TabsTrigger value="revision" className="flex items-center gap-1.5 rounded-lg py-1.5 px-3 font-bold text-[10px] uppercase tracking-wider transition-all whitespace-nowrap h-8">
+                  <AlertCircle className="h-3 w-3" /> <span>Revisão</span>
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
-                <div className="relative group flex-grow md:min-w-[300px]">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400 group-focus-within:text-primary transition-colors" />
+              <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto">
+                <div className="relative group flex-grow md:min-w-[240px]">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                   <Input 
                     placeholder="Buscar empresa ou @instagram..." 
-                    className="pl-11 h-12 w-full bg-slate-50/50 border-slate-200/60 focus-visible:ring-primary/20 rounded-2xl font-medium placeholder:text-slate-400"
+                    className="pl-10 h-10 w-full bg-slate-50/50 border-slate-200/60 focus-visible:ring-primary/20 rounded-xl text-xs font-medium placeholder:text-slate-400"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
