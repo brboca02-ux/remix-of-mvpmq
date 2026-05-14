@@ -257,6 +257,7 @@ export default function ProspectingPage() {
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const [isNoInterestDialogOpen, setIsNoInterestDialogOpen] = useState(false);
   const [pendingReason, setPendingReason] = useState("");
+  const [isEnrichingExtra, setIsEnrichingExtra] = useState(false);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
