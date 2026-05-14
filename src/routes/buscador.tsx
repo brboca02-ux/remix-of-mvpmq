@@ -370,19 +370,18 @@ function BuscadorPage() {
             </div>
           )}
 
-          <Tabs defaultValue="leads" className="flex-1 flex flex-col">
-            <div className="bg-card border-b px-6 flex items-center justify-between h-12">
-              <TabsList className="bg-transparent h-auto p-0 gap-6">
-                <TabsTrigger value="leads" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 text-xs font-bold uppercase tracking-wider">
+          <Tabs defaultValue="leads" className="flex-1 flex flex-col min-h-0">
+            <div className="bg-card border-b px-4 md:px-6 flex items-center justify-between h-14 overflow-x-auto no-scrollbar">
+              <TabsList className="bg-transparent h-full p-0 gap-4 md:gap-8 min-w-max">
+                <TabsTrigger value="leads" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full text-[11px] font-bold uppercase tracking-wider transition-all px-1">
                   Leads & Resultados
                 </TabsTrigger>
-                <TabsTrigger value="ops" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 text-xs font-bold uppercase tracking-wider">
+                <TabsTrigger value="ops" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full text-[11px] font-bold uppercase tracking-wider transition-all px-1">
                   Operações
                 </TabsTrigger>
-                <TabsTrigger value="ai" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 text-xs font-bold uppercase tracking-wider">
+                <TabsTrigger value="ai" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full text-[11px] font-bold uppercase tracking-wider transition-all px-1">
                   Inteligência IA
                 </TabsTrigger>
-
               </TabsList>
             </div>
 
