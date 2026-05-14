@@ -687,24 +687,24 @@ export default function ProspectingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: 'Leads Captados', value: stats.total, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
               { label: 'Oportunidades Quentes', value: stats.hot, icon: TrendingUp, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
               { label: 'Sites Propostos', value: stats.sites, icon: Layout, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
               { label: 'Conversões Ativas', value: stats.contacted, icon: MessageSquare, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
             ].map((stat, i) => (
-              <Card key={i} className="border border-slate-200/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden bg-white group rounded-3xl">
-                <CardContent className="p-6 flex items-center gap-4">
+              <Card key={i} className="border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden bg-white group rounded-2xl">
+                <CardContent className="p-4 flex items-center gap-3">
                   <div className={cn(
-                    "p-3.5 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm border",
+                    "p-2.5 rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm border",
                     stat.bg, stat.color, stat.border
                   )}>
-                    <stat.icon className="h-6 w-6" />
+                    <stat.icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                    <p className="text-3xl font-black text-slate-900 mt-0.5 tracking-tight">{stat.value}</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                    <p className="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">{stat.value}</p>
                   </div>
                 </CardContent>
               </Card>
