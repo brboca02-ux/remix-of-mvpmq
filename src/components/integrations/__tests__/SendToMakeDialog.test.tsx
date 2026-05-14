@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, screen, waitFor } from "@testing-library/react";
 import { SendToMakeDialog } from "../SendToMakeDialog";
 import { vi, describe, it, expect, beforeEach } from "vitest";

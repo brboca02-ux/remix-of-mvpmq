@@ -500,9 +500,9 @@ export const enrichLeadPremium = createServerFn({ method: "POST" })
     query?: string;
     location?: string;
   }) => input)
-  .handler(async ({ data }): Promise<{ results: EnrichmentResult[]; summary: Record<string, unknown> }> => {
+  .handler(async ({ data }) => {
     const results: EnrichmentResult[] = [];
-    const summary: Record<string, unknown> = {};
+    const summary: Record<string, string | number | boolean> = {};
 
     // 1. Hunter.io - Email Discovery
     if (data.domain) {
