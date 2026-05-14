@@ -636,15 +636,15 @@ export default function ProspectingPage() {
     <div className="flex min-h-screen flex-col bg-slate-50/50">
       <SiteHeader />
       
-      <main className="flex-1 px-4 py-12 md:px-8">
-        <div className="mx-auto max-w-7xl space-y-12">
+      <main className="flex-1 px-4 py-8 md:px-8">
+        <div className="mx-auto max-w-7xl space-y-6">
           
           {/* Top Summary / Hero Section */}
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <Badge variant="outline" className="px-4 py-1 border-primary/20 bg-primary/5 text-primary animate-in fade-in slide-in-from-bottom-2">
+          <div className="text-center space-y-2 max-w-3xl mx-auto">
+            <Badge variant="outline" className="px-3 py-0.5 border-primary/20 bg-primary/5 text-primary text-[10px]">
               Plataforma de Captação IA v2.0
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
               Transforme Leads em <span className="text-primary">Clientes Reais</span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 font-medium max-w-xl mx-auto">
