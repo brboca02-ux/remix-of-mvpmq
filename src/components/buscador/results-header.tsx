@@ -89,10 +89,10 @@ export function ResultsHeader({
 
   return (
     <div data-testid="prospecting-page" className="space-y-4 border-b border-border/60 bg-card p-4 md:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {loading ? <Skeleton className="h-8 w-64" /> : (
+      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {loading ? <Skeleton className="h-9 w-64" /> : (
               <>
                 Você segmenta{" "}
                 <span className="text-success">{total.toLocaleString("pt-BR")}</span>{" "}
@@ -100,16 +100,16 @@ export function ResultsHeader({
               </>
             )}
           </h1>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-            {loading ? <Skeleton className="h-4 w-96" /> : (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground">
+            {loading ? <Skeleton className="h-5 w-96" /> : (
               <>
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="flex items-center gap-1 cursor-help">
+                      <span className="flex items-center gap-1.5 cursor-help py-1">
+                        <TrendingUp className="h-3.5 w-3.5 opacity-70" />
                         Potencial estimado:{" "}
                         <span className="font-semibold text-foreground">{formatBRL(potencialMensal)}/mês</span>
-                        <Info className="h-3 w-3 opacity-50" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs">
@@ -117,14 +117,14 @@ export function ResultsHeader({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                <span>·</span>
+                <span className="hidden sm:inline text-muted-foreground/30">•</span>
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="flex items-center gap-1 cursor-help">
+                      <span className="flex items-center gap-1.5 cursor-help py-1">
+                        <Zap className="h-3.5 w-3.5 text-success opacity-70" />
                         Qualidade:{" "}
                         <span className="font-semibold text-success">{qualidadeScore}/100</span>
-                        <Info className="h-3 w-3 opacity-50" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs">
@@ -134,9 +134,9 @@ export function ResultsHeader({
                 </TooltipProvider>
                 {updatedAt && (
                   <>
-                    <span>·</span>
-                    <span className="flex items-center gap-1 text-[10px] opacity-70">
-                      <Clock className="h-3 w-3" />
+                    <span className="hidden sm:inline text-muted-foreground/30">•</span>
+                    <span className="flex items-center gap-1.5 py-1 text-[11px] opacity-70">
+                      <Clock className="h-3.5 w-3.5" />
                       Atualizado {formatTimeAgo(updatedAt)}
                     </span>
                   </>
@@ -145,16 +145,17 @@ export function ResultsHeader({
             )}
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={onSavePreset} className="gap-2">
+
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap md:justify-end">
+          <Button variant="outline" size="sm" onClick={onSavePreset} className="h-9 gap-2 text-xs font-semibold px-4 order-2 sm:order-none">
             <Sparkles className="h-4 w-4" />
-            Salvar preset
+            <span className="hidden lg:inline">Salvar</span> Preset
           </Button>
-          <Button data-testid="save-list-button" variant="outline" size="sm" onClick={onSaveList} className="gap-2">
+          <Button data-testid="save-list-button" variant="outline" size="sm" onClick={onSaveList} className="h-9 gap-2 text-xs font-semibold px-4 order-3 sm:order-none">
             <Save className="h-4 w-4" />
-            Salvar lista
+            <span className="hidden lg:inline">Salvar</span> Lista
           </Button>
-          <Button variant="outline" size="sm" onClick={onExportWhatsApp} disabled={total === 0} className="gap-2">
+          <Button variant="outline" size="sm" onClick={onExportWhatsApp} disabled={total === 0} className="h-9 gap-2 text-xs font-semibold px-4 order-4 sm:order-none">
             <MessageCircle className="h-4 w-4" />
             WhatsApp
           </Button>
@@ -164,59 +165,73 @@ export function ResultsHeader({
               variant="secondary"
               onClick={onSendToPipeline}
               disabled={total === 0}
-              className="gap-2"
+              className="h-9 gap-2 text-xs font-bold px-4 col-span-2 sm:col-auto order-1 sm:order-none bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
               data-testid="send-to-pipeline-button"
             >
               <Send className="h-4 w-4" />
               Enviar para Pipeline
             </Button>
           )}
-          <Button size="sm" onClick={onExport} disabled={total === 0} className="gap-2">
+          <Button size="sm" onClick={onExport} disabled={total === 0} className="h-9 gap-2 text-xs font-semibold px-4 order-5 sm:order-none">
             <Download className="h-4 w-4" />
-            Export CSV
+            <span className="hidden lg:inline">Exportar</span> CSV
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted/40 border border-border/50">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/50 w-full sm:w-auto overflow-x-auto no-scrollbar">
           <Button 
             variant="ghost" 
             size="sm" 
-            className={cn("h-7 text-[10px] font-bold uppercase", !cacheStatus?.warning ? "bg-background shadow-sm" : "opacity-50 hover:opacity-100")}
+            className={cn("h-8 text-[11px] font-bold uppercase whitespace-nowrap px-3", !cacheStatus?.warning ? "bg-background shadow-sm rounded-lg" : "opacity-60 hover:opacity-100")}
           >
-            Meus Dados
+            Minha Base
           </Button>
-          <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase opacity-50 hover:opacity-100">+ Bases Públicas</Button>
+          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase opacity-60 hover:opacity-100 whitespace-nowrap px-3">
+            Bases Públicas
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase opacity-60 hover:opacity-100 whitespace-nowrap px-3">
+            Inteligência IA
+          </Button>
         </div>
         
-        {cacheStatus?.warning === "FILTRANDO_JOB" && (
-           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 gap-1.5 h-7">
-             <LayoutList className="h-3 w-3" /> Última Importação
-           </Badge>
-        )}
-
-        <div className="flex-1 relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={searchText}
-          onChange={(e) => onSearchTextChange(e.target.value)}
-          placeholder="Buscar por nome, CNPJ, cidade ou UF…"
-          className="h-10 pl-9 pr-9 text-sm"
-          aria-label="Busca global"
-        />
-        {searchText && (
-          <button
-            type="button"
-            onClick={() => onSearchTextChange("")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label="Limpar busca"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+        <div className="flex-1 flex items-center gap-2">
+          <div className="relative flex-1 group">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input
+              value={searchText}
+              onChange={(e) => onSearchTextChange(e.target.value)}
+              placeholder="Buscar por nome, CNPJ, cidade ou UF…"
+              className="h-11 pl-10 pr-10 text-sm rounded-xl border-border/60 bg-muted/20 focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all"
+              aria-label="Busca global"
+            />
+            {searchText && (
+              <button
+                type="button"
+                onClick={() => onSearchTextChange("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-full transition-colors"
+                aria-label="Limpar busca"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          
+          {cacheStatus?.warning === "FILTRANDO_JOB" && (
+             <TooltipProvider>
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 h-11 px-3 rounded-xl animate-pulse">
+                     <LayoutList className="h-4 w-4" />
+                   </Badge>
+                 </TooltipTrigger>
+                 <TooltipContent>Exibindo leads da última importação</TooltipContent>
+               </Tooltip>
+             </TooltipProvider>
+          )}
+        </div>
       </div>
-    </div>
 
       {alert && (
         <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm">
@@ -228,7 +243,7 @@ export function ResultsHeader({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {validPortes.map((p) => {
           const count = distribuicaoPorte[p] || 0;
           const pct = total ? Math.min(100, Math.round((count / total) * 100)) : 0;
@@ -238,26 +253,34 @@ export function ResultsHeader({
             p === "Micro" ? "🏪" : 
             p === "Pequena" ? "🏭" : 
             p === "Média" ? "🏢" : "🏙️";
-
+ 
           return (
             <div
               key={p}
-              className="group relative overflow-hidden rounded-xl border border-border/60 bg-background p-3 transition-all hover:border-primary/40 hover:shadow-sm"
+              className="group relative overflow-hidden rounded-xl border border-border/50 bg-background p-3.5 transition-all hover:border-primary/40 hover:shadow-md md:p-4"
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-lg">{icon}</span>
-                <span className="text-[10px] font-bold text-primary opacity-80">{pct}%</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl md:text-2xl">{icon}</span>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
+                    {p}
+                  </div>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-primary/20 bg-primary/5 text-primary">
+                  {pct}%
+                </Badge>
               </div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                {p}
+              
+              <div className="mt-1 text-xl font-black tracking-tight md:text-2xl">
+                {loading ? <Skeleton className="h-7 w-16" /> : count.toLocaleString("pt-BR")}
               </div>
-              <div className="mt-0.5 text-lg font-black tracking-tight">
-                {loading ? <Skeleton className="h-6 w-12" /> : count.toLocaleString("pt-BR")}
+              
+              <div className="mt-2 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary/70 transition-all duration-1000 group-hover:bg-primary" 
+                  style={{ width: `${pct}%` }} 
+                />
               </div>
-              <div 
-                className="absolute bottom-0 left-0 h-1 bg-primary/20 transition-all group-hover:bg-primary" 
-                style={{ width: `${pct}%` }} 
-              />
             </div>
           );
         })}

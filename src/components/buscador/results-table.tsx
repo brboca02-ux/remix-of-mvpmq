@@ -82,14 +82,14 @@ export function ResultsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead><H k="nome">Empresa</H></TableHead>
-              <TableHead><H k="cidade">Localização</H></TableHead>
-              <TableHead className="hidden md:table-cell">Status Operacional</TableHead>
-              <TableHead className="hidden sm:table-cell">
+              <TableHead className="w-[40%] min-w-[200px]"><H k="nome">Empresa</H></TableHead>
+              <TableHead className="w-[20%] min-w-[120px]"><H k="cidade">Localização</H></TableHead>
+              <TableHead className="hidden md:table-cell w-[15%]">Status Operacional</TableHead>
+              <TableHead className="hidden sm:table-cell w-[10%]">
                 <H k="digital">Digital</H>
               </TableHead>
-              <TableHead><H k="score">Score</H></TableHead>
-              <TableHead className="text-right">Ação</TableHead>
+              <TableHead className="w-[10%]"><H k="score">Score</H></TableHead>
+              <TableHead className="text-right w-[5%]">Ação</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -113,14 +113,14 @@ export function ResultsTable({
                     className="cursor-pointer transition-colors hover:bg-primary/5 group"
                     onClick={() => onSelect?.(c)}
                   >
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="font-bold text-slate-900 dark:text-slate-100">{c.nome}</div>
+                    <TableCell className="max-w-[200px] sm:max-w-none">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <div className="font-bold text-slate-900 dark:text-slate-100 truncate">{c.nome}</div>
                         {c.is_enriched && (
                           <TooltipProvider>
                             <Tooltip>
-                              <TooltipTrigger>
-                                <Sparkles className="h-3 w-3 text-violet-500 fill-violet-500/20" />
+                              <TooltipTrigger asChild>
+                                <Sparkles className="h-3 w-3 text-violet-500 fill-violet-500/20 shrink-0" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p className="text-[10px]">Lead Enriquecido Inteligente</p>
@@ -129,29 +129,17 @@ export function ResultsTable({
                           </TooltipProvider>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
                         <Badge 
                           variant="outline" 
                           className={cn(
-                            "text-[9px] h-4 font-mono px-1",
+                            "text-[9px] h-4 font-mono px-1 shrink-0",
                             c.cnpj?.startsWith("TEMP:") && "border-amber-500/50 bg-amber-500/5 text-amber-600 dark:text-amber-400"
                           )}
                         >
                           {c.cnpj?.startsWith("TEMP:") ? "CNPJ FICTÍCIO" : c.cnpj}
                         </Badge>
-                        {c.cnpj?.startsWith("TEMP:") && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <AlertTriangle className="h-3 w-3 text-amber-500 animate-pulse" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-[10px]">Este lead possui um CNPJ gerado pelo sistema. Clique para corrigir.</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                        <div className="flex gap-1 ml-1 opacity-60">
+                        <div className="flex items-center gap-1.5 opacity-60 shrink-0">
                           {c.telefone && <Phone className="h-2.5 w-2.5" />}
                           {c.email && <Mail className="h-2.5 w-2.5" />}
                           {c.site && <Globe className="h-2.5 w-2.5" />}
