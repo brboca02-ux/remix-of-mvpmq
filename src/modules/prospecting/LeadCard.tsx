@@ -898,7 +898,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     className="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white border border-slate-100"
                   />
                 ) : (
-                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-100 flex items-center justify-center text-slate-400 font-bold text-2xl shadow-inner group-hover:from-primary/5 group-hover:to-primary/10 group-hover:text-primary transition-colors">
+                  <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-100 flex items-center justify-center text-slate-400 font-bold text-3xl shadow-inner group-hover:from-primary/5 group-hover:to-primary/10 group-hover:text-primary transition-colors">
                     {lead.companyName?.substring(0, 1).toUpperCase() || 'E'}
                   </div>
                 )}
