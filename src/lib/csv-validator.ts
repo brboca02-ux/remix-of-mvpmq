@@ -175,7 +175,7 @@ function validateHeaders(headers: string[]): {
 
 export async function validateCsvFile(file: File): Promise<CsvValidationResult> {
   try {
-    const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+    const isExcel = /\.(xlsx|xls|xlsb|xlsm)$/i.test(file.name);
     let text = "";
     let encoding: any = "UTF-8";
     let isExcelFile = false;

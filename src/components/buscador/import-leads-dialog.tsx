@@ -80,7 +80,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
       toast.error("Arquivo muito grande");
       return;
     }
-    if (!/\.(csv|txt)$/i.test(f.name)) {
+    if (!/\.(csv|txt|xlsx|xls|xlsb|xlsm)$/i.test(f.name)) {
       setErrorDetails("Formato de arquivo não suportado.");
       setErrorHint("Use um arquivo .csv ou .txt exportado do Excel/Sheets.");
       toast.error("Formato inválido");
@@ -351,7 +351,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".csv,.txt,text/csv,text/plain"
+                      accept=".csv,.txt,.xlsx,.xls,.xlsb,.xlsm,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                       className="hidden"
                       onChange={(e) => {
                         handleFile(e.target.files?.[0] || null);
