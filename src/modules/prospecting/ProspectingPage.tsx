@@ -1707,7 +1707,7 @@ export default function ProspectingPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/50 space-y-3">
                             <div className="flex items-center gap-2 mb-1">
-                               <Mail className="h-4 w-4 text-primary" />
+                               <Search className="h-4 w-4 text-primary" />
                                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Hunter.io</span>
                             </div>
                             <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Encontra e verifica e-mails reais de tomadores de decisão usando o domínio da empresa.</p>
