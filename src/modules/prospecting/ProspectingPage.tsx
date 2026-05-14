@@ -1565,6 +1565,72 @@ export default function ProspectingPage() {
                     <LeadPlaybook leadId={selectedLead.id} />
                   </TabsContent>
 
+                  <TabsContent value="empresa" className="space-y-6 mt-0">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">CNPJ</Label>
+                        <Input 
+                          placeholder="00.000.000/0000-00" 
+                          value={selectedLead.cnpj || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, cnpj: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">CNAE</Label>
+                        <Input 
+                          placeholder="Atividade Principal" 
+                          value={selectedLead.cnae || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, cnae: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Abertura</Label>
+                        <Input 
+                          placeholder="DD/MM/AAAA" 
+                          value={selectedLead.openingDate || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, openingDate: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Porte</Label>
+                        <Select 
+                          value={selectedLead.size || ''} 
+                          onValueChange={(val) => setSelectedLead({ ...selectedLead, size: val })}
+                        >
+                          <SelectTrigger className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium">
+                            <SelectValue placeholder="Selecione o porte" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-2xl border-slate-100 shadow-xl">
+                            <SelectItem value="Micro">Micro (ME)</SelectItem>
+                            <SelectItem value="Pequena">Pequena (EPP)</SelectItem>
+                            <SelectItem value="Demais">Demais</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="col-span-2 space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Endereço</Label>
+                        <Input 
+                          placeholder="Rua, Número, Bairro, Cidade - UF" 
+                          value={selectedLead.address || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, address: e.target.value })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                      <div className="col-span-2 space-y-2">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Quadro Societário (separado por vírgula)</Label>
+                        <Input 
+                          placeholder="Sócio 1, Sócio 2..." 
+                          value={selectedLead.partners?.join(', ') || ''}
+                          onChange={(e) => setSelectedLead({ ...selectedLead, partners: e.target.value.split(',').map(s => s.trim()) })}
+                          className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
                   <TabsContent value="digital" className="space-y-6 mt-0">
                     <div className="space-y-4">
                       <div className="space-y-2">
