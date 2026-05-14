@@ -652,28 +652,40 @@ export default function ProspectingPage() {
             <p className="text-lg md:text-xl text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">
               Prospecção baseada em comportamento humano: aqueça leads no Instagram, valide no Google e aborde com segurança máxima.
             </p>
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-5 max-w-4xl mx-auto mt-6 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-emerald-100 rounded-2xl shadow-sm">
-                    <ShieldCheck className="h-6 w-6 text-emerald-600" />
+            <div 
+              className="bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-6 max-w-5xl mx-auto mt-6 shadow-sm hover:shadow-md transition-all duration-300 outline-none focus-within:ring-4 focus-within:ring-emerald-500/10"
+              role="region"
+              aria-label="Informações de Prospecção Segura"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-6">
+                <div className="md:col-span-8 flex items-center gap-5">
+                  <div className="p-4 bg-emerald-100 rounded-[1.25rem] shadow-sm shrink-0 flex items-center justify-center h-16 w-16">
+                    <ShieldCheck className="h-8 w-8 text-emerald-700" />
                   </div>
-                  <div className="text-left">
-                    <h3 className="text-lg md:text-xl font-black text-emerald-900 uppercase tracking-tight">Prospecção Segura (Anti-Bloqueio)</h3>
-                    <p className="text-sm md:text-base text-emerald-600 font-bold">Siga as etapas para garantir a melhor conversão e segurança</p>
+                  <div className="text-left space-y-1">
+                    <h3 className="text-[18px] md:text-[21px] font-black text-emerald-950 uppercase tracking-tight leading-none">
+                      Prospecção Segura (Anti-Bloqueio)
+                    </h3>
+                    <p className="text-[16px] text-emerald-700 font-bold leading-tight">
+                      Siga as etapas para garantir a melhor conversão e segurança
+                    </p>
                   </div>
                 </div>
-                <div className="flex gap-3">
+                
+                <div className="md:col-span-4 flex justify-between md:justify-end gap-4">
                   {[
                     { icon: '🔒', label: 'Seguro' },
                     { icon: '📈', label: 'Escalável' },
                     { icon: '🤝', label: 'Conexão' }
                   ].map((item, idx) => (
-                    <div key={idx} className="flex flex-col items-center gap-1 group/item">
-                      <div className="w-9 h-9 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-base shadow-sm group-hover/item:scale-110 group-hover/item:border-emerald-300 transition-all duration-300">
+                    <div key={idx} className="flex flex-col items-center gap-2 group/item">
+                      <div 
+                        className="w-12 h-12 rounded-2xl bg-white border border-emerald-200 flex items-center justify-center text-xl shadow-sm group-hover/item:scale-110 group-hover/item:border-emerald-400 group-hover/item:shadow-md transition-all duration-500 cursor-default"
+                        title={item.label}
+                      >
                         {item.icon}
                       </div>
-                      <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider">{item.label}</span>
+                      <span className="text-[11px] font-black uppercase text-emerald-900 tracking-[0.1em]">{item.label}</span>
                     </div>
                   ))}
                 </div>
