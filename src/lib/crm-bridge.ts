@@ -33,6 +33,19 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
   const store = useProspectingStore.getState();
   const existing = store.leads;
 
+  // Limite de 100 leads por dia
+  const today = new Date().toISOString().split('T')[0];
+  const sentTodayCount = existing.filter(l => 
+    l.createdAt && l.createdAt.startsWith(today) && l.source === 'buscador'
+  ).length;
+
+  if (sentTodayCount >= 100) {
+    throw new Error("Limite diário de 100 leads atingido. Tente novamente amanhã.");
+  }
+
+  const remainingQuota = 100 - sentTodayCount;
+  const leadsToProcess = leads.slice(0, remainingQuota);
+
   const phoneIndex = new Set(
     existing.map((l) => normPhone(l.whatsapp)).filter((p) => p.length >= 10)
   );
@@ -52,7 +65,7 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
   let skipped = 0;
   const duplicates: AddResult['duplicates'] = [];
 
-  for (const lead of leads) {
+  for (const lead of leadsToProcess) {
     const name = (lead.name ?? lead.business_name ?? '').trim();
     if (!name) {
       skipped++;
@@ -64,17 +77,8 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
     const businessKey = `${normKey(lead.business_name ?? name)}|${normKey(lead.city)}`;
     const cnpj = (lead.raw?.cnpj as string || '').replace(/\D/g, '');
 
-    if (cnpj && cnpjIndex.has(cnpj)) {
-      skipped++;
-      duplicates.push({ name, reason: 'duplicate' });
-      continue;
-    }
-    if (phone.length >= 10 && phoneIndex.has(phone)) {
-      skipped++;
-      duplicates.push({ name, reason: 'duplicate' });
-      continue;
-    }
-    if (businessIndex.has(businessKey)) {
+    // Verificação de duplicados (regra mantida para evitar lixo no CRM)
+    if ((cnpj && cnpjIndex.has(cnpj)) || (phone.length >= 10 && phoneIndex.has(phone)) || businessIndex.has(businessKey)) {
       skipped++;
       duplicates.push({ name, reason: 'duplicate' });
       continue;
@@ -102,7 +106,6 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
       status: 'Novo' as LeadStatus,
       createdAt: now,
       updatedAt: now,
-      // CRM camada de conversão
       leadScore: score,
       crmSource: lead.source,
       crmSourceDetail: lead.source_detail,
@@ -110,9 +113,7 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
       pipelineStage: 'novo',
     };
 
-    // aplica SLA inicial (nextActionAt = +10min, lastInteractionAt = now)
     Object.assign(newLead, applyStageChange(newLead, 'novo'));
-
     store.addLead(newLead, 'manual');
 
     if (cnpj) cnpjIndex.add(cnpj);
@@ -121,7 +122,7 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
     created++;
   }
 
-  return { created, skipped, duplicates };
+  return { created, skipped: skipped + (leads.length - leadsToProcess.length), duplicates };
 }
 
 /** Muda estágio do pipeline e renova SLA. */
