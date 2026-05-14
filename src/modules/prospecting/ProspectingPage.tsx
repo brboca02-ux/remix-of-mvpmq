@@ -650,28 +650,32 @@ export default function ProspectingPage() {
             <p className="text-base md:text-lg text-slate-500 font-medium max-w-xl mx-auto">
               Prospecção baseada em comportamento humano: aqueça leads no Instagram, valide no Google e aborde com segurança máxima.
             </p>
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-4 max-w-xl mx-auto mt-4">
-              <div className="grid grid-cols-4 gap-2">
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">🔒</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Menos Bloqueios</span>
+            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-6 max-w-4xl mx-auto mt-8 shadow-sm">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-emerald-100 rounded-2xl">
+                    <ShieldCheck className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-lg font-black text-emerald-900 uppercase tracking-tight">Prospecção Segura (Anti-Bloqueio)</h3>
+                    <p className="text-sm text-emerald-600 font-bold">Siga as etapas para garantir a melhor conversão e segurança</p>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">📈</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">+ Respostas</span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">🤝</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Conexão Real</span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-lg">⚡</span>
-                  <span className="text-[8px] font-black uppercase text-emerald-800 leading-tight">Alta Conversão</span>
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">🔒</div>
+                    <span className="text-[9px] font-black uppercase text-emerald-800">Seguro</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">📈</div>
+                    <span className="text-[9px] font-black uppercase text-emerald-800">Escalável</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-100 flex items-center justify-center text-lg shadow-sm">🤝</div>
+                    <span className="text-[9px] font-black uppercase text-emerald-800">Conexão</span>
+                  </div>
                 </div>
               </div>
-              <p className="text-[10px] text-emerald-600 font-bold mt-3">
-                “Sistema que guia você na abordagem correta, evitando bloqueios e aumentando a taxa de resposta.”
-              </p>
             </div>
             <div className="flex flex-wrap justify-center gap-3 pt-4">
               <Button 
