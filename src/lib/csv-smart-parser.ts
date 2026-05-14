@@ -93,6 +93,20 @@ function detectGoogleMapsFormat(sampleLine: string): boolean {
   // 1. Phone in parentheses: (XX) XXXXX-XXXX
   // 2. Rating with comma decimal: X,X (XXX)
   // 3. Multiple commas including empty field
+  
+  // GUARD: If the line has 10+ comma-separated fields, it's NOT Google Maps.
+  // Google Maps exports have ~6-7 fields max. Receita Federal / CNPJ exports have 15-25+ fields.
+  const fieldCount = sampleLine.split(",").length;
+  if (fieldCount >= 10) return false;
+  
+  // GUARD: If any field looks like a CNPJ (14 digits), it's a Receita Federal export
+  const fields = sampleLine.split(",");
+  const hasCnpjField = fields.some(f => {
+    const digits = f.trim().replace(/\D/g, "");
+    return digits.length === 14;
+  });
+  if (hasCnpjField) return false;
+  
   const hasPhoneInParens = /\(\d{2,3}\)\s*[\d-\s]+/.test(sampleLine);
   const hasRatingWithComma = /\d,\d\s*\(\d+\)/.test(sampleLine);
   const hasEmptyFields = /,,/.test(sampleLine);
@@ -545,13 +559,17 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
   // Detect format
   const firstLine = lines[0];
   const secondLine = lines[1];
-  const isGoogleMapsFormat = detectGoogleMapsFormat(firstLine);
-  const hasHeaders = !isGoogleMapsFormat && detectHasHeaders(firstLine, secondLine);
+  const isReceitaFederal = detectReceitaFederalFormat(lines);
+  const isGoogleMapsFormat = !isReceitaFederal && detectGoogleMapsFormat(firstLine);
+  const hasHeaders = !isGoogleMapsFormat && !isReceitaFederal && detectHasHeaders(firstLine, secondLine);
   
   let columnPattern: "google-maps" | "standard" | "custom" = "standard";
   if (isGoogleMapsFormat) {
     columnPattern = "google-maps";
     warnings.push("Formato Google Maps detectado. Usando parser inteligente.");
+  } else if (isReceitaFederal) {
+    columnPattern = "custom";
+    warnings.push("Formato Receita Federal (CNPJ) detectado. Usando parser especializado.");
   }
   
   // Process lines
@@ -784,12 +802,218 @@ function mapWithHeaders(cols: string[], headers: string[]): Partial<StandardLead
 }
 
 /**
+ * Detect if a comma-delimited line is Receita Federal / CNPJ format
+ * Format: FANTASIA,TELEFONE,RAZAO_SOCIAL,CNPJ,CAPITAL,TIPO,PORTE,ATIVIDADE,STATUS,...,LOGRADOURO,NUMERO,COMPLEMENTO,CIDADE,BAIRRO,UF,CEP,...
+ */
+function detectReceitaFederalFormat(lines: string[]): boolean {
+  // Check first few non-empty lines
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const fields = lines[i].split(",");
+    if (fields.length < 10) return false;
+    
+    // Check if field 3 (index 3) looks like a CNPJ (14 digits)
+    const possibleCnpj = (fields[3] || "").trim().replace(/\D/g, "");
+    if (possibleCnpj.length === 14) return true;
+    
+    // Check if field 5 (index 5) is MATRIZ or FILIAL
+    const tipoField = (fields[5] || "").trim().toUpperCase();
+    if (tipoField === "MATRIZ" || tipoField === "FILIAL") return true;
+  }
+  return false;
+}
+
+/**
+ * Parse a Receita Federal / CNPJ format line
+ * The format has variable positions because some fields (like fantasia) can be empty,
+ * causing shifts. We detect fields by content pattern instead of fixed position.
+ * 
+ * Known patterns:
+ * - CNPJ: exactly 14 digits
+ * - Phone: (XX) XXXX-XXXX pattern
+ * - UF: exactly 2 uppercase letters
+ * - TIPO: "MATRIZ" or "FILIAL"
+ * - STATUS: "ATIVA", "BAIXADA", "INAPTA", "SUSPENSA"
+ * - PORTE: "01", "03", "05" or "ME", "EPP", "DEMAIS"
+ * - CAPITAL: numeric value (often large number)
+ * - ATIVIDADE: starts with digits followed by description (CNAE format: "XXXXXXX - Descrição")
+ */
+function parseReceitaFederalLine(cols: string[]): Partial<StandardLead> | null {
+  if (cols.length < 8) return null;
+  
+  let cnpj = "";
+  let telefone = "";
+  let atividade = "";
+  let porte = "";
+  let status = "";
+  let capital = 0;
+  let uf = "";
+  let cidade = "";
+  let bairro = "";
+  let logradouro = "";
+  let numero = "";
+  let complemento = "";
+  let cep = "";
+  let tipo = ""; // MATRIZ/FILIAL
+  
+  // Collect text fields that could be nome/razao_social/fantasia
+  const textFields: Array<{ idx: number; value: string }> = [];
+  
+  for (let i = 0; i < cols.length; i++) {
+    const col = (cols[i] || "").trim();
+    if (!col) continue;
+    
+    const digits = col.replace(/\D/g, "");
+    
+    // CNPJ: exactly 14 digits
+    if (!cnpj && digits.length === 14 && /^\d{14}$/.test(digits)) {
+      cnpj = digits;
+      continue;
+    }
+    
+    // Phone: (XX) XXXX-XXXX or similar
+    if (!telefone && /^\(?\d{2,3}\)?\s*\d{4,5}[-\s]?\d{4}$/.test(col)) {
+      telefone = col;
+      continue;
+    }
+    
+    // UF: exactly 2 uppercase letters (but not common words like "ME", "AL" which could be porte)
+    if (!uf && /^[A-Z]{2}$/.test(col) && i > cols.length / 2) {
+      // UF is typically in the second half of the line (address section)
+      uf = col;
+      // Address fields are relative to UF position
+      // Pattern: ...,LOGRADOURO,NUMERO,COMPLEMENTO,CIDADE,BAIRRO,UF,CEP,...
+      const prev1 = (cols[i - 1] || "").trim(); // BAIRRO (immediately before UF)
+      const prev2 = (cols[i - 2] || "").trim(); // CIDADE
+      const prev3 = (cols[i - 3] || "").trim(); // COMPLEMENTO
+      const prev4 = (cols[i - 4] || "").trim(); // NUMERO
+      const prev5 = (cols[i - 5] || "").trim(); // LOGRADOURO
+      const next1 = (cols[i + 1] || "").trim(); // CEP
+      
+      // In Receita Federal format: CIDADE,BAIRRO,UF,CEP
+      bairro = prev1;
+      cidade = prev2;
+      complemento = prev3;
+      numero = prev4;
+      logradouro = prev5;
+      
+      // CEP after UF
+      const possibleCep = (next1 || "").replace(/\D/g, "");
+      if (possibleCep.length === 8) cep = possibleCep;
+      continue;
+    }
+    
+    // TIPO: MATRIZ or FILIAL
+    if (!tipo && (col === "MATRIZ" || col === "FILIAL")) {
+      tipo = col;
+      continue;
+    }
+    
+    // STATUS: ATIVA, BAIXADA, INAPTA, SUSPENSA
+    if (!status && /^(ATIVA|BAIXADA|INAPTA|SUSPENSA|NULA)$/i.test(col)) {
+      status = col;
+      continue;
+    }
+    
+    // PORTE: 01, 03, 05 or text
+    if (!porte && /^(0[1-9]|ME|EPP|DEMAIS|MICRO|PEQUENO|MEDIO|GRANDE)$/i.test(col)) {
+      porte = col;
+      continue;
+    }
+    
+    // ATIVIDADE: CNAE format "XXXXXXX - Descrição" or just long text with dash
+    if (!atividade && /^\d{5,7}\s*-\s*.+/.test(col)) {
+      atividade = col;
+      continue;
+    }
+    
+    // CAPITAL: pure number (often 5-10 digits)
+    if (!capital && /^\d+$/.test(col) && col.length >= 4 && col.length <= 12) {
+      capital = parseInt(col, 10);
+      continue;
+    }
+    
+    // Date fields: DD/MM/YYYY - skip
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(col)) continue;
+    
+    // Remaining text fields (potential nome/razao_social)
+    if (col.length >= 3 && !/^\d+$/.test(col)) {
+      textFields.push({ idx: i, value: col });
+    }
+  }
+  
+  // Determine nome and razao_social from text fields
+  // In Receita Federal format, the first text fields are typically:
+  // - fantasia (can be empty)
+  // - razao_social (always present, usually longer)
+  let fantasia = "";
+  let razaoSocial = "";
+  
+  // Find the index of the CNPJ field in the original cols array
+  let cnpjIdx = -1;
+  if (cnpj) {
+    for (let i = 0; i < cols.length; i++) {
+      if ((cols[i] || "").trim().replace(/\D/g, "") === cnpj) {
+        cnpjIdx = i;
+        break;
+      }
+    }
+  }
+  
+  if (textFields.length >= 1) {
+    // Text fields before CNPJ are nome/fantasia/razao_social
+    const beforeCnpj = cnpjIdx >= 0 
+      ? textFields.filter(f => f.idx < cnpjIdx) 
+      : textFields.slice(0, 2);
+    
+    if (beforeCnpj.length >= 2) {
+      fantasia = beforeCnpj[0].value;
+      razaoSocial = beforeCnpj[1].value;
+    } else if (beforeCnpj.length === 1) {
+      // Only one text field before CNPJ - it's the razao_social
+      razaoSocial = beforeCnpj[0].value;
+    } else {
+      // No text fields before CNPJ (shouldn't happen, but fallback)
+      razaoSocial = textFields[0].value;
+    }
+  }
+  
+  const nome = fantasia || razaoSocial;
+  if (!nome || nome.length < 2) return null;
+  
+  return {
+    nome,
+    fantasia: fantasia || undefined,
+    razao_social: razaoSocial || undefined,
+    telefone: telefone || undefined,
+    cnpj: cnpj.length === 14 ? cnpj : undefined,
+    capital_social: capital,
+    porte: porte || undefined,
+    atividade: atividade || undefined,
+    status: status === "ATIVA" ? "Novo" : status || undefined,
+    cidade: cidade || undefined,
+    bairro: bairro || undefined,
+    uf: uf || undefined,
+    cep: cep && cep.length === 8 ? cep : undefined,
+    raw: { logradouro, numero, complemento, tipo, source_format: "receita-federal" },
+  };
+}
+
+/**
  * Map columns by position (fallback when no headers)
  */
 function mapByPosition(cols: string[]): Partial<StandardLead> | null {
-  if (cols.length === 0 || !cols[0]) return null;
+  if (cols.length === 0) return null;
   
-  // Best effort positional mapping
+  // If 10+ fields, try Receita Federal format (handles empty first field)
+  if (cols.length >= 10) {
+    const rfResult = parseReceitaFederalLine(cols);
+    if (rfResult) return rfResult;
+  }
+  
+  // For short lines, require first column to have content
+  if (!cols[0]) return null;
+  
+  // Best effort positional mapping for short lines
   const [nome, telefone, ...rest] = cols;
   
   return {
