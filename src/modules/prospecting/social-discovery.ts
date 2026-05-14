@@ -1,5 +1,5 @@
 import { ProspectLead, SocialDiscoveryData, SocialDiscoveryStatus } from './types';
-import { apifyInstagramProfile } from '../../server/enrichment-paid-providers';
+import { apifyInstagramProfile } from '../../services/enrichment-paid-providers';
 import { logger } from '../../lib/logger';
 
 /**

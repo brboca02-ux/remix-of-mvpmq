@@ -122,13 +122,13 @@ import { analyzePageSpeed as analyzePageSpeedFn } from '../../lib/pagespeed.func
 
 const hunterFindEmails = createServerFn({ method: "POST" })
   .handler(async (ctx: any) => {
-    const { hunterFindEmails: fn } = await import('../../server/enrichment-paid-providers');
+    const { hunterFindEmails: fn } = await import('../../services/enrichment-paid-providers');
     return fn(ctx.data);
   });
 
 const builtWithLookup = createServerFn({ method: "POST" })
   .handler(async (ctx: any) => {
-    const { builtWithLookup: fn } = await import('../../server/enrichment-paid-providers');
+    const { builtWithLookup: fn } = await import('../../services/enrichment-paid-providers');
     return fn(ctx.data);
   });
 
