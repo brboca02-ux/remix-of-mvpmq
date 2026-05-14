@@ -458,6 +458,23 @@ export const LeadCard: React.FC<LeadCardProps> = ({
     
     const badges: React.ReactNode[] = [];
 
+    // Indicadores do buscador (Enriquecido / Digital)
+    if (lead.is_enriched) {
+      badges.push(
+        <Badge key="enriched" variant="outline" className={cn(commonClasses, "bg-violet-50 text-violet-700 border-violet-200")}>
+          <Sparkles className="h-3 w-3 fill-violet-500/20" /> Enriquecido
+        </Badge>
+      );
+    }
+
+    if (lead.digitalLevel) {
+      badges.push(
+        <Badge key="digital" variant="outline" className={cn(commonClasses, getDigitalBadgeClass(lead.digitalLevel))}>
+          <TrendingUp className="h-3 w-3" /> Digital {lead.digitalScore?.toFixed(1)}
+        </Badge>
+      );
+    }
+
     // Prioridade 1: Inativos
     if (contactStatus === 'Lead descartado') {
       badges.push(<Badge key="discard" variant="outline" className={cn(commonClasses, "bg-slate-100 text-slate-400 border-slate-200")}><Ban className="h-3 w-3" /> Descartado</Badge>);
