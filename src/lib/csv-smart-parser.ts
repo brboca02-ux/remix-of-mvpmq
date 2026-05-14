@@ -858,96 +858,110 @@ function parseReceitaFederalLine(cols: string[]): Partial<StandardLead> | null {
   let complemento = "";
   let cep = "";
   let tipo = ""; // MATRIZ/FILIAL
+  let fantasia = "";
+  let razaoSocial = "";
   
-  // Collect text fields that could be nome/razao_social/fantasia
-  const textFields: Array<{ idx: number; value: string }> = [];
+  // No formato da imagem/descrição:
+  // FANTASIA, TELEFONE, RAZAO_SOCIAL, CNPJ, CAPITAL, TIPO, PORTE, ATIVIDADE, STATUS, ..., CIDADE, BAIRRO, UF, CEP
+  // O campo fantasia frequentemente vem vazio (linha começa com ,)
   
-  for (let i = 0; i < cols.length; i++) {
+  // CNPJ em campo 3 (index 3) - padrão forte
+  const possibleCnpj = (cols[3] || "").trim().replace(/\D/g, "");
+  if (possibleCnpj.length === 14) cnpj = possibleCnpj;
+
+  // Se o campo fantasia (index 0) estiver preenchido, usamos ele
+  if (cols[0] && cols[0].trim().length >= 2) {
+    fantasia = cols[0].trim();
+  }
+
+  // Razão Social (index 2)
+  if (cols[2] && cols[2].trim().length >= 2) {
+    razaoSocial = cols[2].trim();
+  }
+
+  // Telefone (index 1)
+  if (cols[1] && cols[1].trim()) {
+    telefone = cols[1].trim();
+  }
+
+  // Capital (index 4)
+  if (cols[4] && /^\d+$/.test(cols[4].trim())) {
+    capital = parseInt(cols[4].trim(), 10);
+  }
+
+  // Tipo: MATRIZ/FILIAL (index 5)
+  if (cols[5] && /MATRIZ|FILIAL/i.test(cols[5])) {
+    tipo = cols[5].trim().toUpperCase();
+  }
+
+  // Porte (index 6): 01=Micro, 03=Pequena, 05=Demais
+  if (cols[6]) {
+    const p = cols[6].trim();
+    if (p === "01") porte = "Micro";
+    else if (p === "03") porte = "Pequena";
+    else if (p === "05") porte = "Grande";
+    else porte = p;
+  }
+
+  // Atividade (index 7): XXXXXXX - Descrição
+  if (cols[7]) {
+    atividade = cols[7].trim();
+  }
+
+  // Status (index 8): ATIVA, BAIXADA, INAPTA
+  if (cols[8]) {
+    status = cols[8].trim().toUpperCase();
+  }
+
+  // Busca reversa para endereço no final da linha: ..., CIDADE, BAIRRO, UF, CEP
+  // CEP costuma ser 8 dígitos
+  for (let i = cols.length - 1; i >= 8; i--) {
     const col = (cols[i] || "").trim();
-    if (!col) continue;
-    
-    const digits = col.replace(/\D/g, "");
-    
-    // CNPJ: exactly 14 digits
-    if (!cnpj && digits.length === 14 && /^\d{14}$/.test(digits)) {
-      cnpj = digits;
-      continue;
+    const clean = col.replace(/\D/g, "");
+    if (clean.length === 8 && !cep) {
+      cep = clean;
+      uf = (cols[i-1] || "").trim().toUpperCase();
+      bairro = (cols[i-2] || "").trim();
+      cidade = (cols[i-3] || "").trim();
+      break;
     }
-    
-    // Phone: (XX) XXXX-XXXX or similar
-    if (!telefone && /^\(?\d{2,3}\)?\s*\d{4,5}[-\s]?\d{4}$/.test(col)) {
-      telefone = col;
-      continue;
-    }
-    
-    // UF: exactly 2 uppercase letters (but not common words like "ME", "AL" which could be porte)
-    if (!uf && /^[A-Z]{2}$/.test(col) && i > cols.length / 2) {
-      // UF is typically in the second half of the line (address section)
-      uf = col;
-      // Address fields are relative to UF position
-      // Pattern: ...,LOGRADOURO,NUMERO,COMPLEMENTO,CIDADE,BAIRRO,UF,CEP,...
-      const prev1 = (cols[i - 1] || "").trim(); // BAIRRO (immediately before UF)
-      const prev2 = (cols[i - 2] || "").trim(); // CIDADE
-      const prev3 = (cols[i - 3] || "").trim(); // COMPLEMENTO
-      const prev4 = (cols[i - 4] || "").trim(); // NUMERO
-      const prev5 = (cols[i - 5] || "").trim(); // LOGRADOURO
-      const next1 = (cols[i + 1] || "").trim(); // CEP
-      
-      // In Receita Federal format: CIDADE,BAIRRO,UF,CEP
-      bairro = prev1;
-      cidade = prev2;
-      complemento = prev3;
-      numero = prev4;
-      logradouro = prev5;
-      
-      // CEP after UF
-      const possibleCep = (next1 || "").replace(/\D/g, "");
-      if (possibleCep.length === 8) cep = possibleCep;
-      continue;
-    }
-    
-    // TIPO: MATRIZ or FILIAL
-    if (!tipo && (col === "MATRIZ" || col === "FILIAL")) {
-      tipo = col;
-      continue;
-    }
-    
-    // STATUS: ATIVA, BAIXADA, INAPTA, SUSPENSA
-    if (!status && /^(ATIVA|BAIXADA|INAPTA|SUSPENSA|NULA)$/i.test(col)) {
-      status = col;
-      continue;
-    }
-    
-    // PORTE: 01, 03, 05 or text
-    if (!porte && /^(0[1-9]|ME|EPP|DEMAIS|MICRO|PEQUENO|MEDIO|GRANDE)$/i.test(col)) {
-      porte = col;
-      continue;
-    }
-    
-    // ATIVIDADE: CNAE format "XXXXXXX - Descrição" or just long text with dash
-    if (!atividade && /^\d{5,7}\s*-\s*.+/.test(col)) {
-      atividade = col;
-      continue;
-    }
-    
-    // CAPITAL: pure number (often 5-10 digits)
-    if (!capital && /^\d+$/.test(col) && col.length >= 4 && col.length <= 12) {
-      capital = parseInt(col, 10);
-      continue;
-    }
-    
-    // Date fields: DD/MM/YYYY - skip
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(col)) continue;
-    
-    // Remaining text fields (potential nome/razao_social)
-    if (col.length >= 3 && !/^\d+$/.test(col)) {
-      textFields.push({ idx: i, value: col });
+  }
+
+  // Se não encontrou pelo CEP, tenta pela UF (2 letras)
+  if (!uf) {
+    for (let i = cols.length - 1; i >= 8; i--) {
+      const col = (cols[i] || "").trim();
+      if (col.length === 2 && /^[A-Z]{2}$/.test(col)) {
+        uf = col;
+        bairro = (cols[i-1] || "").trim();
+        cidade = (cols[i-2] || "").trim();
+        const next = (cols[i+1] || "").trim().replace(/\D/g, "");
+        if (next.length === 8) cep = next;
+        break;
+      }
     }
   }
   
-  // Determine nome and razao_social from text fields
-  // In Receita Federal format, the first text fields are typically:
-  // - fantasia (can be empty)
+  return {
+    nome: fantasia || razaoSocial || cnpj || "Empresa Importada",
+    fantasia: fantasia || undefined,
+    razao_social: razaoSocial || undefined,
+    cnpj: cnpj || undefined,
+    telefone: telefone || undefined,
+    atividade: atividade || undefined,
+    porte: porte || undefined,
+    status: status || undefined,
+    cidade: cidade || undefined,
+    uf: uf || undefined,
+    cep: cep || undefined,
+    capital_social: capital || undefined,
+    raw: {
+      tipo,
+      bairro,
+      original_line_length: cols.length
+    }
+  };
+}
   // - razao_social (always present, usually longer)
   let fantasia = "";
   let razaoSocial = "";
