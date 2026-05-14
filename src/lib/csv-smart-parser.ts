@@ -1018,7 +1018,6 @@ function parseReceitaFederalLine(cols: string[]): Partial<StandardLead> | null {
     cep: cep && cep.length === 8 ? cep : undefined,
     raw: { logradouro, numero, complemento, tipo, source_format: "receita-federal" },
   };
-}
 
 /**
  * Map columns by position (fallback when no headers)
