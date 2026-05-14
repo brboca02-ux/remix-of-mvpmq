@@ -953,8 +953,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
           {/* Contact Chips Section */}
           <div className="flex flex-wrap gap-2 pt-1">
             {lead.whatsapp && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[11px] font-bold shadow-sm">
-                <Phone className="h-3 w-3" /> {lead.whatsapp}
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[12px] font-bold shadow-sm">
+                <Phone className="h-3.5 w-3.5" /> {lead.whatsapp}
               </div>
             )}
             
@@ -967,13 +967,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 }}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-50 border border-pink-100/50 text-pink-700 text-[11px] font-bold shadow-sm hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-50 border border-pink-100/50 text-pink-700 text-[12px] font-bold shadow-sm hover:scale-105 transition-all"
               >
-                <Instagram className="h-3 w-3" /> @{lead.instagramHandle || lead.socialDiscovery?.instagramHandle}
+                <Instagram className="h-3.5 w-3.5" /> @{lead.instagramHandle || lead.socialDiscovery?.instagramHandle}
               </a>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[10px] font-bold opacity-60">
-                <Instagram className="h-3 w-3" /> Instagram N/A
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[11px] font-bold opacity-60">
+                <Instagram className="h-3.5 w-3.5" /> Instagram N/A
               </div>
             )}
 
@@ -983,13 +983,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 onClick={(e) => { e.stopPropagation(); navigationService.openExternal(lead.websiteUrl || ''); }}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[11px] font-bold shadow-sm hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[12px] font-bold shadow-sm hover:scale-105 transition-all"
               >
-                <Globe className="h-3 w-3" /> Ver Site
+                <Globe className="h-3.5 w-3.5" /> Ver Site
               </a>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold shadow-sm">
-                <AlertCircle className="h-3 w-3" /> Sem Site
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold shadow-sm">
+                <AlertCircle className="h-3.5 w-3.5" /> Sem Site
               </div>
             )}
           </div>
