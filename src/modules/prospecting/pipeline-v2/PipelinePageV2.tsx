@@ -5,6 +5,7 @@ import { FocusSurface } from './components/FocusSurface';
 import { toLeadRow, mapStatusToStage } from './pipeline-utils';
 import { STAGE_ORDER } from './types';
 import type { PipelineStage, LeadRowData } from './types';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export function PipelinePageV2() {
   const leads = useProspectingStore((s) => s.leads);
@@ -21,8 +22,12 @@ export function PipelinePageV2() {
     };
 
     for (const lead of leads) {
-      const row = toLeadRow(lead);
-      grouped[row.stage].push(row);
+      try {
+        const row = toLeadRow(lead);
+        grouped[row.stage].push(row);
+      } catch {
+        // Skip malformed leads
+      }
     }
 
     return grouped;
@@ -67,10 +72,12 @@ export function PipelinePageV2() {
 
         {/* Focus Surface (lateral) */}
         {activeLeadId && (
-          <FocusSurface
-            leadId={activeLeadId}
-            onClose={handleCloseFocus}
-          />
+          <ErrorBoundary>
+            <FocusSurface
+              leadId={activeLeadId}
+              onClose={handleCloseFocus}
+            />
+          </ErrorBoundary>
         )}
       </div>
     </div>

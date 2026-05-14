@@ -17,7 +17,6 @@ interface FocusSurfaceProps {
 export function FocusSurface({ leadId, onClose }: FocusSurfaceProps) {
   const leads = useProspectingStore((s) => s.leads);
   const discardLead = useProspectingStore((s) => s.discardLead);
-  const markNoInterest = useProspectingStore((s) => s.markNoInterest);
   const addContactHistory = useProspectingStore((s) => s.addContactHistory);
 
   const lead = useMemo(() => leads.find((l) => l.id === leadId), [leads, leadId]);
@@ -27,23 +26,26 @@ export function FocusSurface({ leadId, onClose }: FocusSurfaceProps) {
 
   const handleAction = useCallback((action: QuickAction) => {
     if (!lead) return;
-    switch (action) {
-      case 'whatsapp':
-      case 'instagram':
-      case 'email':
-        addContactHistory(lead.id, {
-          channel: action === 'whatsapp' ? 'WhatsApp' : action === 'instagram' ? 'Instagram' : 'Email',
-          status: 'confirmado',
-          message: lead.autonomousDecision?.readyMessage || '',
-        });
-        break;
-      case 'skip':
-        break;
-      case 'discard':
-        discardLead(lead.id, 'Pipeline V2 - descartado');
-        break;
+    try {
+      switch (action) {
+        case 'whatsapp':
+        case 'instagram':
+        case 'email':
+          addContactHistory(lead.id, {
+            channel: action === 'whatsapp' ? 'WhatsApp' : action === 'instagram' ? 'Instagram' : 'Email',
+            status: 'confirmado',
+            message: lead.autonomousDecision?.readyMessage || '',
+          });
+          break;
+        case 'skip':
+          break;
+        case 'discard':
+          discardLead(lead.id, 'Pipeline V2 - descartado');
+          break;
+      }
+    } catch (err) {
+      console.error('[FocusSurface] Error executing action:', err);
     }
-    // Avançar para próximo (handled by parent)
     onClose();
   }, [lead, addContactHistory, discardLead, onClose]);
 
