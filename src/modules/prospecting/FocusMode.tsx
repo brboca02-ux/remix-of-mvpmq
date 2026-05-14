@@ -20,8 +20,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../compo
 import { CONVERSATION_ROADMAP, getNextStage, CLOSING_SCRIPTS } from './conversation-roadmap';
 import { LeadPlaybook } from './LeadPlaybook';
 import { AutonomousDecisionLayer } from './components/AutonomousDecisionLayer';
-import { AnimatedCurrency, AnimatedPercent, AnimatedValue } from "@/components/ui/animated-value";
-import { LiveProgress } from "@/components/ui/live-progress";
+import { AnimatedCurrency, AnimatedPercent, AnimatedValue } from "../../components/ui/animated-value";
+import { LiveProgress } from "../../components/ui/live-progress";
 
 export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { 
