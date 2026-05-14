@@ -279,19 +279,19 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
       </div>
 
       {/* Drop Zone para Perdido */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 px-4 pt-4 border-t border-slate-100/60 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2 pt-4 border-t border-slate-100/60 mt-2">
         <div 
-          className="group relative flex flex-col items-center justify-center py-7 px-8 rounded-[2rem] border-2 border-dashed border-rose-100 bg-rose-50/20 transition-all hover:bg-rose-50 hover:border-rose-300 cursor-default overflow-hidden"
+          className="group relative flex flex-col items-center justify-center py-4 px-6 rounded-2xl border-2 border-dashed border-rose-100 bg-rose-50/20 transition-all hover:bg-rose-50 hover:border-rose-300 cursor-default overflow-hidden"
           onDragOver={(e) => {
             e.preventDefault();
-            e.currentTarget.classList.add('bg-rose-200/50', 'border-rose-500', 'scale-[1.02]');
+            e.currentTarget.classList.add('bg-rose-200/50', 'border-rose-500', 'scale-[1.01]');
           }}
           onDragLeave={(e) => {
-            e.currentTarget.classList.remove('bg-rose-200/50', 'border-rose-500', 'scale-[1.02]');
+            e.currentTarget.classList.remove('bg-rose-200/50', 'border-rose-500', 'scale-[1.01]');
           }}
           onDrop={(e) => {
             e.preventDefault();
-            e.currentTarget.classList.remove('bg-rose-200/50', 'border-rose-500', 'scale-[1.02]');
+            e.currentTarget.classList.remove('bg-rose-200/50', 'border-rose-500', 'scale-[1.01]');
             const leadId = e.dataTransfer.getData('leadId');
             if (leadId) {
               setPendingLeadId(leadId);
@@ -299,25 +299,25 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
             }
           }}
         >
-          <div className="p-3.5 rounded-2xl bg-white shadow-lg shadow-rose-200/40 mb-3 group-hover:scale-110 transition-transform duration-300">
-            <Trash2 className="h-5 w-5 text-rose-500" />
+          <div className="p-2 rounded-xl bg-white shadow-md shadow-rose-200/40 mb-2 group-hover:scale-110 transition-transform duration-300">
+            <Trash2 className="h-4 w-4 text-rose-500" />
           </div>
-          <h3 className="text-xs font-black text-rose-900 uppercase tracking-widest">Descartar Lead</h3>
-          <p className="text-[10px] text-rose-600/60 font-bold mt-1">Solte aqui para arquivar</p>
+          <h3 className="text-[10px] font-black text-rose-900 uppercase tracking-widest">Descartar Lead</h3>
+          <p className="text-[8px] text-rose-600/60 font-bold mt-0.5">Solte aqui para arquivar</p>
         </div>
 
         <div 
-          className="group relative flex flex-col items-center justify-center py-7 px-8 rounded-[2rem] border-2 border-dashed border-amber-100 bg-amber-50/20 transition-all hover:bg-amber-50 hover:border-amber-300 cursor-default overflow-hidden"
+          className="group relative flex flex-col items-center justify-center py-4 px-6 rounded-2xl border-2 border-dashed border-amber-100 bg-amber-50/20 transition-all hover:bg-amber-50 hover:border-amber-300 cursor-default overflow-hidden"
           onDragOver={(e) => {
             e.preventDefault();
-            e.currentTarget.classList.add('bg-amber-200/50', 'border-amber-500', 'scale-[1.02]');
+            e.currentTarget.classList.add('bg-amber-200/50', 'border-amber-500', 'scale-[1.01]');
           }}
           onDragLeave={(e) => {
-            e.currentTarget.classList.remove('bg-amber-200/50', 'border-amber-500', 'scale-[1.02]');
+            e.currentTarget.classList.remove('bg-amber-200/50', 'border-amber-500', 'scale-[1.01]');
           }}
           onDrop={(e) => {
             e.preventDefault();
-            e.currentTarget.classList.remove('bg-amber-200/50', 'border-amber-500', 'scale-[1.02]');
+            e.currentTarget.classList.remove('bg-amber-200/50', 'border-amber-500', 'scale-[1.01]');
             const leadId = e.dataTransfer.getData('leadId');
             if (leadId) {
               setPendingLeadId(leadId);
@@ -325,11 +325,11 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
             }
           }}
         >
-          <div className="p-3.5 rounded-2xl bg-white shadow-lg shadow-amber-200/40 mb-3 group-hover:scale-110 transition-transform duration-300">
-            <UserMinus className="h-5 w-5 text-amber-500" />
+          <div className="p-2 rounded-xl bg-white shadow-md shadow-amber-200/40 mb-2 group-hover:scale-110 transition-transform duration-300">
+            <UserMinus className="h-4 w-4 text-amber-500" />
           </div>
-          <h3 className="text-xs font-black text-amber-900 uppercase tracking-widest text-center">Cliente Sem Interesse</h3>
-          <p className="text-[10px] text-amber-600/60 font-bold mt-1">Solte aqui para encerrar contato</p>
+          <h3 className="text-[10px] font-black text-amber-900 uppercase tracking-widest text-center">Sem Interesse</h3>
+          <p className="text-[8px] text-amber-600/60 font-bold mt-0.5">Solte aqui para encerrar</p>
         </div>
       </div>
 
