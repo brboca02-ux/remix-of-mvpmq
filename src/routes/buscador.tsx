@@ -342,7 +342,6 @@ function BuscadorPage() {
                   setIsImporting(true); 
                   setFilter(prev => ({ ...prev, inPipeline: false })); // Sugere filtrar apenas novos ao abrir
                 }}
-                }}
               >
                 <Sparkles className="h-4 w-4" />
                 Buscar até 100+ empresas no Google
