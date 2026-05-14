@@ -247,7 +247,7 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
   if (!lead) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center min-h-0 px-4 sm:px-8 pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] overflow-y-auto selection:bg-primary/30 [scrollbar-gutter:stable]">
+    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center min-h-0 px-4 sm:px-6 pt-4 pb-[calc(4rem+env(safe-area-inset-bottom))] overflow-y-auto selection:bg-primary/30 [scrollbar-gutter:stable]">
       <AnimatePresence>
         {perfectMomentAlert && (
           <motion.div 
@@ -262,7 +262,7 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
         )}
       </AnimatePresence>
 
-      <div className="w-full max-w-6xl h-fit min-h-0 flex flex-col gap-10 animate-in fade-in duration-700 relative">
+      <div className="w-full max-w-6xl h-fit min-h-0 flex flex-col gap-5 animate-in fade-in duration-500 relative">
         <AnimatePresence>
           {showRhythmWarning && (
             <motion.div
@@ -280,79 +280,68 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
           )}
         </AnimatePresence>
 
-        <div className="flex items-center justify-between text-white border-b border-white/5 pb-6">
-          <div className="flex items-center gap-8">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Progresso de Execução</span>
-              <div className="flex items-center gap-4">
-                <LiveProgress
-                  value={(processedToday / Math.max(plan.summary.newContacts + 10, 1)) * 100}
-                  tone={plan.status === 'emergency' ? 'destructive' : 'primary'}
-                  height="sm"
-                  className="w-48"
-                />
-                <span className="text-xs font-mono font-bold tracking-tighter">
-                  <AnimatedValue value={processedToday} pulseColor="primary" /> <span className="text-muted-foreground">/</span> {plan.summary.newContacts + (plan.adjustment?.requiredDailyIncrease || 0)}
-                </span>
-              </div>
+        <div className="flex items-center justify-between text-white border-b border-white/5 pb-3">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <LiveProgress
+                value={(processedToday / Math.max(plan.summary.newContacts + 10, 1)) * 100}
+                tone={plan.status === 'emergency' ? 'destructive' : 'primary'}
+                height="sm"
+                className="w-32"
+              />
+              <span className="text-[10px] font-mono font-semibold tabular-nums text-muted-foreground">
+                <AnimatedValue value={processedToday} pulseColor="primary" />/{plan.summary.newContacts + (plan.adjustment?.requiredDailyIncrease || 0)}
+              </span>
             </div>
-            <div className="h-8 w-px bg-white/10 hidden md:block" />
-            <div className="hidden md:flex flex-col gap-1">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Status da Meta</span>
-              <Badge variant="outline" className={cn(
-                "font-black uppercase tracking-widest border-none p-0 h-auto",
-                plan.status === 'emergency' ? "text-destructive animate-pulse" : "text-success"
-              )}>
-                {plan.status === 'emergency' ? 'Modo Emergência' : (plan.summary.chanceOfHittingGoal === 'Alta' ? 'Meta Provável' : 'Meta em Risco')}
-              </Badge>
-            </div>
+            <span className={cn(
+              "text-[10px] font-semibold uppercase tracking-wider hidden md:inline",
+              plan.status === 'emergency' ? "text-destructive" : "text-emerald-400/70"
+            )}>
+              {plan.status === 'emergency' ? 'Emergência' : (plan.summary.chanceOfHittingGoal === 'Alta' ? 'Meta Provável' : 'Meta em Risco')}
+            </span>
           </div>
-          <Button variant="ghost" onClick={onClose} size="icon" className="text-white hover:bg-white/5 rounded-full transition-transform hover:rotate-90">
-            <X className="h-5 w-5" />
+          <Button variant="ghost" onClick={onClose} size="icon" className="text-white/60 hover:text-white hover:bg-white/5 rounded-full h-8 w-8">
+            <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-10 min-h-0">
-          <div className="xl:col-span-8 flex flex-col gap-6 lg:gap-10 min-h-0">
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-4 lg:gap-6 min-h-0">
+          <div className="xl:col-span-8 flex flex-col gap-4 min-h-0">
             {/* MODO PESQUISA MANUAL GUIADA */}
-            <div className="bg-card/40 border border-white/10 p-5 sm:p-6 rounded-3xl backdrop-blur-xl relative overflow-hidden group">
-              <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="p-2 bg-primary/10 rounded-lg shrink-0">
-                    <ShieldCheck className="w-5 h-5 text-primary" aria-hidden="true" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white">Prospecção Segura (Anti-Bloqueio)</h3>
-                    <p className="text-xs text-muted-foreground font-medium">Siga as etapas para garantir a melhor conversão e segurança</p>
-                  </div>
+            <div className="bg-card/30 border border-white/[0.06] p-4 rounded-xl relative overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShieldCheck className="w-4 h-4 text-primary/70 shrink-0" aria-hidden="true" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">Prospecção Segura</h3>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider",
-                    lead.warmupStatus === 'Pronto' ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
-                    lead.warmupStatus === 'Morno' ? "bg-amber-500/15 border-amber-500/40 text-amber-300" :
-                    "bg-rose-500/15 border-rose-500/40 text-rose-300"
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                    lead.warmupStatus === 'Pronto' ? "bg-emerald-500/10 text-emerald-400" :
+                    lead.warmupStatus === 'Morno' ? "bg-amber-500/10 text-amber-400" :
+                    "bg-rose-500/10 text-rose-400"
                   )}>
-                    <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-                    Modo {lead.warmupStatus === 'Pronto' ? 'Seguro' : lead.warmupStatus === 'Morno' ? 'Atenção' : 'Risco'}
-                  </div>
-                  <div className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold tabular-nums",
-                    analysisTimer < 15 ? "bg-amber-500/10 border-amber-500/30 text-amber-300" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                    {lead.warmupStatus === 'Pronto' ? 'Seguro' : lead.warmupStatus === 'Morno' ? 'Atenção' : 'Risco'}
+                  </span>
+                  <span className={cn(
+                    "text-[10px] font-mono tabular-nums",
+                    analysisTimer < 15 ? "text-amber-400/70" : "text-emerald-400/70"
                   )}>
-                    <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-                    {analysisTimer}s análise
-                  </div>
+                    {analysisTimer}s
+                  </span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-3">
                 {[
-                  { key: 'companyExists', label: 'Empresa existe?', icon: Building2 },
-                  { key: 'activeInstagram', label: 'Instagram Ativo?', icon: Instagram },
-                  { key: 'hasWebsite', label: 'Tem Site Próprio?', icon: Globe },
-                  { key: 'isRecentlyActive', label: 'Parece Ativo?', icon: Zap },
-                  { key: 'worthContacting', label: 'Vale Contato?', icon: Target },
+                  { key: 'companyExists', label: 'Empresa', icon: Building2 },
+                  { key: 'activeInstagram', label: 'Instagram', icon: Instagram },
+                  { key: 'hasWebsite', label: 'Site', icon: Globe },
+                  { key: 'isRecentlyActive', label: 'Ativo', icon: Zap },
+                  { key: 'worthContacting', label: 'Vale contato', icon: Target },
+                  { key: 'instagramFollowed', label: 'Seguiu', icon: Instagram },
+                  { key: 'instagramLiked', label: 'Curtiu', icon: Zap },
+                  { key: 'instagramPostsSeen', label: 'Viu posts', icon: History },
                 ].map((item) => {
                   const isChecked = lead.manualAnalysis?.[item.key as keyof typeof lead.manualAnalysis];
                   const Icon = item.icon;
@@ -364,81 +353,40 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                         updateManualAnalysis(lead.id, { [item.key]: !isChecked });
                       }}
                       className={cn(
-                        "flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 text-left group/btn",
+                        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left",
                         isChecked 
-                          ? "bg-emerald-500/10 border-emerald-500/50 text-white shadow-[0_0_20px_rgba(16,185,129,0.1)]" 
-                          : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20 hover:bg-white/10"
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-white" 
+                          : "bg-white/[0.02] border-white/[0.06] text-muted-foreground hover:border-white/15"
                       )}
                     >
-                      <div className={cn(
-                        "p-2 rounded-xl transition-colors",
-                        isChecked ? "bg-emerald-500 text-white" : "bg-white/5 text-muted-foreground"
-                      )}>
-                        {isChecked ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                      </div>
-                      <span className="text-xs font-bold">{item.label}</span>
-                    </button>
-                  );
-                })}
-                {/* Extensão do Checklist para Redes Sociais */}
-                {[
-                  { key: 'instagramFollowed', label: 'Seguiu no Insta?', icon: Instagram },
-                  { key: 'instagramLiked', label: 'Curtiu Posts?', icon: Zap },
-                  { key: 'instagramPostsSeen', label: 'Viu Conteúdo?', icon: History },
-                ].map((item) => {
-                  const isChecked = lead.manualAnalysis?.[item.key as keyof typeof lead.manualAnalysis];
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => {
-                        if (!checkRhythm()) return;
-                        updateManualAnalysis(lead.id, { [item.key]: !isChecked });
-                      }}
-                      className={cn(
-                        "flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 text-left group/btn",
-                        isChecked 
-                          ? "bg-primary/10 border-primary/50 text-white shadow-[0_0_20px_rgba(var(--primary),0.1)]" 
-                          : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20 hover:bg-white/10"
-                      )}
-                    >
-                      <div className={cn(
-                        "p-2 rounded-xl transition-colors",
-                        isChecked ? "bg-primary text-white" : "bg-white/5 text-muted-foreground"
-                      )}>
-                        {isChecked ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="w-4 h-4" />}
-                      </div>
-                      <span className="text-xs font-bold">{item.label}</span>
+                      {isChecked ? <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" /> : <Icon className="w-3 h-3 shrink-0" />}
+                      <span className="text-[10px] font-medium truncate">{item.label}</span>
                     </button>
                   );
                 })}
               </div>
 
-              <div className="flex flex-wrap gap-4 pt-6 border-t border-white/5">
+              <div className="flex flex-wrap gap-2">
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
                   onClick={() => handleManualSearch('google')}
-                  className="bg-white/5 border-white/10 hover:bg-white/10 rounded-xl h-12 px-6 gap-2"
+                  className="h-7 px-3 text-[10px] font-semibold gap-1.5 text-muted-foreground hover:text-white"
                 >
-                  <Search className="w-4 h-4" />
-                  <span className="text-xs font-black uppercase tracking-widest">Pesquisar no Google</span>
+                  <Search className="w-3 h-3" /> Google
                 </Button>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
                   onClick={() => handleManualSearch('instagram')}
-                  className="bg-white/5 border-white/10 hover:bg-white/10 rounded-xl h-12 px-6 gap-2"
+                  className="h-7 px-3 text-[10px] font-semibold gap-1.5 text-muted-foreground hover:text-white"
                 >
-                  <Instagram className="w-4 h-4" />
-                  <span className="text-xs font-black uppercase tracking-widest">Validar no Instagram</span>
+                  <Instagram className="w-3 h-3" /> Instagram
                 </Button>
-                
                 {analysisTimer < 10 && (
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-amber-500 animate-in fade-in slide-in-from-left-4">
-                    <AlertCircle className="w-3 h-3" />
-                    <span>Recomendado: Analisar por pelo menos 15 segundos</span>
-                  </div>
+                  <span className="text-[10px] text-amber-400/60 self-center ml-2">
+                    Recomendado: +15s de análise
+                  </span>
                 )}
               </div>
             </div>
@@ -446,67 +394,58 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             {/* CAMADA DE DECISÃO AUTÔNOMA GUIADA */}
             <AutonomousDecisionLayer leadId={lead.id} onExecute={handleNext} />
 
-            <div className="flex flex-col gap-2 mb-4">
-              <h2 className="text-4xl font-bold text-white tracking-tighter">{lead.companyName}</h2>
-              <p className="text-muted-foreground font-mono text-sm tracking-tighter">{lead.niche || 'Lead Qualificado'}</p>
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-xl font-bold text-white tracking-tight">{lead.companyName}</h2>
+              <span className="text-xs text-muted-foreground font-mono">{lead.niche || 'Lead'}</span>
             </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-                  <div className="bg-card/30 border border-white/5 p-6 rounded-2xl backdrop-blur-sm group hover:border-success/30 transition-colors">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Valor do Lead</p>
-                    <p className="text-3xl font-mono font-bold text-success">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  <div className="bg-card/20 border border-white/[0.04] p-3 rounded-lg">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-1">Valor</p>
+                    <p className="text-lg font-mono font-bold text-emerald-400/80">
                       <AnimatedCurrency value={lead.estimatedValue || 0} pulseColor="success" />
                     </p>
-                    <p className="text-[9px] text-muted-foreground mt-2 font-medium">Impacto na Meta: <span className="text-success">+2.4%</span></p>
                   </div>
-                  <div className="bg-card/30 border border-white/5 p-6 rounded-2xl backdrop-blur-sm group hover:border-primary/30 transition-colors">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Confiança IA</p>
-                    <p className="text-3xl font-mono font-bold text-primary">
+                  <div className="bg-card/20 border border-white/[0.04] p-3 rounded-lg">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-1">Confiança</p>
+                    <p className="text-lg font-mono font-bold text-primary/80">
                       <AnimatedPercent value={getEmotionalAnalysis(lead.id).confidenceScore || 85} pulseColor="primary" showDelta={false} />
                     </p>
-                    <p className="text-[9px] text-muted-foreground mt-2 font-medium">Precisão Histórica: <span className="text-primary">94.2%</span></p>
                   </div>
-                  <div className="bg-card/30 border border-white/5 p-6 rounded-2xl backdrop-blur-sm group hover:border-accent/30 transition-colors">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Esforço Operacional</p>
-                    <p className="text-3xl font-mono font-bold text-accent uppercase">{getEmotionalAnalysis(lead.id).effortRequired || 'Médio'}</p>
-                    <p className="text-[9px] text-muted-foreground mt-2 font-medium">Tempo Médio: <span className="text-accent">4m 20s</span></p>
+                  <div className="bg-card/20 border border-white/[0.04] p-3 rounded-lg">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-1">Esforço</p>
+                    <p className="text-sm font-bold text-white/70 uppercase">{getEmotionalAnalysis(lead.id).effortRequired || 'Médio'}</p>
                   </div>
-                  <div className="bg-card/30 border border-white/5 p-6 rounded-2xl backdrop-blur-sm group hover:border-white/10 transition-colors flex flex-col justify-center">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Qualidade do Lead</p>
+                  <div className="bg-card/20 border border-white/[0.04] p-3 rounded-lg">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-1">Qualidade</p>
                     <LiveProgress
                       value={getEmotionalAnalysis(lead.id).profitabilityScore || 50}
                       tone="accent"
-                      height="md"
-                      className="mb-2"
+                      height="sm"
                     />
-                    <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-tighter">Alto Potencial de Retenção</p>
                   </div>
                 </div>
           </div>
 
-          <div className="xl:col-span-4 flex flex-col gap-6 min-h-0">
-            <Card className="bg-card border-border rounded-3xl overflow-hidden shadow-2xl border-l-4 border-l-primary flex flex-col min-h-0">
-              <CardHeader className="p-4 sm:p-5 pb-2">
-                {/* Micro-explicações de Educação */}
-                <div className="bg-emerald-500/5 border border-emerald-500/10 p-3 rounded-2xl mb-4">
-                  <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <Info className="w-3 h-3" aria-hidden="true" /> Educação Prospecção Segura
-                  </p>
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-sm font-bold text-white">Por que não abordar direto?</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">Contatos frios sem aquecimento aumentam o risco de denúncia e bloqueio no WhatsApp.</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-white">Por que aguardar melhora resposta?</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">O tempo ideal entre o aquecimento no Instagram e o contato gera uma conexão natural.</p>
-                    </div>
-                  </div>
-                </div>
+          <div className="xl:col-span-4 flex flex-col gap-4 min-h-0">
+            <Card className="bg-card border-border rounded-xl overflow-hidden border-l-2 border-l-primary/50 flex flex-col min-h-0">
+              <CardHeader className="p-3 pb-2">
+                {/* Educação como disclosure */}
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full flex items-center gap-2 text-[10px] text-emerald-400/70 font-semibold uppercase tracking-wider hover:text-emerald-400 transition-colors py-1">
+                    <Info className="w-3 h-3" aria-hidden="true" />
+                    <span>Educação Prospecção Segura</span>
+                    <ChevronDown className="w-3 h-3 ml-auto" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2 space-y-1.5 text-xs text-muted-foreground pb-2">
+                    <p><span className="font-semibold text-white/80">Não abordar direto:</span> Contatos frios aumentam risco de bloqueio.</p>
+                    <p><span className="font-semibold text-white/80">Aguardar resposta:</span> Aquecimento no Instagram gera conexão natural.</p>
+                  </CollapsibleContent>
+                </Collapsible>
 
-                <div className="flex gap-4" role="tablist" aria-label="Modo de estratégia">
-                  <button role="tab" aria-selected={activeStrategyMode === 'playbook'} onClick={() => setActiveStrategyMode('playbook')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'playbook' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>AI Playbook</button>
-                  <button role="tab" aria-selected={activeStrategyMode === 'roadmap'} onClick={() => setActiveStrategyMode('roadmap')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'roadmap' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Roteiro</button>
-                  <button role="tab" aria-selected={activeStrategyMode === 'audit'} onClick={() => setActiveStrategyMode('audit')} className={cn("text-xs font-black uppercase tracking-widest pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'audit' ? "text-white border-b-2 border-primary" : "text-muted-foreground")}>Auditoria</button>
+                <div className="flex gap-3 mt-2" role="tablist" aria-label="Modo de estratégia">
+                  <button role="tab" aria-selected={activeStrategyMode === 'playbook'} onClick={() => setActiveStrategyMode('playbook')} className={cn("text-[10px] font-bold uppercase tracking-wider pb-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'playbook' ? "text-white border-b border-primary" : "text-muted-foreground")}>Playbook</button>
+                  <button role="tab" aria-selected={activeStrategyMode === 'roadmap'} onClick={() => setActiveStrategyMode('roadmap')} className={cn("text-[10px] font-bold uppercase tracking-wider pb-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'roadmap' ? "text-white border-b border-primary" : "text-muted-foreground")}>Roteiro</button>
+                  <button role="tab" aria-selected={activeStrategyMode === 'audit'} onClick={() => setActiveStrategyMode('audit')} className={cn("text-[10px] font-bold uppercase tracking-wider pb-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm", activeStrategyMode === 'audit' ? "text-white border-b border-primary" : "text-muted-foreground")}>Auditoria</button>
                 </div>
               </CardHeader>
               <CardContent className="p-4 sm:p-5 pt-2 max-h-[calc(100dvh-22rem)] overflow-y-auto [overscroll-behavior:contain] [scrollbar-gutter:stable] min-h-0">
@@ -552,46 +491,45 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
       </div>
 
       {/* FOOTER ACTIONS - FIXED AT BOTTOM */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/90 to-transparent border-t border-white/5 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
+      <div className="fixed bottom-0 left-0 right-0 px-4 py-3 bg-black/95 border-t border-white/[0.04]">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
             <Button 
-              variant="outline" 
+              variant="ghost" 
+              size="sm"
               onClick={() => {
                 setReasonType('no_interest');
                 setIsReasonDialogOpen(true);
               }}
-              className="rounded-2xl border-white/10 text-white hover:bg-white/5 h-12 px-6 font-bold uppercase tracking-widest text-[10px] gap-2"
+              className="h-8 px-3 text-[10px] font-semibold gap-1.5 text-muted-foreground hover:text-amber-400"
             >
-              <UserMinus className="w-4 h-4 text-amber-500" /> Sem Interesse
+              <UserMinus className="w-3 h-3" /> Sem Interesse
             </Button>
             <Button 
-              variant="outline" 
+              variant="ghost" 
+              size="sm"
               onClick={() => {
                 setReasonType('discard');
                 setIsReasonDialogOpen(true);
               }}
-              className="rounded-2xl border-white/10 text-white hover:bg-white/5 h-12 px-6 font-bold uppercase tracking-widest text-[10px] gap-2"
+              className="h-8 px-3 text-[10px] font-semibold gap-1.5 text-muted-foreground hover:text-rose-400"
             >
-              <Ban className="w-4 h-4 text-rose-500" /> Descartar Lead
+              <Ban className="w-3 h-3" /> Descartar
             </Button>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
+              size="sm"
               onClick={handleSkip}
-              className="rounded-2xl text-muted-foreground hover:text-white hover:bg-white/5 h-12 px-6 font-bold uppercase tracking-widest text-[10px] gap-2"
+              className="h-8 px-3 text-[10px] font-semibold gap-1.5 text-muted-foreground hover:text-white"
             >
-              Pular <SkipForward className="w-4 h-4" />
+              Pular <SkipForward className="w-3 h-3" />
             </Button>
-            <div className="h-8 w-px bg-white/10" />
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tempo de Sessão</span>
-              <span className="font-mono text-white text-sm font-bold tabular-nums">
-                {Math.floor((Date.now() - startTime) / 60000)}m {Math.floor(((Date.now() - startTime) % 60000) / 1000)}s
-              </span>
-            </div>
+            <span className="text-[10px] font-mono text-muted-foreground/60 tabular-nums">
+              {Math.floor((Date.now() - startTime) / 60000)}m {Math.floor(((Date.now() - startTime) % 60000) / 1000)}s
+            </span>
           </div>
         </div>
       </div>
