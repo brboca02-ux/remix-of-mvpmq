@@ -2066,8 +2066,13 @@ export default function ProspectingPage() {
                       });
                     }} 
                     className="w-full h-14 rounded-2xl text-base font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"
+                    onClick={() => {
+                      updateLead(selectedLead.id, selectedLead);
+                      toast.success("Lead atualizado com sucesso!");
+                      setIsLeadConfigOpen(false);
+                    }} 
                   >
-                    Confirmar e salvar dados
+                    Salvar Todas as Alterações
                   </Button>
                   
                   <div className="flex gap-2">
