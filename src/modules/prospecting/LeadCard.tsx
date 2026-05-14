@@ -681,11 +681,11 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     </Badge>
                   )}
 
-                  {lead.timingIntel?.isIdealTime && (
-                    <Badge variant="outline" className="bg-blue-100 text-blue-700 text-[9px] font-black uppercase px-1.5 h-5 border-transparent">
-                      <Zap className="h-2.5 w-2.5" /> Timing Ideal
-                    </Badge>
-                  )}
+                      {lead.timingIntel?.isIdealTime && (
+                        <Badge variant="outline" className="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 h-6 border-transparent">
+                          <Zap className="h-3 w-3" /> Timing Ideal
+                        </Badge>
+                      )}
                   {(lead.saturationIndex || 0) > 50 && (
                     <Badge variant="outline" className="bg-rose-100 text-rose-700 text-[9px] font-black uppercase px-1.5 h-5 border-transparent">
                       Saturação: {lead.saturationIndex}%
@@ -895,10 +895,10 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   <img 
                     src={lead.avatarUrl || lead.instagramProfileImage} 
                     alt={lead.companyName}
-                    className="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white border border-slate-100"
+                    className="h-20 w-20 rounded-2xl object-cover shadow-md ring-2 ring-white border border-slate-100"
                   />
                 ) : (
-                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-100 flex items-center justify-center text-slate-400 font-bold text-2xl shadow-inner group-hover:from-primary/5 group-hover:to-primary/10 group-hover:text-primary transition-colors">
+                  <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-100 flex items-center justify-center text-slate-400 font-bold text-3xl shadow-inner group-hover:from-primary/5 group-hover:to-primary/10 group-hover:text-primary transition-colors">
                     {lead.companyName?.substring(0, 1).toUpperCase() || 'E'}
                   </div>
                 )}
@@ -906,7 +906,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <h3 className="text-lg font-black text-slate-900 leading-tight tracking-tight group-hover:text-primary transition-colors truncate">
+                  <h3 className="text-xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-primary transition-colors truncate">
                     {lead.companyName || 'Empresa sem nome'}
                   </h3>
                   {lead.opportunityLevel === 'quente' && (
@@ -934,13 +934,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
             <div className="flex items-center gap-4">
               <div className={cn(
-                "h-14 w-14 rounded-full border-[4px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
+                "h-16 w-16 rounded-full border-[4px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
                 lead.opportunityScore >= 80 ? "border-emerald-500/30 text-emerald-600 bg-emerald-50" : 
                 lead.opportunityScore >= 50 ? "border-primary-400/30 text-primary-600 bg-primary-50" : 
                 "border-slate-200 text-slate-500 bg-slate-50"
               )}>
-                <span className="text-base font-black leading-none">{lead.opportunityScore}</span>
-                <span className="text-[8px] font-black uppercase tracking-tighter opacity-70">Score</span>
+                <span className="text-lg font-black leading-none">{lead.opportunityScore}</span>
+                <span className="text-[9px] font-black uppercase tracking-tighter opacity-70">Score</span>
               </div>
               <div className="flex items-center gap-1">
               <Button 
@@ -981,7 +981,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
           {/* Contact Chips Section */}
           <div className="flex flex-wrap gap-2 pt-1">
             {lead.whatsapp && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[12px] font-bold shadow-sm">
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-50 border border-emerald-100/50 text-emerald-700 text-[13px] font-bold shadow-sm">
                 <Phone className="h-3.5 w-3.5" /> {lead.whatsapp}
               </div>
             )}
@@ -995,12 +995,12 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 }}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-50 border border-pink-100/50 text-pink-700 text-[12px] font-bold shadow-sm hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-pink-50 border border-pink-100/50 text-pink-700 text-[13px] font-bold shadow-sm hover:scale-105 transition-all"
               >
                 <Instagram className="h-3.5 w-3.5" /> @{lead.instagramHandle || lead.socialDiscovery?.instagramHandle}
               </a>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[11px] font-bold opacity-60">
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-50 border border-slate-100 text-slate-400 text-[12px] font-bold opacity-60">
                 <Instagram className="h-3.5 w-3.5" /> Instagram N/A
               </div>
             )}
@@ -1011,12 +1011,12 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 onClick={(e) => { e.stopPropagation(); navigationService.openExternal(lead.websiteUrl || ''); }}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[12px] font-bold shadow-sm hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[13px] font-bold shadow-sm hover:scale-105 transition-all"
               >
                 <Globe className="h-3.5 w-3.5" /> Ver Site
               </a>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold shadow-sm">
+              <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[12px] font-bold shadow-sm">
                 <AlertCircle className="h-3.5 w-3.5" /> Sem Site
               </div>
             )}
@@ -1153,13 +1153,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
               return (
                 <div
-                  className="bg-slate-50/80 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-6 space-y-5 shadow-sm relative overflow-hidden group/intel"
+                  className="bg-slate-50/80 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-6 space-y-4 shadow-sm relative overflow-hidden group/intel"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none group-hover/intel:bg-primary/10 transition-colors" />
 
                   {/* Cabeçalho & Alertas Preventivos */}
-                  <div className="flex flex-col gap-4 relative z-10">
+                  <div className="flex flex-col gap-3 relative z-10">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">
                         <Zap className="h-4 w-4 text-primary animate-pulse" /> IA Strategy Hub
@@ -1229,15 +1229,15 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     </div>
 
                     {/* Fluxo Recomendado (Modo Seguro) */}
-                    <div className="bg-white/50 border border-slate-100 rounded-2xl p-3 space-y-2">
+                    <div className="bg-white/50 border border-slate-100 rounded-2xl p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                          <ShieldCheck className="h-3 w-3 text-emerald-500" /> Prospecção Segura
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <ShieldCheck className="h-4 w-4 text-emerald-500" /> Prospecção Segura
                         </span>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                              <Info className="h-4 w-4 text-slate-400 cursor-help" />
                             </TooltipTrigger>
                             <TooltipContent className="max-w-[200px] text-[10px]">
                               Siga o fluxo para evitar bloqueios: Pesquise → Interaja → Aguarde → Aborde.
@@ -1245,55 +1245,55 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                      <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
                         {/* Passo 1: Google */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           lead.manualAnalysis?.companyExists ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : "bg-blue-50 border-blue-100 text-blue-700"
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", lead.manualAnalysis?.companyExists ? "bg-emerald-500 text-white" : "bg-blue-500 text-white")}>
-                            {lead.manualAnalysis?.companyExists ? <CheckCircle2 className="h-2 w-2" /> : "1"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", lead.manualAnalysis?.companyExists ? "bg-emerald-500 text-white" : "bg-blue-500 text-white")}>
+                            {lead.manualAnalysis?.companyExists ? <CheckCircle2 className="h-3 w-3" /> : "1"}
                           </div>
-                          <span className="text-[8px] font-bold">Google</span>
+                          <span className="text-[10px] font-bold">Google</span>
                         </div>
 
-                        <ArrowRight className="h-3 w-3 text-slate-300 shrink-0" />
+                        <ArrowRight className="h-4 w-4 text-slate-300 shrink-0" />
 
                         {/* Passo 2: Insta */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           lead.instagramInteractedAt ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : (lead.manualAnalysis?.companyExists ? "bg-blue-50 border-blue-100 text-blue-700" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", lead.instagramInteractedAt ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
-                            {lead.instagramInteractedAt ? <CheckCircle2 className="h-2 w-2" /> : "2"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", lead.instagramInteractedAt ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
+                            {lead.instagramInteractedAt ? <CheckCircle2 className="h-3 w-3" /> : "2"}
                           </div>
-                          <span className="text-[8px] font-bold">Insta</span>
+                          <span className="text-[10px] font-bold">Insta</span>
                         </div>
 
-                        <ArrowRight className="h-3 w-3 text-slate-300 shrink-0" />
+                        <ArrowRight className="h-4 w-4 text-slate-300 shrink-0" />
 
                         {/* Passo 3: Aguardar */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           isInstagramRecent ? "bg-amber-50 border-amber-100 text-amber-700 animate-pulse" : (lead.instagramInteractedAt ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", isInstagramRecent ? "bg-amber-500 text-white" : "bg-slate-300 text-white")}>
-                            {isInstagramRecent ? <Zap className="h-2 w-2" /> : "3"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", isInstagramRecent ? "bg-amber-500 text-white" : "bg-slate-300 text-white")}>
+                            {isInstagramRecent ? <Zap className="h-3 w-3" /> : "3"}
                           </div>
-                          <span className="text-[8px] font-bold">Pausa</span>
+                          <span className="text-[10px] font-bold">Pausa</span>
                         </div>
 
-                        <ArrowRight className="h-3 w-3 text-slate-300 shrink-0" />
+                        <ArrowRight className="h-4 w-4 text-slate-300 shrink-0" />
 
                         {/* Passo 4: Whats */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           lead.status === 'WhatsApp Enviado' ? "bg-emerald-50 border-emerald-100 text-emerald-700" : (isInstagramWarmed ? "bg-blue-50 border-blue-100 text-blue-700" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", lead.status === 'WhatsApp Enviado' ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
-                            {lead.status === 'WhatsApp Enviado' ? <CheckCircle2 className="h-2 w-2" /> : "4"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", lead.status === 'WhatsApp Enviado' ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
+                            {lead.status === 'WhatsApp Enviado' ? <CheckCircle2 className="h-3 w-3" /> : "4"}
                           </div>
-                          <span className="text-[8px] font-bold">Whats</span>
+                          <span className="text-[10px] font-bold">Whats</span>
                         </div>
                       </div>
                     </div>
@@ -1360,7 +1360,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     onClick={runSuggestion}
                     disabled={!!loadingAction}
                     className={cn(
-                      "w-full flex items-center gap-4 p-4 rounded-2xl text-white shadow-lg transition-all group/sug relative overflow-hidden",
+                      "w-full h-16 flex items-center gap-4 p-5 rounded-2xl text-white shadow-lg transition-all group/sug relative overflow-hidden",
                       suggestion.priority === 'high' 
                         ? "bg-gradient-to-br from-rose-600 via-violet-600 to-indigo-600 shadow-rose-500/25 hover:shadow-rose-500/40"
                         : "bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 shadow-indigo-500/25 hover:shadow-indigo-500/40",
@@ -1369,18 +1369,18 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover/sug:animate-[shimmer_2s_infinite] pointer-events-none" />
                     
-                    <div className="bg-white/15 backdrop-blur-md p-2.5 rounded-xl shrink-0 group-hover/sug:rotate-12 transition-transform shadow-inner">
+                    <div className="bg-white/15 backdrop-blur-md p-3 rounded-xl shrink-0 group-hover/sug:rotate-12 transition-transform shadow-inner">
                       {loadingAction === suggestion.id ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <Loader2 className="h-6 w-6 animate-spin" />
                       ) : (
-                        <SuggestIcon className="h-5 w-5" />
+                        <SuggestIcon className="h-6 w-6" />
                       )}
                     </div>
                     <div className="flex-1 text-left min-w-0 relative z-10">
                       <div className="text-[10px] font-black uppercase tracking-widest text-indigo-100/80 mb-0.5">
                         {suggestion.priority === 'high' ? '🔥 Recomendação Prioritária' : 'IA Smart Recommendation'}
                       </div>
-                      <div className="text-sm font-black tracking-tight">{suggestion.label}</div>
+                      <div className="text-base font-black tracking-tight">{suggestion.label}</div>
                       {suggestion.reason && (
                         <div className="text-[9px] font-medium text-white/60 mt-0.5 line-clamp-1">{suggestion.reason}</div>
                       )}
@@ -1421,7 +1421,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
                   {/* Ações Operacionais */}
                   <div className="flex flex-col gap-2">
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {/* Botão de Envio agora via Make */}
                       <button
                         onClick={() => {
@@ -1432,15 +1432,15 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                           }
                         }}
                         className={cn(
-                          "flex items-center justify-center gap-2 h-10 rounded-xl transition-all text-[10px] font-black",
+                          "flex items-center justify-center gap-2 h-12 rounded-xl transition-all text-xs font-black",
                           suggestion.id === 'make' || lead.warmupStatus === 'Pronto'
                             ? "bg-violet-600 text-white shadow-md hover:bg-violet-700" 
-                            : "bg-white border border-slate-200 hover:border-violet-300 hover:bg-violet-50 text-slate-600",
+                            : "bg-white border-2 border-slate-100 hover:border-violet-300 hover:bg-violet-50 text-slate-600",
                           lead.warmupStatus === 'Frio' && hasInstagram && "border-amber-200 bg-amber-50/50"
                         )}
                       >
-                        <Send className={cn("h-3.5 w-3.5", suggestion.id === 'make' || lead.warmupStatus === 'Pronto' ? "text-white" : "text-violet-500")} /> 
-                        {lead.sequence?.isActive ? `Etapa ${lead.sequence.currentStep + 1}/${lead.sequence.totalSteps}` : "Enviar Agora"}
+                        <Send className={cn("h-4 w-4", suggestion.id === 'make' || lead.warmupStatus === 'Pronto' ? "text-white" : "text-violet-500")} /> 
+                        {lead.sequence?.isActive ? `Etapa ${lead.sequence.currentStep + 1}` : "Enviar via Make"}
                       </button>
 
                       {/* Modo de Automação */}
@@ -1473,8 +1473,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   <div className="grid grid-cols-1">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button className="flex items-center justify-center gap-2 h-10 rounded-xl bg-white border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-[10px] font-black text-slate-600">
-                          <CalendarDays className="h-3.5 w-3.5 text-blue-500" /> Próximo Passo
+                        <button className="flex items-center justify-center gap-2 h-12 rounded-xl bg-white border-2 border-slate-100 hover:border-blue-300 hover:bg-blue-50 transition-all text-xs font-black text-slate-600">
+                          <Zap className="h-4 w-4 text-blue-500" /> Próximo Passo
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="rounded-xl p-1 shadow-2xl border-slate-100 min-w-[160px]">
@@ -1533,7 +1533,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                             try { await s.onClick(); } finally { setLoadingAction(null); }
                           }}
                           className={cn(
-                            "flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-lg bg-white border border-slate-200 transition-all",
+                            "flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-white border-2 border-slate-100 transition-all",
                             !loadingAction && "hover:border-slate-300 hover:bg-slate-50",
                             loadingAction && "opacity-50 cursor-not-allowed"
                           )}
