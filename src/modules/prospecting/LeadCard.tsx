@@ -1164,11 +1164,11 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="p-1 rounded-md bg-amber-100 text-amber-600 cursor-help border border-amber-200">
-                                  <Clock className="h-3.5 w-3.5" />
+                                  <Zap className="h-3.5 w-3.5" />
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Aguardando aquecimento (12h-24h recomendados)</p>
+                                <p>Em processo de aquecimento (comportamento humano)</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
