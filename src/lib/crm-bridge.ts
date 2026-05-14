@@ -115,6 +115,7 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
 
     store.addLead(newLead, 'manual');
 
+    if (cnpj) cnpjIndex.add(cnpj);
     if (phone.length >= 10) phoneIndex.add(phone);
     businessIndex.add(businessKey);
     created++;
