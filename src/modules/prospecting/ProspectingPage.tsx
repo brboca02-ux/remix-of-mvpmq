@@ -2199,34 +2199,46 @@ export default function ProspectingPage() {
                     >
                       Cancelar
                     </Button>
-                    {normalizeInstagram(selectedLead.instagramUrl || '').isValid && (
+                    <div className="flex gap-2">
+                      {selectedLead.instagramUrl && (
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-2xl border-slate-100 text-pink-500 shadow-sm"
+                          onClick={() => window.open(normalizeInstagram(selectedLead.instagramUrl!).url, '_blank')}
+                        >
+                          <Instagram className="h-5 w-5" />
+                        </Button>
+                      )}
+                      {selectedLead.whatsapp && (
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-2xl border-slate-100 text-emerald-500 shadow-sm"
+                          onClick={() => window.open(`https://wa.me/${selectedLead.whatsapp?.replace(/\D/g, '')}`, '_blank')}
+                        >
+                          <MessageCircleIcon className="h-5 w-5" />
+                        </Button>
+                      )}
+                      {selectedLead.websiteUrl && (
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-2xl border-slate-100 text-blue-500 shadow-sm"
+                          onClick={() => window.open(selectedLead.websiteUrl?.startsWith('http') ? selectedLead.websiteUrl : `https://${selectedLead.websiteUrl}`, '_blank')}
+                        >
+                          <Globe className="h-5 w-5" />
+                        </Button>
+                      )}
                       <Button 
                         variant="outline" 
-                        size="icon" 
-                        className="h-12 w-12 rounded-2xl border-slate-100 text-pink-500 shadow-sm"
-                        onClick={() => window.open(normalizeInstagram(selectedLead.instagramUrl || '').url, '_blank')}
+                        onClick={() => setIsDiscardDialogOpen(true)} 
+                        className="h-12 w-12 rounded-2xl border-rose-100 text-rose-500 shadow-sm hover:bg-rose-50"
+                        title="Descartar Lead"
                       >
-                        <Instagram className="h-5 w-5" />
+                        <Trash2 className="h-5 w-5" />
                       </Button>
-                    )}
-                    {normalizeGoogleMaps(selectedLead.address || '').isValid && (
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-12 w-12 rounded-2xl border-slate-100 text-rose-500 shadow-sm"
-                        onClick={() => window.open(normalizeGoogleMaps(selectedLead.address || '').url, '_blank')}
-                      >
-                        <MapPin className="h-5 w-5" />
-                      </Button>
-                    )}
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsDiscardDialogOpen(true)} 
-                      className="h-12 w-12 rounded-2xl border-rose-100 text-rose-500 shadow-sm hover:bg-rose-50"
-                      title="Descartar Lead"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </div>
