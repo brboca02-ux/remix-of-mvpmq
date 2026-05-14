@@ -248,7 +248,7 @@ function BuscadorPage() {
     toast.success(`Preset "${name}" salvo`);
   }, [filter, savePreset]);
 
-  const onSendToPipeline = useCallback(() => {
+  const onSendToPipeline = useCallback(async () => {
     // Pega todos os leads da pesquisa (ignora paginação)
     const rows = result.all;
     if (rows.length === 0) {
@@ -256,8 +256,10 @@ function BuscadorPage() {
       return;
     }
 
-    // Identifica quais já foram enviados para marcar visualmente (opcional, mas bom para UX)
-    const incoming = rows.map((c) => ({
+    const toastId = toast.loading("Enviando leads para o Pipeline...");
+
+    // 1. Enviar para a store local (Zustand) para atualização imediata da UI
+    const incoming: IncomingLead[] = rows.map((c) => ({
       name: c.nome,
       phone: c.telefone,
       business_name: c.fantasia ?? c.nome,
@@ -266,18 +268,49 @@ function BuscadorPage() {
       instagram: c.instagramHandle,
       source: "buscador" as const,
       source_detail: c.cnpj?.startsWith("PLACES:") ? "google_places" : "cnpj",
-      raw: { cnpj: c.cnpj, uf: c.estado, site: c.site, email: c.email },
+      raw: { id: c.id, cnpj: c.cnpj, uf: c.estado, site: c.site, email: c.email },
     }));
 
     try {
+      // Adiciona na store local
       const res = addLeadsToCRM(incoming);
+      
+      // 2. Persistir no banco de dados (Supabase) para que apareça em outros módulos
+      const { addLeadManual } = await import('@/lib/leads-import.functions');
+      
+      // Enviamos em lotes para o banco para não travar
+      let dbSuccessCount = 0;
+      const leadsToSync = rows.slice(0, 100); // Limite de segurança
+
+      await Promise.all(leadsToSync.map(async (c) => {
+        try {
+          await addLeadManual({
+            data: {
+              nome: c.nome,
+              telefone: c.telefone,
+              email: c.email,
+              cidade: c.cidade,
+              uf: c.estado,
+              nicho: c.sector,
+              site: c.site,
+              instagram_handle: c.instagramHandle,
+              source: 'buscador',
+              atividade: c.cnaeLabel
+            }
+          });
+          dbSuccessCount++;
+        } catch (e) {
+          console.error("Erro ao sincronizar lead individual:", e);
+        }
+      }));
+
       if (res.created > 0) {
-        toast.success(`${res.created} leads enviados ao Pipeline${res.skipped ? ` (${res.skipped} ignorados/limite)` : ""}`);
+        toast.success(`${res.created} leads enviados ao Pipeline com sucesso!`, { id: toastId });
       } else {
-        toast.message(`Nenhum lead novo enviado (${res.skipped} duplicados/limite)`);
+        toast.info(`Nenhum lead novo enviado (${res.skipped} já estavam no CRM)`, { id: toastId });
       }
     } catch (e: any) {
-      toast.error(e.message || "Erro ao enviar ao Pipeline");
+      toast.error(e.message || "Erro ao enviar ao Pipeline", { id: toastId });
     }
   }, [result.all]);
 
