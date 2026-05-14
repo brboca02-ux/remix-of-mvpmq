@@ -942,6 +942,8 @@ export const LeadCard: React.FC<LeadCardProps> = ({
             )}
           </div>
 
+          <LeadBusinessDetails lead={lead} />
+
           <ManualAnalysisChecklist 
             lead={lead} 
             onUpdate={(analysis) => updateManualAnalysis(lead.id, analysis)} 
