@@ -62,7 +62,13 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
 
     const phone = normPhone(lead.phone);
     const businessKey = `${normKey(lead.business_name ?? name)}|${normKey(lead.city)}`;
+    const cnpj = (lead.raw?.cnpj as string || '').replace(/\D/g, '');
 
+    if (cnpj && cnpjIndex.has(cnpj)) {
+      skipped++;
+      duplicates.push({ name, reason: 'duplicate' });
+      continue;
+    }
     if (phone.length >= 10 && phoneIndex.has(phone)) {
       skipped++;
       duplicates.push({ name, reason: 'duplicate' });
