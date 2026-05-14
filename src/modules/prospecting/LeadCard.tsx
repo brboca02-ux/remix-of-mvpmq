@@ -874,12 +874,6 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     {lead.companyName?.substring(0, 1).toUpperCase() || 'E'}
                   </div>
                 )}
-                {isInactive(lead.updatedAt, lead.status) && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500 border-2 border-white shadow-sm"></span>
-                  </span>
-                )}
               </div>
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
