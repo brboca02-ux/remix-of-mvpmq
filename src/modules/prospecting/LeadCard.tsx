@@ -1133,9 +1133,9 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   {/* Cabeçalho & Alertas Preventivos */}
                   <div className="flex flex-col gap-3 relative z-10">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
-                        <Brain className="h-4 w-4 text-primary animate-pulse" /> IA Strategy Hub
-                      </div>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                          <Zap className="h-4 w-4 text-primary animate-pulse" /> IA Strategy Hub
+                        </div>
                       
                       {lead.sequence && lead.sequence.isActive && (
                         <div className="flex-1 max-w-[120px]">
