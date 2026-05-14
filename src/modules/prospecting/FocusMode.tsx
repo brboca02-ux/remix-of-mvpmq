@@ -308,7 +308,7 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
         <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-4 lg:gap-6 min-h-0">
           <div className="xl:col-span-8 flex flex-col gap-4 min-h-0">
             {/* MODO PESQUISA MANUAL GUIADA */}
-            <div className="bg-card/30 border border-white/[0.06] p-4 rounded-xl relative overflow-hidden">
+            <div className="bg-white/[0.03] border border-white/10 p-4 rounded-xl relative overflow-hidden">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2 min-w-0">
                   <ShieldCheck className="w-4 h-4 text-primary/70 shrink-0" aria-hidden="true" />
