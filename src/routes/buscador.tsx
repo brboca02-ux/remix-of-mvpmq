@@ -143,6 +143,8 @@ function BuscadorPage() {
   const { presets, save: savePreset, remove: removePreset } = usePresets();
   const router = useRouter();
 
+  // Removido o toast automático de chegada para não incomodar o usuário
+  /*
   useEffect(() => {
     if (arrivalToastShown.current) return;
     const parts: string[] = [];
@@ -159,6 +161,7 @@ function BuscadorPage() {
       arrivalToastShown.current = true;
     }
   }, [search.cnae, search.porte, search.uf, result.total]);
+  */
 
   const onFilterChange = useCallback((f: CompanyFilter) => {
     setFilter(f);
