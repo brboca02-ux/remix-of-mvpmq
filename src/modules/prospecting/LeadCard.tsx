@@ -387,6 +387,16 @@ const LeadTechInsights: React.FC<{ lead: ProspectLead }> = ({ lead }) => {
       </div>
 
       <div className="flex flex-wrap gap-1.5">
+        {lead.hasMetaAds && (
+          <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-[9px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
+            <Eye className="h-2.5 w-2.5" /> Meta Ads Ativo
+          </Badge>
+        )}
+        {lead.hasGoogleAds && (
+          <Badge className="bg-primary-100 text-primary-700 border-primary-200 text-[9px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
+            <TrendingUp className="h-2.5 w-2.5" /> Google Ads Ativo
+          </Badge>
+        )}
         {hasSlowSite && (
           <Badge className="bg-rose-100 text-rose-700 border-rose-200 text-[9px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
             <AlertTriangle className="h-2.5 w-2.5" /> Site Lento (Mobile)
