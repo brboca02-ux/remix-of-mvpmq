@@ -280,16 +280,23 @@ const LeadBusinessDetails: React.FC<{ lead: ProspectLead }> = ({ lead }) => {
     { label: 'Abertura', value: lead.openingDate, icon: CalendarDays },
     { label: 'Porte', value: lead.size, icon: Target },
     { label: 'Status', value: lead.status_sefaz, icon: ShieldCheck },
-    { label: 'Tipo', value: lead.legalType, icon: Building2 },
+    { label: 'Telefone', value: lead.whatsapp, icon: Phone },
   ].filter(d => d.value);
 
   if (details.length === 0 && !lead.address && (!lead.partners || lead.partners.length === 0)) return null;
 
   return (
-    <div className="grid grid-cols-1 gap-3 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 mt-3">
-      <div className="flex items-center gap-2 mb-1">
-        <Building2 className="h-3.5 w-3.5 text-slate-500" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Dados da Empresa</span>
+    <div className="grid grid-cols-1 gap-3 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 mt-3 shadow-sm">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <Building2 className="h-3.5 w-3.5 text-slate-500" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Dados da Empresa</span>
+        </div>
+        {lead.cnpj && (
+           <Badge variant="outline" className="text-[8px] h-3.5 px-1 bg-slate-100 border-transparent text-slate-500 font-black">
+             DADOS OFICIAIS
+           </Badge>
+        )}
       </div>
       
       <div className="grid grid-cols-2 gap-x-4 gap-y-3">
