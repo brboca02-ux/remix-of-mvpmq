@@ -209,7 +209,7 @@ export default function ProspectingPage() {
                   email: dbLead.email 
                 }).level,
                 source: 'supabase_import',
-                status: dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo'),
+                status: (dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo')) as any,
                 opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
                 opportunityLevel: (dbLead.confidence_score || 0.5) >= 0.8 ? 'quente' : (dbLead.confidence_score || 0.5) >= 0.5 ? 'boa' : 'média',
                 diagnosis: dbLead.atividade || '',
