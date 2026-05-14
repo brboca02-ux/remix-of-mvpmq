@@ -138,7 +138,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex gap-6 overflow-x-auto pb-8 min-h-[640px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 min-h-[500px] md:min-h-[640px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         {SALES_COLUMNS.map((column) => {
           const columnLeads = getLeadsByStatus(column.id);
           return (
