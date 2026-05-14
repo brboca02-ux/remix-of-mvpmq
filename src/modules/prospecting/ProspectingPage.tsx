@@ -38,7 +38,8 @@ import {
   ScanText,
   Monitor,
   Smartphone,
-  Tablet
+  Tablet,
+  Accessibility
 } from '../../lib/icons';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
