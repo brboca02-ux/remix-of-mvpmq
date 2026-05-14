@@ -114,6 +114,8 @@ import { PerformanceDashboard } from './PerformanceDashboard';
 import { DailyAiPlan } from './DailyAiPlan';
 import { LeadPlaybook } from './LeadPlaybook';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { hunterFindEmails, builtWithLookup } from '@/server/enrichment-paid-providers';
+import { analyzePageSpeed } from '@/lib/pagespeed.functions';
 
   export const Route = createFileRoute('/prospecting' as any)({
   component: ProspectingPage,
