@@ -416,6 +416,8 @@ export interface ProspectLead {
   pageSpeedStatus?: 'bom' | 'ruim' | 'crítico';
   technologies?: string[];
   techPainPoints?: string[];
+  hasMetaAds?: boolean;
+  hasGoogleAds?: boolean;
   rating?: number;
   priceLevel?: string;
   source: string;
