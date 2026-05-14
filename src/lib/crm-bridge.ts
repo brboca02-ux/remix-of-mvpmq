@@ -41,6 +41,12 @@ export function addLeadsToCRM(leads: IncomingLead[]): AddResult {
       .filter((l) => l.companyName)
       .map((l) => `${normKey(l.companyName)}|${normKey(l.city)}`)
   );
+  const cnpjIndex = new Set(
+    existing
+      .map((l) => (l as any).raw?.cnpj || (l as any).cnpj)
+      .filter(Boolean)
+      .map((c: string) => c.replace(/\D/g, ''))
+  );
 
   let created = 0;
   let skipped = 0;
