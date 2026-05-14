@@ -336,7 +336,10 @@ function BuscadorPage() {
                 variant="default"
                 className="gap-2"
                 data-testid="import-local-button"
-                onClick={() => setImportOpen(true)}
+                onClick={() => {
+                  setImportOpen(true);
+                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                }}
               >
                 <Upload className="h-4 w-4" />
                 Import GLeads CSV
