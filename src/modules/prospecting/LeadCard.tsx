@@ -541,7 +541,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
     // Prioridade 3: Estados Ativos
     if (contactStatus === 'Reenvio agendado') {
-      badges.push(<Badge key="scheduled" variant="secondary" className={cn(commonClasses, "bg-blue-50 text-blue-700 border-blue-200")}><Clock className="h-3 w-3" /> Reenvio Agendado</Badge>);
+      badges.push(<Badge key="scheduled" variant="secondary" className={cn(commonClasses, "bg-blue-50 text-blue-700 border-blue-200")}><Zap className="h-3 w-3" /> Reenvio Agendado</Badge>);
     } else if (contactStatus === 'Contato enviado hoje') {
       badges.push(<Badge key="today" variant="secondary" className={cn(commonClasses, "bg-emerald-50 text-emerald-700 border-emerald-100")}><CheckCircle2 className="h-3 w-3" /> Enviado Hoje</Badge>);
     } else if (contactStatus === 'Cliente respondeu' || status === 'Interessado') {
