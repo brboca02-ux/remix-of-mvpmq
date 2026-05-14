@@ -114,6 +114,8 @@ import { PerformanceDashboard } from './PerformanceDashboard';
 import { DailyAiPlan } from './DailyAiPlan';
 import { LeadPlaybook } from './LeadPlaybook';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { hunterFindEmails, builtWithLookup } from '@/server/enrichment-paid-providers';
 import { analyzePageSpeed } from '@/lib/pagespeed.functions';
 
