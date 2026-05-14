@@ -97,7 +97,9 @@ import {
   Eye,
   Cloud,
   Calendar as CalendarIcon,
-  Ban
+  Ban,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { syncAllLeadsToBackend } from './sync-service';
 import { 
