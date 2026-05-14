@@ -1369,11 +1369,11 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover/sug:animate-[shimmer_2s_infinite] pointer-events-none" />
                     
-                    <div className="bg-white/15 backdrop-blur-md p-2.5 rounded-xl shrink-0 group-hover/sug:rotate-12 transition-transform shadow-inner">
+                    <div className="bg-white/15 backdrop-blur-md p-3 rounded-xl shrink-0 group-hover/sug:rotate-12 transition-transform shadow-inner">
                       {loadingAction === suggestion.id ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <Loader2 className="h-6 w-6 animate-spin" />
                       ) : (
-                        <SuggestIcon className="h-5 w-5" />
+                        <SuggestIcon className="h-6 w-6" />
                       )}
                     </div>
                     <div className="flex-1 text-left min-w-0 relative z-10">
