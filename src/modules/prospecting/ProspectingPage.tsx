@@ -1437,12 +1437,12 @@ export default function ProspectingPage() {
                     className="h-9 px-4 rounded-full border-slate-200 hover:bg-slate-50 font-bold hidden md:flex"
                     onClick={() => {
                       if (selectedLead) {
-                        const siteData = selectedLead.generatedSite || {
+                        const siteData = (selectedLead as any).generatedSite || {
                           companyName: selectedLead.companyName,
                           niche: selectedLead.niche,
                           city: selectedLead.city,
                           services: ['Atendimento Premium', 'Tratamentos Especiais', 'Especialistas Qualificados'],
-                          differentials: selectedLead.generatedSite?.differentials || ['Qualidade Premium', 'Atendimento Rápido', 'Preço Justo'],
+                          differentials: (selectedLead as any).generatedSite?.differentials || ['Qualidade Premium', 'Atendimento Rápido', 'Preço Justo'],
                           tone: 'Premium',
                           whatsapp: selectedLead.whatsapp,
                           instagram: selectedLead.instagramHandle
