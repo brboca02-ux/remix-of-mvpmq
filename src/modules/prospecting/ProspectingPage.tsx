@@ -2105,35 +2105,49 @@ export default function ProspectingPage() {
                   </TabsContent>
 
                   <TabsContent value="history" className="mt-0">
-                    <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 max-h-[300px] overflow-y-auto space-y-4">
+                    <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 max-h-[400px] overflow-y-auto space-y-4 scrollbar-thin">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Linha do Tempo</h4>
+                        <Badge variant="outline" className="text-[9px] font-black">{auditLogs.filter((log: any) => log.leadId === selectedLead.id).length} eventos</Badge>
+                      </div>
                       {auditLogs
                         .filter((log: any) => log.leadId === selectedLead.id)
-                        .slice(0, 10)
+                        .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
                         .map((log: any) => (
-                          <div key={log.id} className="relative pl-6 pb-4 border-l-2 border-slate-200 last:pb-0">
+                          <div key={log.id} className="relative pl-6 pb-6 border-l-2 border-slate-200 last:pb-0">
                             <div className="absolute left-[-9px] top-0 h-4 w-4 rounded-full bg-white border-2 border-primary shadow-sm" />
                             <div className="flex justify-between items-start mb-1">
-                              <span className="text-[10px] font-black text-slate-900 uppercase">
-                                {log.action === 'update' ? 'Alteração' : log.action === 'add' ? 'Criação' : 'Ação'}
+                              <span className={cn(
+                                "text-[10px] font-black uppercase px-1.5 py-0.5 rounded",
+                                log.action === 'add' ? "bg-emerald-100 text-emerald-700" : 
+                                log.action === 'delete' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700"
+                              )}>
+                                {log.action === 'update' ? 'Alteração' : log.action === 'add' ? 'Criação' : log.action === 'delete' ? 'Remoção' : 'Ação'}
                               </span>
-                              <span className="text-[9px] text-slate-400 font-bold">
-                                {new Date(log.timestamp).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+                              <span className="text-[9px] text-slate-400 font-bold flex items-center gap-1">
+                                <Clock className="h-2.5 w-2.5" />
+                                {new Date(log.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
-                            <div className="space-y-1">
-                              {log.changes.map((change: any, idx: number) => (
-                                <p key={idx} className="text-[11px] text-slate-500 leading-tight">
-                                  <span className="font-bold text-slate-700 capitalize">{change.field}:</span>{' '}
-                                  {String(change.before || 'Vazio')} → <span className="text-primary font-bold">{String(change.after || 'Removido')}</span>
-                                </p>
+                            <div className="space-y-1.5 mt-2 bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm">
+                              {log.changes?.map((change: any, idx: number) => (
+                                <div key={idx} className="text-[11px] text-slate-500 leading-tight">
+                                  <div className="font-black text-slate-700 uppercase text-[9px] tracking-tighter mb-0.5">{change.field}</div>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="opacity-60 line-through truncate max-w-[100px]">{String(change.before || 'Vazio')}</span>
+                                    <ArrowRight className="h-2.5 w-2.5 text-primary shrink-0" />
+                                    <span className="text-primary font-bold">{String(change.after || 'Removido')}</span>
+                                  </div>
+                                </div>
                               ))}
+                              {log.message && <p className="text-[10px] text-slate-400 italic mt-1 border-t border-slate-50 pt-1">{log.message}</p>}
                             </div>
                           </div>
                         ))}
                       {auditLogs.filter((log: any) => log.leadId === selectedLead.id).length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-8 text-slate-300">
-                          <History className="h-8 w-8 mb-2 opacity-20" />
-                          <p className="text-xs font-bold">Nenhum histórico recente</p>
+                        <div className="flex flex-col items-center justify-center py-12 text-slate-300">
+                          <History className="h-10 w-10 mb-2 opacity-10" />
+                          <p className="text-xs font-black uppercase tracking-widest opacity-40">Nenhum histórico</p>
                         </div>
                       )}
                     </div>
