@@ -126,7 +126,12 @@ function BuscadorPage() {
 
   const crmLeads = useProspectingStore((s) => s.leads);
   const result = useCompanySearch(filter, page, 50, sortBy, extras, crmLeads); 
-
+  
+  // Sincroniza o total do ResultsHeader com o total filtrado real da tabela
+  const displayTotal = result.total;
+  const displayPotencial = result.potencialMensal;
+  const displayQualidade = result.qualidadeScore;
+  const displayDistribuicao = result.distribuicaoPorte;
 
   // Métricas sincronizadas com filtros via RPC Real
   const { data: metrics, isLoading: metricsLoading } = useQuery({
@@ -280,7 +285,7 @@ function BuscadorPage() {
       
       // Enviamos em lotes para o banco para não travar
       let dbSuccessCount = 0;
-      const leadsToSync = rows.slice(0, 100); // Limite de segurança
+      const leadsToSync = rows.slice(0, 500); // Aumentado para 500 para permitir envios maiores
 
       await Promise.all(leadsToSync.map(async (c) => {
         try {
@@ -439,10 +444,10 @@ function BuscadorPage() {
 
             <TabsContent value="leads" className="flex-1 flex flex-col mt-0">
               <ResultsHeader
-                total={metrics?.total ?? result.total}
-                potencialMensal={metrics?.potencial_mensal ?? result.potencialMensal}
-                qualidadeScore={metrics?.qualidade_score ?? result.qualidadeScore}
-                distribuicaoPorte={metrics?.distribuicao_porte ?? result.distribuicaoPorte}
+                total={displayTotal}
+                potencialMensal={displayPotencial}
+                qualidadeScore={displayQualidade}
+                distribuicaoPorte={displayDistribuicao}
                 searchText={filter.text}
                 onSearchTextChange={(v) => {
                   setFilter((prev) => ({ ...prev, text: v }));
