@@ -441,9 +441,15 @@ export const LeadCard: React.FC<LeadCardProps> = ({
   const attachmentsCount = (lead.statusNotes || []).reduce((sum, n) => sum + (n.attachments?.length || 0), 0);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-rose-600 bg-rose-50 border-rose-100";
-    if (score >= 50) return "text-amber-600 bg-amber-50 border-amber-100";
+    if (score >= 80) return "text-emerald-600 bg-emerald-50 border-emerald-100";
+    if (score >= 50) return "text-primary-600 bg-primary-50 border-primary-100";
     return "text-slate-600 bg-slate-50 border-slate-100";
+  };
+
+  const getDigitalBadgeClass = (level?: string) => {
+    if (level === 'verde') return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    if (level === 'amarelo') return "bg-amber-100 text-amber-700 border-amber-200";
+    return "bg-rose-100 text-rose-700 border-rose-200";
   };
 
   const getStatusBadge = (status: ProspectLead['status'], lead: ProspectLead) => {
