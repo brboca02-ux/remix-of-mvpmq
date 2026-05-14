@@ -339,7 +339,9 @@ function BuscadorPage() {
                 className="gap-2"
                 onClick={() => {
                   setPlacesOpen(true);
-                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                  setIsImporting(true); 
+                  setFilter(prev => ({ ...prev, inPipeline: false })); // Sugere filtrar apenas novos ao abrir
+                }}
                 }}
               >
                 <Sparkles className="h-4 w-4" />
