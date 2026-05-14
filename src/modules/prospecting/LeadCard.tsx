@@ -536,7 +536,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
     if (contactStatus === 'Erro no envio') {
       badges.push(<Badge key="error" variant="secondary" className={cn(commonClasses, "bg-rose-50 text-rose-700 border-rose-200")}><AlertTriangle className="h-3 w-3" /> Erro Envio</Badge>);
     } else if (contactStatus === 'Reenvio vencido') {
-      badges.push(<Badge key="overdue" variant="secondary" className={cn(commonClasses, "bg-rose-500 text-white border-rose-600 shadow-rose-200 animate-pulse")}><Clock className="h-3 w-3" /> Reenvio Vencido</Badge>);
+      badges.push(<Badge key="overdue" variant="secondary" className={cn(commonClasses, "bg-rose-500 text-white border-rose-600 shadow-rose-200 animate-pulse")}><Zap className="h-3 w-3" /> Reenvio Vencido</Badge>);
     }
 
     // Prioridade 3: Estados Ativos
