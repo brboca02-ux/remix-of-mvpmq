@@ -402,6 +402,13 @@ export interface ProspectLead {
   instagramUrl?: string;
   whatsapp?: string;
   websiteUrl?: string;
+  cnpj?: string;
+  cnae?: string;
+  openingDate?: string;
+  legalType?: string;
+  size?: string;
+  status_sefaz?: string;
+  partners?: string[];
   rating?: number;
   priceLevel?: string;
   source: string;
