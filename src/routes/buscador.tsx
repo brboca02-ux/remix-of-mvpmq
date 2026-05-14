@@ -483,7 +483,7 @@ function BuscadorPage() {
           </Tabs>
         </div>
       </main>
-      <ActiveJobsBanner />
+      {isImporting && <ActiveJobsBanner />}
       <CompanyDetailDialog
         company={selected}
         open={detailOpen}
