@@ -114,6 +114,8 @@ import { PerformanceDashboard } from './PerformanceDashboard';
 import { DailyAiPlan } from './DailyAiPlan';
 import { LeadPlaybook } from './LeadPlaybook';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { hunterFindEmails, builtWithLookup } from '@/server/enrichment-paid-providers';
+import { analyzePageSpeed } from '@/lib/pagespeed.functions';
 
   export const Route = createFileRoute('/prospecting' as any)({
   component: ProspectingPage,
@@ -255,6 +257,7 @@ export default function ProspectingPage() {
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const [isNoInterestDialogOpen, setIsNoInterestDialogOpen] = useState(false);
   const [pendingReason, setPendingReason] = useState("");
+  const [isEnrichingExtra, setIsEnrichingExtra] = useState(false);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1577,10 +1580,11 @@ export default function ProspectingPage() {
 
               <div className="px-8 pb-8 space-y-8">
                 <Tabs value={configInitialTab} onValueChange={setConfigInitialTab} className="w-full">
-                  <TabsList className="grid grid-cols-7 bg-slate-100/50 p-1 rounded-2xl mb-6">
+                  <TabsList className="grid grid-cols-8 bg-slate-100/50 p-1 rounded-2xl mb-6">
                     <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Visão</TabsTrigger>
                     <TabsTrigger value="playbook" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider text-violet-600">Playbook</TabsTrigger>
                     <TabsTrigger value="empresa" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Empresa</TabsTrigger>
+                    <TabsTrigger value="paid" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider text-amber-600">Enriquecer</TabsTrigger>
                     <TabsTrigger value="digital" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Digital</TabsTrigger>
                     <TabsTrigger value="contato" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Contato</TabsTrigger>
                     <TabsTrigger value="preview" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm text-[10px] font-black uppercase tracking-wider">Preview</TabsTrigger>
@@ -1667,6 +1671,144 @@ export default function ProspectingPage() {
                           onChange={(e) => setSelectedLead({ ...selectedLead, partners: e.target.value.split(',').map(s => s.trim()) })}
                           className="rounded-2xl bg-slate-50 border-slate-100 h-11 px-4 font-medium"
                         />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="paid" className="space-y-6 mt-0">
+                    <div className="bg-amber-50 border border-amber-100 rounded-3xl p-6 space-y-4 shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-amber-100 rounded-xl">
+                          <Sparkles className="h-5 w-5 text-amber-600" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Super Enriquecimento</h4>
+                          <p className="text-[10px] font-bold text-amber-700 opacity-80">Ative APIs pagas para dados profundos</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/50 space-y-3">
+                            <div className="flex items-center gap-2 mb-1">
+                               <Mail className="h-4 w-4 text-primary" />
+                               <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Hunter.io</span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Encontra e verifica e-mails reais de tomadores de decisão usando o domínio da empresa.</p>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full h-9 rounded-xl border-amber-200 text-amber-700 font-bold text-[10px] hover:bg-amber-100"
+                              disabled={!selectedLead.websiteUrl || isEnrichingExtra}
+                              onClick={async () => {
+                                setIsEnrichingExtra(true);
+                                try {
+                                  const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
+                                  if (!domain) return;
+                                  const res = await hunterFindEmails({ data: { domain, company: selectedLead.companyName } });
+                                  if (res.success && res.data.emails?.length > 0) {
+                                    const email = res.data.emails[0].email;
+                                    setSelectedLead({ ...selectedLead, email });
+                                    toast.success(`Encontrado e-mail: ${email}`);
+                                  } else {
+                                    toast.error(res.error || "Nenhum e-mail encontrado");
+                                  }
+                                } finally {
+                                  setIsEnrichingExtra(false);
+                                }
+                              }}
+                            >
+                              {isEnrichingExtra ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Search className="h-3 w-3 mr-2" />}
+                              Buscar E-mails
+                            </Button>
+                         </div>
+
+                         <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/50 space-y-3">
+                            <div className="flex items-center gap-2 mb-1">
+                               <Monitor className="h-4 w-4 text-violet-500" />
+                               <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">BuiltWith</span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Detecta CMS, Analytics, Pixels e tecnologias legadas para encontrar pontos de dor.</p>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full h-9 rounded-xl border-violet-200 text-violet-700 font-bold text-[10px] hover:bg-violet-100"
+                              disabled={!selectedLead.websiteUrl || isEnrichingExtra}
+                              onClick={async () => {
+                                setIsEnrichingExtra(true);
+                                try {
+                                  const domain = selectedLead.websiteUrl?.replace(/^https?:\/\//, '').split('/')[0];
+                                  if (!domain) return;
+                                  const res = await builtWithLookup({ data: { domain } });
+                                  if (res.success && res.data) {
+                                    const techs = res.data.technologies?.map((t: any) => t.name) || [];
+                                    const painPoints = [];
+                                    if (res.data.opportunity?.isOutdated) painPoints.push("Tecnologia Obsoleta");
+                                    if (!res.data.opportunity?.hasAnalytics) painPoints.push("Falta Analytics");
+                                    
+                                    setSelectedLead({ 
+                                      ...selectedLead, 
+                                      technologies: techs,
+                                      techPainPoints: painPoints 
+                                    });
+                                    toast.success(`Tecnologias mapeadas: ${techs.length}`);
+                                  } else {
+                                    toast.error(res.error || "Falha ao mapear tecnologias");
+                                  }
+                                } finally {
+                                  setIsEnrichingExtra(false);
+                                }
+                              }}
+                            >
+                              {isEnrichingExtra ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <ScanText className="h-3 w-3 mr-2" />}
+                              Mapear Tech Stack
+                            </Button>
+                         </div>
+
+                         <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/50 space-y-3 col-span-1 md:col-span-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Zap className="h-4 w-4 text-blue-500" />
+                                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Google PageSpeed Insights</span>
+                              </div>
+                              {selectedLead.pageSpeedScore && (
+                                <Badge className={cn(
+                                  "text-[10px] font-black",
+                                  selectedLead.pageSpeedScore >= 80 ? "bg-emerald-100 text-emerald-700" :
+                                  selectedLead.pageSpeedScore >= 50 ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                )}>
+                                  Score: {selectedLead.pageSpeedScore}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Analisa velocidade real no Mobile. Um site lento é o melhor gatilho para vender uma nova Landing Page.</p>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="w-full h-9 rounded-xl border-blue-200 text-blue-700 font-bold text-[10px] hover:bg-blue-100"
+                              disabled={!selectedLead.websiteUrl || isEnrichingExtra}
+                              onClick={async () => {
+                                setIsEnrichingExtra(true);
+                                try {
+                                  const res = await analyzePageSpeed({ data: { url: selectedLead.websiteUrl! } });
+                                  if (res.ok) {
+                                    setSelectedLead({ 
+                                      ...selectedLead, 
+                                      pageSpeedScore: res.score,
+                                      pageSpeedStatus: res.score >= 80 ? 'bom' : res.score >= 50 ? 'ruim' : 'crítico'
+                                    });
+                                    toast.success(`Performance analisada: ${res.score}/100`);
+                                  } else {
+                                    toast.error(res.error || "Erro ao analisar velocidade");
+                                  }
+                                } finally {
+                                  setIsEnrichingExtra(false);
+                                }
+                              }}
+                            >
+                              {isEnrichingExtra ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <TrendingUp className="h-3 w-3 mr-2" />}
+                              Analisar Velocidade Mobile
+                            </Button>
+                         </div>
                       </div>
                     </div>
                   </TabsContent>
@@ -1924,8 +2066,13 @@ export default function ProspectingPage() {
                       });
                     }} 
                     className="w-full h-14 rounded-2xl text-base font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"
+                    onClick={() => {
+                      updateLead(selectedLead.id, selectedLead);
+                      toast.success("Lead atualizado com sucesso!");
+                      setIsLeadConfigOpen(false);
+                    }} 
                   >
-                    Confirmar e salvar dados
+                    Salvar Todas as Alterações
                   </Button>
                   
                   <div className="flex gap-2">

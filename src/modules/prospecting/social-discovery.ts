@@ -1,18 +1,51 @@
 import { ProspectLead, SocialDiscoveryData, SocialDiscoveryStatus } from './types';
+import { apifyInstagramProfile } from '@/server/enrichment-paid-providers';
+import { logger } from '@/lib/logger';
 
 /**
  * Social Discovery Service
  * 
- * NOTA: Esta é uma versão SIMULADA para demonstração.
- * Em produção, deve ser substituída por APIs reais de enriquecimento
- * (ex: Snov.io, Hunter.io, Apollo.io, ou scraping autorizado).
- * 
- * Os dados retornados são ESTIMATIVAS baseadas no nome da empresa,
- * NÃO são dados verificados.
+ * Conecta com Apify para scraping real se o token estiver configurado.
+ * Caso contrário, utiliza uma simulação inteligente para demonstração.
  */
 export const discoverSocialMedia = async (lead: ProspectLead): Promise<SocialDiscoveryData> => {
-  // Simulate API delay (em produção, seria uma chamada real)
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  const normalizedName = lead.instagramHandle || lead.companyName.toLowerCase().replace(/\s+/g, '');
+  
+  // 1. Tentar Enriquecimento REAL via Apify se tivermos o handle ou nome
+  try {
+    logger.info('Iniciando descoberta social real via Apify', { handle: normalizedName });
+    const result = await apifyInstagramProfile({ data: { username: normalizedName } });
+    
+    if (result.success && result.data) {
+      const profile = result.data;
+      return {
+        instagramHandle: profile.username,
+        instagramUrl: `https://instagram.com/${profile.username}`,
+        recentPosts: (profile.recentPosts || []).map((p: any) => ({
+          caption: p.caption,
+          date: p.timestamp,
+          imageUrl: p.displayUrl
+        })),
+        suggestedHook: `Vi seu perfil no Instagram (@${profile.username}) e notei que você tem ${profile.followersCount} seguidores.`,
+        suggestedHeadline: profile.biography ? `Sua bio diz "${profile.biography.substring(0, 50)}...", que tal potencializar isso com um site?` : "Transforme seguidores em clientes reais.",
+        status: 'encontrado' as SocialDiscoveryStatus,
+        confidence: 95,
+        evidence: `Perfil real encontrado via scraping: ${profile.fullName}. ${profile.followersCount} seguidores.`,
+        lastCheckedAt: new Date().toISOString()
+      } as SocialDiscoveryData;
+    }
+    
+    if (result.error?.includes('APIFY_API_TOKEN não configurado')) {
+      logger.warn('Apify não configurado, usando simulação inteligente');
+    } else {
+      logger.warn('Apify falhou ou não encontrou, usando simulação', { error: result.error });
+    }
+  } catch (err) {
+    logger.error('Erro na chamada do Apify', err as Error);
+  }
+
+  // 2. Fallback: Simulação inteligente (original)
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   let confidence = 0;
   let evidenceLines: string[] = [];
@@ -20,17 +53,14 @@ export const discoverSocialMedia = async (lead: ProspectLead): Promise<SocialDis
     status: 'pendente' as SocialDiscoveryStatus
   };
 
-  // 1. Simulation logic based on existing lead data
-  const normalizedName = lead.companyName.toLowerCase().replace(/\s+/g, '');
   const hasPhone = !!lead.whatsapp;
   const hasCity = !!lead.city;
 
-  // Mock finding an Instagram
   if (lead.companyName.length > 3) {
     results.instagramHandle = normalizedName;
     results.instagramUrl = `https://instagram.com/${normalizedName}`;
     confidence += 40;
-    evidenceLines.push(`Nome da empresa bate com perfil @${normalizedName}`);
+    evidenceLines.push(`Nome da empresa bate com perfil @${normalizedName} (Simulado)`);
     
     if (hasCity) {
       confidence += 25;
@@ -42,33 +72,10 @@ export const discoverSocialMedia = async (lead: ProspectLead): Promise<SocialDis
       evidenceLines.push(`Telefone vinculado ao perfil bate com o registro`);
     }
 
-    // New: Mock analyzing recent posts
-    const niche = lead.niche?.toLowerCase() || '';
-    if (niche.includes('clínica') || niche.includes('estética')) {
-      results.recentPosts = [
-        { caption: 'Novos procedimentos de harmonização facial disponíveis!', date: '2024-03-20' },
-        { caption: 'Dica do dia: Cuidados com a pele no outono.', date: '2024-03-18' }
-      ];
-      results.suggestedHook = "Vi que vocês postaram sobre harmonização facial recentemente.";
-      results.suggestedHeadline = "Transforme seguidores em pacientes com um site focado em conversão.";
-    } else if (niche.includes('tecnologia') || niche.includes('marketing')) {
-      results.recentPosts = [
-        { caption: 'Como a IA está mudando o mercado de software.', date: '2024-03-19' },
-        { caption: 'Lançamento do nosso novo dashboard analítico!', date: '2024-03-15' }
-      ];
-      results.suggestedHook = "Gostei muito do post sobre IA que vocês publicaram.";
-      results.suggestedHeadline = "Sua empresa de tech merece um site de alta performance.";
-    } else {
-      results.recentPosts = [
-        { caption: 'Transformando desafios em resultados reais.', date: '2024-03-19' },
-        { caption: 'Equipe reunida para planejar o próximo trimestre.', date: '2024-03-14' }
-      ];
-      results.suggestedHook = "Acompanhei os resultados que vocês compartilharam no Instagram.";
-      results.suggestedHeadline = "Autoridade digital para quem entrega resultados reais.";
-    }
+    results.suggestedHook = "Acompanhei os resultados que vocês compartilharam no Instagram.";
+    results.suggestedHeadline = "Autoridade digital para quem entrega resultados reais.";
   }
 
-  // Final status based on confidence
   let status: SocialDiscoveryStatus = 'não_encontrado';
   if (confidence >= 80) status = 'encontrado';
   else if (confidence >= 50) status = 'revisar_manual';
@@ -88,24 +95,33 @@ export const updateOpportunityWithSocial = (lead: ProspectLead) => {
   const hasInstagram = !!(lead.instagramHandle || lead.socialDiscovery?.instagramHandle);
   const hasSocials = !!(lead.socialDiscovery?.facebookUrl || lead.socialDiscovery?.instagramUrl);
   const hasWebsite = !!lead.websiteUrl;
-  const hasPhone = !!lead.whatsapp;
-
-  // - Sem Instagram encontrado: +15
-  if (!hasInstagram) {
+  
+  // Pontuação baseada em pontos de dor reais
+  if (lead.pageSpeedStatus === 'crítico' || lead.pageSpeedStatus === 'ruim') {
+    extraScore += 25; // Oportunidade quente para vender performance
+  }
+  
+  if (lead.techPainPoints?.includes("Tecnologia Obsoleta")) {
     extraScore += 15;
   }
+  
+  if (lead.techPainPoints?.includes("Falta Analytics")) {
+    extraScore += 10;
+  }
 
-  // - Tem Instagram mas sem site: +20
+  // Lógica original de presença
+  if (!hasInstagram) {
+    extraScore += 10;
+  }
+
   if (hasInstagram && !hasWebsite) {
     extraScore += 20;
   }
 
-  // - Tem redes sociais mas sem site: +30
   if (hasSocials && !hasWebsite) {
-    extraScore += 30;
+    extraScore += 25;
   }
 
-  // Update original score (capped at 100)
   const newScore = Math.min(lead.opportunityScore + extraScore, 100);
   
   let level = lead.opportunityLevel;

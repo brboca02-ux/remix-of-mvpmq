@@ -412,6 +412,10 @@ export interface ProspectLead {
   is_enriched?: boolean;
   digitalScore?: number;
   digitalLevel?: 'verde' | 'amarelo' | 'vermelho';
+  pageSpeedScore?: number;
+  pageSpeedStatus?: 'bom' | 'ruim' | 'crítico';
+  technologies?: string[];
+  techPainPoints?: string[];
   rating?: number;
   priceLevel?: string;
   source: string;
