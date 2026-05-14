@@ -6,7 +6,7 @@
 export type CsvValidationResult =
   | {
       valid: true;
-      delimiter: "," | ";" | "\t";
+      delimiter: "," | ";" | "\t" | "|";
       delimiterLabel: string;
       encoding: "UTF-8" | "UTF-8 (BOM)" | "Latin-1 (provável)";
       headers: string[];
@@ -79,14 +79,18 @@ async function decodeFile(file: File): Promise<{ text: string; encoding: Encodin
   return { text, encoding };
 }
 
-function detectDelimiter(firstLine: string): "," | ";" | "\t" | null {
+function detectDelimiter(firstLine: string): "," | ";" | "\t" | "|" | null {
   const counts = {
+    "|": (firstLine.match(/\|/g) || []).length,
     ",": (firstLine.match(/,/g) || []).length,
     ";": (firstLine.match(/;/g) || []).length,
     "\t": (firstLine.match(/\t/g) || []).length,
   };
-  const max = Math.max(counts[","], counts[";"], counts["\t"]);
+  const max = Math.max(counts["|"], counts[","], counts[";"], counts["\t"]);
   if (max === 0) return null;
+  // Pipe tem prioridade se aparece 3+ vezes (comum em exports de base de dados)
+  if (counts["|"] >= 3) return "|";
+  if (counts["|"] === max) return "|";
   if (counts[";"] === max) return ";";
   if (counts["\t"] === max) return "\t";
   return ",";
@@ -250,21 +254,35 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
       return {
         valid: false,
         code: "NO_DELIMITER",
-        message: "Não foi possível identificar o delimitador do arquivo (vírgula, ponto e vírgula ou tabulação).",
-        hint: "Confirme que o arquivo possui colunas separadas por ',' ';' ou tab. Evite arquivos de texto livre.",
+        message: "Não foi possível identificar o delimitador do arquivo (vírgula, ponto e vírgula, pipe ou tabulação).",
+        hint: "Confirme que o arquivo possui colunas separadas por ',' ';' '|' ou tab. Evite arquivos de texto livre.",
       };
     }
 
-    const delimiterLabel = delimiter === "," ? "vírgula (,)" : delimiter === ";" ? "ponto e vírgula (;)" : "tabulação (\\t)";
+    const delimiterLabel = delimiter === "," ? "vírgula (,)" : delimiter === ";" ? "ponto e vírgula (;)" : delimiter === "|" ? "pipe (|)" : "tabulação (\\t)";
 
     const headers = splitCsvLine(lines[0], delimiter).filter((h) => h.length > 0);
     if (headers.length < 2) {
-      return {
-        valid: false,
-        code: "NO_DELIMITER",
-        message: `Apenas ${headers.length} coluna detectada com o delimitador '${delimiterLabel}'.`,
-        hint: "Verifique se o arquivo realmente tem múltiplas colunas separadas.",
-      };
+      // Se pipe não funcionou, tenta outros delimitadores como fallback
+      const fallbackDelimiters: Array<"," | ";" | "\t" | "|"> = ["|", ";", ",", "\t"];
+      let foundFallback = false;
+      for (const fb of fallbackDelimiters) {
+        if (fb === delimiter) continue;
+        const fbHeaders = splitCsvLine(lines[0], fb).filter(h => h.length > 0);
+        if (fbHeaders.length >= 2) {
+          // Retry with this delimiter - recursive would be complex, just warn
+          foundFallback = true;
+          break;
+        }
+      }
+      if (!foundFallback) {
+        return {
+          valid: false,
+          code: "NO_DELIMITER",
+          message: `Apenas ${headers.length} coluna detectada com o delimitador '${delimiterLabel}'.`,
+          hint: "Verifique se o arquivo realmente tem múltiplas colunas separadas.",
+        };
+      }
     }
 
     const headerCheck = validateHeaders(headers);

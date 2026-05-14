@@ -159,7 +159,11 @@ function parseSimpleCsv(text: string, nicho = "geral"): StandardLead[] {
       }
     });
 
-    if (leadData.nome || leadData.cnpj || leadData.telefone) {
+    if (leadData.nome || leadData.cnpj || leadData.telefone || leadData.razao_social || leadData.fantasia) {
+      // Fallback: usar razao_social ou fantasia como nome se não tiver nome explícito
+      if (!leadData.nome) {
+        leadData.nome = leadData.razao_social || leadData.fantasia || leadData.cnpj || "";
+      }
       out.push(normalizeLead(leadData as StandardLead));
     }
   }

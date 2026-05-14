@@ -368,7 +368,7 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
     
     // Detect headers
     const firstLine = lines[0];
-    const headerKeywords = ["nome", "name", "telefone", "phone", "email", "cnpj", "empresa", "razao", "fantasia", "cidade", "uf"];
+    const headerKeywords = ["nome", "name", "telefone", "phone", "email", "cnpj", "empresa", "razao", "fantasia", "cidade", "uf", "atividade", "municipio", "bairro", "cep", "porte", "capital"];
     const firstLineLower = firstLine.toLowerCase();
     const hasHeaders = headerKeywords.some(kw => firstLineLower.includes(kw));
     
@@ -383,38 +383,126 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
       const cols = lines[i].split(detectedDelimiter).map(c => c.trim());
       if (cols.length === 0 || !cols[0]) continue;
       
-      let leadData: Partial<StandardLead>;
+      let leadData: Partial<StandardLead> | null;
       
       if (hasHeaders && headers) {
         leadData = mapWithHeaders(cols, headers);
       } else {
-        // Positional: first col = nome, try to detect others
-        leadData = {
-          nome: cols[0],
-          telefone: cols.find(c => /^\d{10,11}$/.test(c.replace(/\D/g, ''))) || cols[1] || undefined,
-          raw: { all_fields: cols },
-        };
+        // Positional: Detect field types by content pattern
+        leadData = { raw: { all_fields: cols } };
         
-        // Try to find CNPJ (14 digits)
-        const cnpjCol = cols.find(c => c.replace(/\D/g, '').length === 14);
-        if (cnpjCol) (leadData as any).cnpj = cnpjCol.replace(/\D/g, '');
+        for (const col of cols) {
+          if (!col) continue;
+          
+          // CNPJ (14 digits or formatted XX.XXX.XXX/XXXX-XX)
+          const cleanCol = col.replace(/\D/g, '');
+          if (!leadData.cnpj && cleanCol.length === 14 && /^\d{14}$/.test(cleanCol)) {
+            (leadData as any).cnpj = cleanCol;
+            continue;
+          }
+          
+          // Phone (10-11 digits, or formatted with parens/dashes)
+          if (!leadData.telefone && cleanCol.length >= 10 && cleanCol.length <= 11 && /^\d+$/.test(cleanCol)) {
+            leadData.telefone = cleanCol;
+            continue;
+          }
+          // Phone with formatting
+          if (!leadData.telefone && /^\(?\d{2,3}\)?\s*\d{4,5}[-\s]?\d{4}$/.test(col)) {
+            leadData.telefone = col.replace(/\D/g, '');
+            continue;
+          }
+          
+          // CEP (8 digits or XXXXX-XXX)
+          if (!leadData.cep && (cleanCol.length === 8 && /^\d{8}$/.test(cleanCol)) || /^\d{5}-?\d{3}$/.test(col)) {
+            leadData.cep = cleanCol.length === 8 ? cleanCol : col.replace(/\D/g, '');
+            continue;
+          }
+          
+          // UF (exactly 2 uppercase letters)
+          if (!leadData.uf && /^[A-Z]{2}$/.test(col)) {
+            leadData.uf = col;
+            continue;
+          }
+          
+          // Email
+          if (!leadData.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(col)) {
+            leadData.email = col;
+            continue;
+          }
+          
+          // Website
+          if (!leadData.site && /^(https?:\/\/|www\.)/i.test(col)) {
+            leadData.site = col;
+            continue;
+          }
+          
+          // Capital social (number with dots/commas as thousands separator)
+          if (!leadData.capital_social && /^\d{1,3}(\.\d{3})*(,\d{2})?$/.test(col) && col.length > 4) {
+            leadData.capital_social = parseFloat(col.replace(/\./g, '').replace(',', '.'));
+            continue;
+          }
+        }
         
-        // Try to find city (common patterns)
-        const cityCol = cols.find(c => /^[A-Z][a-záéíóúãõ\s]+$/.test(c) && c.length > 3 && c.length < 30);
-        if (cityCol) leadData.cidade = cityCol;
+        // Nome: first text column that's not a detected field
+        if (!leadData.nome) {
+          for (const col of cols) {
+            if (!col || col.length < 2) continue;
+            const cleanCol = col.replace(/\D/g, '');
+            // Skip if it's a number-only field (CNPJ, phone, CEP, capital)
+            if (cleanCol.length === 14 || (cleanCol.length >= 10 && cleanCol.length <= 11) || cleanCol.length === 8) continue;
+            if (/^[A-Z]{2}$/.test(col)) continue;
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(col)) continue;
+            if (/^(https?:\/\/|www\.)/i.test(col)) continue;
+            if (/^\d{1,3}(\.\d{3})*(,\d{2})?$/.test(col) && col.length > 4) continue;
+            // This is likely the name
+            leadData.nome = col;
+            break;
+          }
+        }
         
-        // Try to find UF (2 uppercase letters)
-        const ufCol = cols.find(c => /^[A-Z]{2}$/.test(c));
-        if (ufCol) leadData.uf = ufCol;
+        // Ultimate fallback: use first column with 3+ chars as nome
+        if (!leadData.nome && cols[0] && cols[0].length >= 3) {
+          leadData.nome = cols[0];
+        }
         
-        // Try to find atividade/categoria (longer text fields)
-        const atividadeCol = cols.find(c => c.length > 15 && !/^\d/.test(c) && c !== cols[0]);
-        if (atividadeCol) leadData.atividade = atividadeCol;
+        // Cidade: text field that looks like a city name (capitalized, 3-30 chars, not the nome)
+        if (!leadData.cidade) {
+          for (const col of cols) {
+            if (!col || col === leadData.nome || col.length < 3 || col.length > 40) continue;
+            const cleanCol = col.replace(/\D/g, '');
+            if (cleanCol.length === 14 || (cleanCol.length >= 10 && cleanCol.length <= 11) || cleanCol.length === 8) continue;
+            if (/^[A-Z]{2}$/.test(col)) continue;
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(col)) continue;
+            if (/^(https?:\/\/|www\.)/i.test(col)) continue;
+            // City names are typically capitalized words
+            if (/^[A-ZÀ-Ú][a-záéíóúãõâêîôûç\s]+$/.test(col) || /^[A-ZÀ-Ú\s]+$/.test(col)) {
+              leadData.cidade = col;
+              break;
+            }
+          }
+        }
+        
+        // Atividade: longer text field that's not nome or cidade
+        if (!leadData.atividade) {
+          for (const col of cols) {
+            if (!col || col === leadData.nome || col === leadData.cidade) continue;
+            if (col.length > 15 && !/^\d/.test(col) && !/^[A-Z]{2}$/.test(col)) {
+              const cleanCol = col.replace(/\D/g, '');
+              if (cleanCol.length === 14 || (cleanCol.length >= 10 && cleanCol.length <= 11)) continue;
+              if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(col)) continue;
+              if (/^(https?:\/\/|www\.)/i.test(col)) continue;
+              leadData.atividade = col;
+              break;
+            }
+          }
+        }
       }
       
-      if (leadData && leadData.nome && leadData.nome.length > 1) {
+      if (leadData && (leadData.nome || leadData.razao_social || leadData.fantasia) && (leadData.nome || leadData.razao_social || leadData.fantasia)!.length > 1) {
+        // Fallback: usar razao_social ou fantasia como nome se nome não foi encontrado
+        const effectiveNome = leadData.nome || leadData.razao_social || leadData.fantasia || "";
         const finalLead: StandardLead = {
-          nome: leadData.nome,
+          nome: effectiveNome,
           telefone: leadData.telefone || null,
           email: leadData.email || null,
           cnpj: (leadData as any).cnpj || null,
@@ -511,7 +599,10 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
         leadData = mapByPosition(cols);
       }
       
-      if (leadData && leadData.nome) {
+      if (leadData && (leadData.nome || leadData.razao_social || leadData.fantasia)) {
+        // Fallback: usar razao_social ou fantasia como nome
+        const effectiveNomeCsv = leadData.nome || leadData.razao_social || leadData.fantasia || "";
+        
         // Enhance with address info
         if (leadData.raw && typeof leadData.raw === 'object' && 'endereco_completo' in leadData.raw) {
           const addressInfo = extractAddressInfo(String(leadData.raw.endereco_completo));
@@ -522,7 +613,7 @@ export function smartParseCsv(text: string, nicho: string = "geral"): SmartParse
         
         // Set defaults
         const finalLead: any = {
-          nome: leadData.nome,
+          nome: effectiveNomeCsv,
           telefone: leadData.telefone,
           email: leadData.email,
           cnpj: leadData.cnpj,
@@ -589,8 +680,13 @@ function mapWithHeaders(cols: string[], headers: string[]): Partial<StandardLead
     nome: "nome",
     name: "nome",
     empresa: "nome",
+    "nome fantasia": "fantasia",
+    "nome_fantasia": "fantasia",
+    "nome empresarial": "nome",
     razao_social: "razao_social",
     "razão social": "razao_social",
+    "razao social": "razao_social",
+    "razao": "razao_social",
     fantasia: "fantasia",
     cnpj: "cnpj",
     telefone: "telefone",
@@ -600,21 +696,49 @@ function mapWithHeaders(cols: string[], headers: string[]): Partial<StandardLead
     celular: "telefone",
     numero: "telefone",
     número: "telefone",
+    "ddd+telefone": "telefone",
+    "telefone 1": "telefone",
+    "telefone1": "telefone",
+    fone: "telefone",
+    contato: "telefone",
     email: "email",
     "e-mail": "email",
     cidade: "cidade",
     city: "cidade",
+    municipio: "cidade",
+    município: "cidade",
     uf: "uf",
     estado: "uf",
     bairro: "bairro",
     cep: "cep",
     site: "site",
     website: "site",
+    url: "site",
     porte: "porte",
+    "porte da empresa": "porte",
+    "porte empresa": "porte",
     status: "status",
+    "situacao cadastral": "status",
+    "situação cadastral": "status",
+    situacao: "status",
     atividade: "atividade",
+    "atividade principal": "atividade",
+    "atividade_principal": "atividade",
+    "cnae principal": "atividade",
+    "cnae_principal": "atividade",
+    "descricao cnae": "atividade",
+    "descrição cnae": "atividade",
+    cnae: "atividade",
     categoria: "atividade",
     tipo: "atividade",
+    segmento: "atividade",
+    ramo: "atividade",
+    "capital social": "capital_social",
+    capital_social: "capital_social",
+    capital: "capital_social",
+    logradouro: "bairro",
+    endereco: "bairro",
+    endereço: "bairro",
   };
   
   headers.forEach((header, idx) => {
@@ -622,12 +746,25 @@ function mapWithHeaders(cols: string[], headers: string[]): Partial<StandardLead
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
+      .replace(/[_\-\s]+/g, " ")
       .trim();
     
     const value = cols[idx]?.trim();
     if (!value) return;
     
-    const field = HEADER_MAP[normalized];
+    // Exact match first
+    let field = HEADER_MAP[normalized];
+    
+    // Partial match if no exact match
+    if (!field) {
+      for (const [key, mappedField] of Object.entries(HEADER_MAP)) {
+        if (normalized.includes(key) || key.includes(normalized)) {
+          field = mappedField;
+          break;
+        }
+      }
+    }
+    
     if (field) {
       (lead as Record<string, unknown>)[field] = value;
     } else {
@@ -637,6 +774,11 @@ function mapWithHeaders(cols: string[], headers: string[]): Partial<StandardLead
       }
     }
   });
+  
+  // Fallback: se não tem "nome" explícito, usar razao_social ou fantasia
+  if (!lead.nome) {
+    lead.nome = lead.razao_social || lead.fantasia || undefined;
+  }
   
   return lead.nome ? lead : null;
 }

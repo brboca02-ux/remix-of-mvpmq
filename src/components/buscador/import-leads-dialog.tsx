@@ -318,7 +318,7 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".csv,text/csv"
+                      accept=".csv,.txt,text/csv,text/plain"
                       className="hidden"
                       onChange={(e) => {
                         handleFile(e.target.files?.[0] || null);
