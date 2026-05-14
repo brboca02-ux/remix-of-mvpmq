@@ -121,9 +121,9 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
              </div>
            )}
            <div className="flex items-center gap-1">
-             {lead.whatsapp && <MessageCircle className="h-2.5 w-2.5 text-emerald-600" />}
-             {lead.websiteUrl && <GlobeIcon className="h-2.5 w-2.5 text-blue-600" />}
-             {lead.instagramHandle && <Instagram className="h-2.5 w-2.5 text-pink-600" />}
+             {lead.whatsapp && <MessageCircle className="h-4 w-4 text-emerald-600 drop-shadow-sm" />}
+             {lead.websiteUrl && <GlobeIcon className="h-4 w-4 text-blue-600 drop-shadow-sm" />}
+             {lead.instagramHandle && <Instagram className="h-4 w-4 text-pink-600 drop-shadow-sm" />}
            </div>
         </div>
         
