@@ -82,14 +82,14 @@ export function ResultsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead><H k="nome">Empresa</H></TableHead>
-              <TableHead><H k="cidade">Localização</H></TableHead>
-              <TableHead className="hidden md:table-cell">Status Operacional</TableHead>
-              <TableHead className="hidden sm:table-cell">
+              <TableHead className="w-[40%] min-w-[200px]"><H k="nome">Empresa</H></TableHead>
+              <TableHead className="w-[20%] min-w-[120px]"><H k="cidade">Localização</H></TableHead>
+              <TableHead className="hidden md:table-cell w-[15%]">Status Operacional</TableHead>
+              <TableHead className="hidden sm:table-cell w-[10%]">
                 <H k="digital">Digital</H>
               </TableHead>
-              <TableHead><H k="score">Score</H></TableHead>
-              <TableHead className="text-right">Ação</TableHead>
+              <TableHead className="w-[10%]"><H k="score">Score</H></TableHead>
+              <TableHead className="text-right w-[5%]">Ação</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
