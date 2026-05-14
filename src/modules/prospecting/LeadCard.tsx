@@ -1022,6 +1022,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
           </div>
 
           <LeadBusinessDetails lead={lead} />
+          <LeadTechInsights lead={lead} />
 
           <ManualAnalysisChecklist 
             lead={lead} 
