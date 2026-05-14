@@ -409,6 +409,9 @@ export interface ProspectLead {
   size?: string;
   status_sefaz?: string;
   partners?: string[];
+  is_enriched?: boolean;
+  digitalScore?: number;
+  digitalLevel?: 'verde' | 'amarelo' | 'vermelho';
   rating?: number;
   priceLevel?: string;
   source: string;

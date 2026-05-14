@@ -29,9 +29,10 @@ import {
   AlertTriangle,
   Info,
   Loader2,
-  Target
+  Target,
+  Mail
 } from "@/lib/icons";
-import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Clock, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck } from "lucide-react";
+import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Clock, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Globe, Phone, TrendingUp } from "lucide-react";
 import { useProspectingStore } from './prospecting-store';
 import { addDays } from 'date-fns';
 import { calculateOpportunityScore } from './opportunity-score';
@@ -440,9 +441,15 @@ export const LeadCard: React.FC<LeadCardProps> = ({
   const attachmentsCount = (lead.statusNotes || []).reduce((sum, n) => sum + (n.attachments?.length || 0), 0);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-rose-600 bg-rose-50 border-rose-100";
-    if (score >= 50) return "text-amber-600 bg-amber-50 border-amber-100";
+    if (score >= 80) return "text-emerald-600 bg-emerald-50 border-emerald-100";
+    if (score >= 50) return "text-primary-600 bg-primary-50 border-primary-100";
     return "text-slate-600 bg-slate-50 border-slate-100";
+  };
+
+  const getDigitalBadgeClass = (level?: string) => {
+    if (level === 'verde') return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    if (level === 'amarelo') return "bg-amber-100 text-amber-700 border-amber-200";
+    return "bg-rose-100 text-rose-700 border-rose-200";
   };
 
   const getStatusBadge = (status: ProspectLead['status'], lead: ProspectLead) => {
@@ -450,6 +457,23 @@ export const LeadCard: React.FC<LeadCardProps> = ({
     const contactStatus = lead.contactStatus || 'Novo envio pendente';
     
     const badges: React.ReactNode[] = [];
+
+    // Indicadores do buscador (Enriquecido / Digital)
+    if (lead.is_enriched) {
+      badges.push(
+        <Badge key="enriched" variant="outline" className={cn(commonClasses, "bg-violet-50 text-violet-700 border-violet-200")}>
+          <Sparkles className="h-3 w-3 fill-violet-500/20" /> Enriquecido
+        </Badge>
+      );
+    }
+
+    if (lead.digitalLevel) {
+      badges.push(
+        <Badge key="digital" variant="outline" className={cn(commonClasses, getDigitalBadgeClass(lead.digitalLevel))}>
+          <TrendingUp className="h-3 w-3" /> Digital {lead.digitalScore?.toFixed(1)}
+        </Badge>
+      );
+    }
 
     // Prioridade 1: Inativos
     if (contactStatus === 'Lead descartado') {
