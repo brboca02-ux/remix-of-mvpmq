@@ -292,18 +292,20 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Upload className="h-6 w-6 text-primary" /> Importar Leads de Busca Local
-          </DialogTitle>
-          <DialogDescription>
-            Envie sua planilha CSV para processar e enriquecer leads automaticamente.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl w-[95vw] h-[90vh] md:h-[85vh] flex flex-col p-0 overflow-hidden">
+        <div className="p-6 pb-2 border-b">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Upload className="h-6 w-6 text-primary" /> Importar Leads de Busca Local
+            </DialogTitle>
+            <DialogDescription>
+              Envie sua planilha CSV para processar e enriquecer leads automaticamente.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6 py-4">
+        <ScrollArea className="flex-1 px-6">
+          <div className="space-y-6 py-4 pb-10">
             <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1">
                 <TabsTrigger value="file" className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
@@ -688,26 +690,28 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
         </ScrollArea>
 
         {!jobStats && (
-          <div className="flex flex-col gap-3 pt-6 border-t mt-4">
-            <Button 
-              size="lg"
-              className="w-full font-bold h-12 shadow-lg transform transition-all hover:scale-[1.01] active:scale-95" 
-              onClick={() => onImport()} 
-              disabled={loading || (!file && !pastedText.trim()) || !!errorDetails || (!!file && !validation)}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Processando Dados...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="mr-2 h-5 w-5 text-emerald-400" /> Confirmar e Importar Leads
-                </>
-              )}
-            </Button>
-            <Button variant="ghost" className="text-muted-foreground" onClick={() => onOpenChange(false)} disabled={loading}>
-              Cancelar
-            </Button>
+          <div className="p-6 pt-4 border-t bg-background">
+            <div className="flex flex-col gap-3">
+              <Button 
+                size="lg"
+                className="w-full font-bold h-12 shadow-lg transform transition-all hover:scale-[1.01] active:scale-95" 
+                onClick={() => onImport()} 
+                disabled={loading || (!file && !pastedText.trim()) || !!errorDetails || (!!file && !validation)}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Processando Dados...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="mr-2 h-5 w-5 text-emerald-400" /> Confirmar e Importar Leads
+                  </>
+                )}
+              </Button>
+              <Button variant="ghost" className="text-muted-foreground" onClick={() => onOpenChange(false)} disabled={loading}>
+                Cancelar
+              </Button>
+            </div>
           </div>
         )}
       </DialogContent>
