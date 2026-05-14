@@ -1,11 +1,11 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { cn } from "@/lib/utils";
-import { navigationService } from '@/lib/navigation-service';
-import { proposalStorage } from '@/lib/proposal-storage';
-import { SiteHeader } from '@/components/site-header';
-import { SiteFooter } from '@/components/site-footer';
+import { useNavigate } from '@tanstack/react-router';
+import { cn } from "../../lib/utils";
+import { navigationService } from '../../lib/navigation-service';
+import { proposalStorage } from '../../lib/proposal-storage';
+import { SiteHeader } from '../../components/site-header';
+import { SiteFooter } from '../../components/site-footer';
 import { 
   Plus, 
   Search, 
@@ -38,16 +38,16 @@ import {
   Monitor,
   Smartphone,
   Tablet
-} from '@/lib/icons';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+} from '../../lib/icons';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import { Label } from "../../components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Badge } from "../../components/ui/badge";
+import { Progress } from "../../components/ui/progress";
 import { 
   Dialog, 
   DialogContent, 
@@ -55,16 +55,16 @@ import {
   DialogTitle, 
   DialogDescription,
   DialogFooter
-} from "@/components/ui/dialog";
+} from "../../components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../../components/ui/select";
 import { useProspectingStore } from './prospecting-store';
-import { useAuditStore } from '@/hooks/useAuditStore';
+import { useAuditStore } from '../../hooks/useAuditStore';
 import { ProspectLead, SocialDiscoveryData, GeneratedSite } from './types';
 import { parseRawInput } from './lead-parser';
 import { parseLocalSearchInput } from './local-search-parser';
@@ -77,8 +77,8 @@ import { SitePreview } from './SitePreview';
 import { PitchPanel } from './PitchPanel';
 import { extractTextFromImage, parseExtractedText } from './ocr-service';
 import { toast } from 'sonner';
-import { detectPremiumNiche, extractContentFromRaw } from '@/lib/premium-niche-engine';
-import { validatePremiumInput, checkFileValid } from '@/lib/premium-validator';
+import { detectPremiumNiche, extractContentFromRaw } from '../../lib/premium-niche-engine';
+import { validatePremiumInput, checkFileValid } from '../../lib/premium-validator';
 import { 
   Trash2, 
   Check, 
@@ -105,10 +105,10 @@ import {
   normalizeWhatsApp, 
   normalizeWebsite 
 } from './utils-validation';
-import { RevenueSimulator } from '@/components/proposal/RevenueSimulator';
-import { validateProposal } from '@/lib/idea-validator';
-import { IdeaValidatorPanel } from '@/components/proposal/IdeaValidatorPanel';
-import { AiConsultantChat } from '@/components/proposal/AiConsultantChat';
+import { RevenueSimulator } from '../../components/proposal/RevenueSimulator';
+import { validateProposal } from '../../lib/idea-validator';
+import { IdeaValidatorPanel } from '../../components/proposal/IdeaValidatorPanel';
+import { AiConsultantChat } from '../../components/proposal/AiConsultantChat';
 import { FocusMode } from './FocusMode';
 import { PerformanceDashboard } from './PerformanceDashboard';
 import { DailyAiPlan } from './DailyAiPlan';
