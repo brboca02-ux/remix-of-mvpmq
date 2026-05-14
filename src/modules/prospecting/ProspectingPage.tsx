@@ -119,9 +119,6 @@ import { ptBR } from 'date-fns/locale';
 import { hunterFindEmails, builtWithLookup } from '@/server/enrichment-paid-providers';
 import { analyzePageSpeed } from '@/lib/pagespeed.functions';
 
-  export const Route = createFileRoute('/prospecting' as any)({
-  component: ProspectingPage,
-});
 
 export default function ProspectingPage() {
   const navigate = useNavigate();
