@@ -10,7 +10,7 @@ import {
   Send, X, ChevronRight, SkipForward, Clock, UserMinus, Ban, Sparkles, MessageSquare, Instagram, Mail, Zap, CheckCircle2, Copy, AlertTriangle, ArrowRight, TrendingUp, Brain, Rocket, MousePointer2, AlertCircle, Coffee, ChevronDown, ChevronUp, Target, ListChecks, History, Info, MessageCircle, Navigation, ShieldAlert, Trophy, RefreshCw, Lock, ShieldCheck, Building2, Globe, Search
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { addDays } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
