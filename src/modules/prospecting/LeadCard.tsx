@@ -1533,7 +1533,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                             try { await s.onClick(); } finally { setLoadingAction(null); }
                           }}
                           className={cn(
-                            "flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-lg bg-white border border-slate-200 transition-all",
+                            "flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-white border-2 border-slate-100 transition-all",
                             !loadingAction && "hover:border-slate-300 hover:bg-slate-50",
                             loadingAction && "opacity-50 cursor-not-allowed"
                           )}
