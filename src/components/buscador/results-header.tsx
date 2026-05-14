@@ -179,45 +179,59 @@ export function ResultsHeader({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted/40 border border-border/50">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/40 border border-border/50 w-full sm:w-auto overflow-x-auto no-scrollbar">
           <Button 
             variant="ghost" 
             size="sm" 
-            className={cn("h-7 text-[10px] font-bold uppercase", !cacheStatus?.warning ? "bg-background shadow-sm" : "opacity-50 hover:opacity-100")}
+            className={cn("h-8 text-[11px] font-bold uppercase whitespace-nowrap px-3", !cacheStatus?.warning ? "bg-background shadow-sm rounded-lg" : "opacity-60 hover:opacity-100")}
           >
-            Meus Dados
+            Minha Base
           </Button>
-          <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase opacity-50 hover:opacity-100">+ Bases Públicas</Button>
+          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase opacity-60 hover:opacity-100 whitespace-nowrap px-3">
+            Bases Públicas
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold uppercase opacity-60 hover:opacity-100 whitespace-nowrap px-3">
+            Inteligência IA
+          </Button>
         </div>
         
-        {cacheStatus?.warning === "FILTRANDO_JOB" && (
-           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 gap-1.5 h-7">
-             <LayoutList className="h-3 w-3" /> Última Importação
-           </Badge>
-        )}
-
-        <div className="flex-1 relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={searchText}
-          onChange={(e) => onSearchTextChange(e.target.value)}
-          placeholder="Buscar por nome, CNPJ, cidade ou UF…"
-          className="h-10 pl-9 pr-9 text-sm"
-          aria-label="Busca global"
-        />
-        {searchText && (
-          <button
-            type="button"
-            onClick={() => onSearchTextChange("")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label="Limpar busca"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+        <div className="flex-1 flex items-center gap-2">
+          <div className="relative flex-1 group">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input
+              value={searchText}
+              onChange={(e) => onSearchTextChange(e.target.value)}
+              placeholder="Buscar por nome, CNPJ, cidade ou UF…"
+              className="h-11 pl-10 pr-10 text-sm rounded-xl border-border/60 bg-muted/20 focus-visible:ring-primary/20 focus-visible:border-primary/40 transition-all"
+              aria-label="Busca global"
+            />
+            {searchText && (
+              <button
+                type="button"
+                onClick={() => onSearchTextChange("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-full transition-colors"
+                aria-label="Limpar busca"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          
+          {cacheStatus?.warning === "FILTRANDO_JOB" && (
+             <TooltipProvider>
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 h-11 px-3 rounded-xl animate-pulse">
+                     <LayoutList className="h-4 w-4" />
+                   </Badge>
+                 </TooltipTrigger>
+                 <TooltipContent>Exibindo leads da última importação</TooltipContent>
+               </Tooltip>
+             </TooltipProvider>
+          )}
+        </div>
       </div>
-    </div>
 
       {alert && (
         <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm">
