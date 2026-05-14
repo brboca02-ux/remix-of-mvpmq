@@ -906,9 +906,9 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
             <div className="flex items-center gap-4">
               <div className={cn(
-                "h-12 w-12 rounded-full border-[3px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
-                lead.opportunityScore >= 80 ? "border-rose-500/30 text-rose-600 bg-rose-50" : 
-                lead.opportunityScore >= 50 ? "border-amber-400/30 text-amber-600 bg-amber-50" : 
+                "h-14 w-14 rounded-full border-[4px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
+                lead.opportunityScore >= 80 ? "border-emerald-500/30 text-emerald-600 bg-emerald-50" : 
+                lead.opportunityScore >= 50 ? "border-primary-400/30 text-primary-600 bg-primary-50" : 
                 "border-slate-200 text-slate-500 bg-slate-50"
               )}>
                 <span className="text-sm font-black leading-none">{lead.opportunityScore}</span>
