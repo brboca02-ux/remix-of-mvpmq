@@ -99,7 +99,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
 
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={cn(
-            "inline-flex items-center justify-center rounded-lg px-2 py-1 text-base font-black tabular-nums border shadow-sm",
+            "inline-flex items-center justify-center rounded-xl px-3 py-1.5 text-lg font-black tabular-nums border-2 shadow-sm",
             isInactive ? "text-slate-300 bg-slate-50 border-slate-200" : 
             lead.opportunityScore >= 80 ? "text-rose-700 bg-rose-50 border-rose-200" :
             lead.opportunityScore >= 60 ? "text-amber-700 bg-amber-50 border-amber-200" :
