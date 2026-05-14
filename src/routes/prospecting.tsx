@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import ProspectingPage from '../modules/prospecting/ProspectingPage';
+import { PipelinePageV2 } from '../modules/prospecting/pipeline-v2';
 
 export const Route = createFileRoute('/prospecting')({
   head: () => ({
     meta: [
-      { title: "Captação de Empresas — MarketScope AI" },
-      { name: "description", content: "Módulo de captação e prospecção de leads para serviços digitais." },
+      { title: "Pipeline de Vendas — MarketScope AI" },
+      { name: "description", content: "Pipeline operacional de prospecção B2B." },
     ],
   }),
-  component: ProspectingPage,
+  component: PipelinePageV2,
 });
