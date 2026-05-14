@@ -123,7 +123,8 @@ export default function ProspectingPage() {
   const navigate = useNavigate();
   const { leads, addLead, updateLead, deleteLead, deleteLeads, moveLead, moveLeads, upsertLead, getFocusQueue, getWeeklyPerformanceReport, discardLead, markNoInterest } = useProspectingStore();
   const auditLogs = useAuditStore(state => state.auditLogs);
-  const [activeTab, setActiveTab] = useState('plan');
+  const [activeTab, setActiveTab] = useState('pipeline'); // Alterado de 'plan' para 'pipeline' para melhor visualização inicial
+  const [activeSubTab, setActiveSubTab] = useState('pipeline');
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
