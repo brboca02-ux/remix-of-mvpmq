@@ -64,12 +64,21 @@ export function ActiveJobsBanner() {
                 {job.mode === 'smart' ? '🧠' : '🚀'} {job.filename || "Importação"}
               </span>
 
-              <button 
-                onClick={() => setExpanded(isExpanded ? null : job.id)}
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-              </button>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => setExpanded(isExpanded ? null : job.id)}
+                  className="text-muted-foreground hover:text-primary transition-colors p-1"
+                >
+                  {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                </button>
+                <button 
+                  onClick={() => setDismissedJobs(prev => new Set([...prev, job.id]))}
+                  className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                  title="Ocultar"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
             
             <div className="space-y-1">
