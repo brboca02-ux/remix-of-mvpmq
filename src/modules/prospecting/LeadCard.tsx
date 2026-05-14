@@ -314,28 +314,47 @@ const LeadBusinessDetails: React.FC<{ lead: ProspectLead }> = ({ lead }) => {
       </div>
 
       {lead.address && (
-        <div className="flex flex-col gap-0.5 mt-1 border-t border-slate-100 pt-2">
+        <div className="flex flex-col gap-2 mt-1 border-t border-slate-100 pt-2">
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight flex items-center gap-1">
-            <MapPin className="h-2.5 w-2.5" /> Endereço Completo
+            <MapPin className="h-2.5 w-2.5" /> Localização & Street View
           </span>
-          <span className="text-[11px] font-bold text-slate-700 leading-tight">
-            {lead.address}
-            {lead.neighborhood ? `, ${lead.neighborhood}` : ''}
-          </span>
+          <div className="relative group/map overflow-hidden rounded-xl border border-slate-200 aspect-video bg-slate-100">
+             <img 
+               src={`https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${encodeURIComponent(lead.address)}&key=${window.localStorage.getItem('GOOGLE_PLACES_API_KEY') || ''}`}
+               alt="Street View"
+               className="w-full h-full object-cover transition-transform group-hover/map:scale-110"
+               onError={(e) => {
+                 (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400&h=200';
+               }}
+             />
+             <div className="absolute inset-0 bg-black/20 group-hover/map:bg-black/0 transition-colors" />
+             <div className="absolute bottom-2 left-2 right-2">
+               <span className="text-[10px] font-bold text-white bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-lg block truncate">
+                 {lead.address}{lead.neighborhood ? `, ${lead.neighborhood}` : ''}
+               </span>
+             </div>
+          </div>
         </div>
       )}
 
       {lead.partners && lead.partners.length > 0 && (
         <div className="flex flex-col gap-0.5 mt-1 border-t border-slate-100 pt-2">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight flex items-center gap-1">
-            <Users className="h-2.5 w-2.5" /> Quadro Societário
-          </span>
-          <div className="flex flex-wrap gap-1 mt-1">
-            {lead.partners.map((partner, idx) => (
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight flex items-center gap-1">
+              <Users className="h-2.5 w-2.5" /> Quadro Societário ({lead.partners.length})
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1 mt-0.5">
+            {lead.partners.slice(0, 3).map((partner, idx) => (
               <Badge key={idx} variant="outline" className="bg-white border-slate-200 text-slate-600 text-[9px] font-bold px-1.5 py-0">
                 {partner}
               </Badge>
             ))}
+            {lead.partners.length > 3 && (
+              <Badge variant="outline" className="bg-slate-50 border-slate-200 text-slate-400 text-[9px] font-bold px-1.5 py-0">
+                +{lead.partners.length - 3}
+              </Badge>
+            )}
           </div>
         </div>
       )}
