@@ -398,6 +398,7 @@ function BuscadorPage() {
                 onExportWhatsApp={onExportWhatsApp}
                 onSaveList={onSaveList}
                 onSavePreset={onSavePreset}
+                onSendToPipeline={onSendToPipeline}
                 loading={metricsLoading}
                 updatedAt={metrics?.updated_at}
                 cacheStatus={{
