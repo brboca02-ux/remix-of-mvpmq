@@ -194,10 +194,10 @@ export default function ProspectingPage() {
                 source: 'supabase_import',
                 status: dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo'),
                 opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
-                opportunityLevel: 'média',
+                opportunityLevel: (dbLead.confidence_score || 0.5) >= 0.8 ? 'quente' : (dbLead.confidence_score || 0.5) >= 0.5 ? 'boa' : 'média',
                 diagnosis: dbLead.atividade || '',
                 createdAt: dbLead.created_at || new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                updatedAt: dbLead.created_at || new Date().toISOString(),
               });
             }
           });
