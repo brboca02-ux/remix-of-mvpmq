@@ -1021,6 +1021,7 @@ function parseReceitaFederalLine(cols: string[]): Partial<StandardLead> | null {
   };
 }
 
+
 /**
  * Map columns by position (fallback when no headers)
  */

@@ -1,14 +1,17 @@
+import { normalizeLead } from "./leads-shared";
+import * as XLSX from 'xlsx';
+
 /**
- * Validador robusto de CSV: encoding, delimiter e cabeçalho.
+ * Validador robusto de CSV e Excel: encoding, delimiter e cabeçalho.
  * Retorna mensagens claras e acionáveis para o usuário.
  */
 
 export type CsvValidationResult =
   | {
       valid: true;
-      delimiter: "," | ";" | "\t" | "|";
+      delimiter: "," | ";" | "\t" | "|" | "excel";
       delimiterLabel: string;
-      encoding: "UTF-8" | "UTF-8 (BOM)" | "Latin-1 (provável)";
+      encoding: "UTF-8" | "UTF-8 (BOM)" | "Latin-1 (provável)" | "Excel Binary";
       headers: string[];
       mappedHeaders: string[];
       unmappedHeaders: string[];
