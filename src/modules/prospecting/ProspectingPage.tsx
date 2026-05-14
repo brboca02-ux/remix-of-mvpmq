@@ -832,7 +832,7 @@ export default function ProspectingPage() {
             </TabsContent>
 
             <TabsContent value="pipeline" className="mt-0 outline-none">
-              <div className="bg-white/40 backdrop-blur-sm rounded-[3rem] p-8 border border-slate-200/50 shadow-2xl shadow-slate-200/20 overflow-x-auto min-h-[800px]">
+              <div className="bg-white/40 backdrop-blur-sm rounded-[2rem] md:rounded-[3rem] p-4 md:p-8 border border-slate-200/50 shadow-2xl shadow-slate-200/20 overflow-x-auto min-h-[600px] md:min-h-[800px]">
                 <LeadPipeline 
                   leads={filteredLeads}
                   onMoveLead={handleMoveLead}
