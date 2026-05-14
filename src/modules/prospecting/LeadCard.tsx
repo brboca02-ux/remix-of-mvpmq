@@ -1229,15 +1229,15 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                     </div>
 
                     {/* Fluxo Recomendado (Modo Seguro) */}
-                    <div className="bg-white/50 border border-slate-100 rounded-2xl p-3 space-y-2">
+                    <div className="bg-white/50 border border-slate-100 rounded-2xl p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                          <ShieldCheck className="h-3 w-3 text-emerald-500" /> Prospecção Segura
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                          <ShieldCheck className="h-4 w-4 text-emerald-500" /> Prospecção Segura
                         </span>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                              <Info className="h-4 w-4 text-slate-400 cursor-help" />
                             </TooltipTrigger>
                             <TooltipContent className="max-w-[200px] text-[10px]">
                               Siga o fluxo para evitar bloqueios: Pesquise → Interaja → Aguarde → Aborde.
@@ -1245,55 +1245,55 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                      <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
                         {/* Passo 1: Google */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           lead.manualAnalysis?.companyExists ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : "bg-blue-50 border-blue-100 text-blue-700"
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", lead.manualAnalysis?.companyExists ? "bg-emerald-500 text-white" : "bg-blue-500 text-white")}>
-                            {lead.manualAnalysis?.companyExists ? <CheckCircle2 className="h-2 w-2" /> : "1"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", lead.manualAnalysis?.companyExists ? "bg-emerald-500 text-white" : "bg-blue-500 text-white")}>
+                            {lead.manualAnalysis?.companyExists ? <CheckCircle2 className="h-3 w-3" /> : "1"}
                           </div>
-                          <span className="text-[8px] font-bold">Google</span>
+                          <span className="text-[10px] font-bold">Google</span>
                         </div>
 
-                        <ArrowRight className="h-3 w-3 text-slate-300 shrink-0" />
+                        <ArrowRight className="h-4 w-4 text-slate-300 shrink-0" />
 
                         {/* Passo 2: Insta */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           lead.instagramInteractedAt ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : (lead.manualAnalysis?.companyExists ? "bg-blue-50 border-blue-100 text-blue-700" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", lead.instagramInteractedAt ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
-                            {lead.instagramInteractedAt ? <CheckCircle2 className="h-2 w-2" /> : "2"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", lead.instagramInteractedAt ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
+                            {lead.instagramInteractedAt ? <CheckCircle2 className="h-3 w-3" /> : "2"}
                           </div>
-                          <span className="text-[8px] font-bold">Insta</span>
+                          <span className="text-[10px] font-bold">Insta</span>
                         </div>
 
-                        <ArrowRight className="h-3 w-3 text-slate-300 shrink-0" />
+                        <ArrowRight className="h-4 w-4 text-slate-300 shrink-0" />
 
                         {/* Passo 3: Aguardar */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           isInstagramRecent ? "bg-amber-50 border-amber-100 text-amber-700 animate-pulse" : (lead.instagramInteractedAt ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", isInstagramRecent ? "bg-amber-500 text-white" : "bg-slate-300 text-white")}>
-                            {isInstagramRecent ? <Zap className="h-2 w-2" /> : "3"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", isInstagramRecent ? "bg-amber-500 text-white" : "bg-slate-300 text-white")}>
+                            {isInstagramRecent ? <Zap className="h-3 w-3" /> : "3"}
                           </div>
-                          <span className="text-[8px] font-bold">Pausa</span>
+                          <span className="text-[10px] font-bold">Pausa</span>
                         </div>
 
-                        <ArrowRight className="h-3 w-3 text-slate-300 shrink-0" />
+                        <ArrowRight className="h-4 w-4 text-slate-300 shrink-0" />
 
                         {/* Passo 4: Whats */}
                         <div className={cn(
-                          "flex items-center gap-1.5 p-1.5 rounded-lg border transition-all min-w-[80px]",
+                          "flex items-center gap-2.5 p-2 rounded-xl border transition-all min-w-[100px]",
                           lead.status === 'WhatsApp Enviado' ? "bg-emerald-50 border-emerald-100 text-emerald-700" : (isInstagramWarmed ? "bg-blue-50 border-blue-100 text-blue-700" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
-                          <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", lead.status === 'WhatsApp Enviado' ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
-                            {lead.status === 'WhatsApp Enviado' ? <CheckCircle2 className="h-2 w-2" /> : "4"}
+                          <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0", lead.status === 'WhatsApp Enviado' ? "bg-emerald-500 text-white" : "bg-slate-300 text-white")}>
+                            {lead.status === 'WhatsApp Enviado' ? <CheckCircle2 className="h-3 w-3" /> : "4"}
                           </div>
-                          <span className="text-[8px] font-bold">Whats</span>
+                          <span className="text-[10px] font-bold">Whats</span>
                         </div>
                       </div>
                     </div>
