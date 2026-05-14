@@ -934,13 +934,13 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
             <div className="flex items-center gap-4">
               <div className={cn(
-                "h-14 w-14 rounded-full border-[4px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
+                "h-16 w-16 rounded-full border-[4px] flex flex-col items-center justify-center tabular-nums shadow-sm shrink-0",
                 lead.opportunityScore >= 80 ? "border-emerald-500/30 text-emerald-600 bg-emerald-50" : 
                 lead.opportunityScore >= 50 ? "border-primary-400/30 text-primary-600 bg-primary-50" : 
                 "border-slate-200 text-slate-500 bg-slate-50"
               )}>
-                <span className="text-base font-black leading-none">{lead.opportunityScore}</span>
-                <span className="text-[8px] font-black uppercase tracking-tighter opacity-70">Score</span>
+                <span className="text-lg font-black leading-none">{lead.opportunityScore}</span>
+                <span className="text-[9px] font-black uppercase tracking-tighter opacity-70">Score</span>
               </div>
               <div className="flex items-center gap-1">
               <Button 
