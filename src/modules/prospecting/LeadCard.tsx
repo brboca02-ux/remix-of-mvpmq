@@ -1117,7 +1117,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
               const timelineEvents = [
                 ...(lead.statusNotes || []).map(n => ({ id: n.id, date: n.createdAt, title: n.status, message: n.message, icon: MessageSquare, color: 'text-slate-400' })),
                 ...(lead.contactHistory || []).map(h => ({ id: h.id, date: h.timestamp, title: `Contato via ${h.channel}`, message: h.message, icon: Send, color: h.status === 'erro' ? 'text-rose-500' : 'text-emerald-500' })),
-                ...(lead.socialDiscovery?.lastCheckedAt ? [{ id: 'ia-check', date: lead.socialDiscovery.lastCheckedAt, title: 'Análise IA Concluída', message: 'Dados de redes sociais atualizados', icon: Brain, color: 'text-violet-500' }] : [])
+                ...(lead.socialDiscovery?.lastCheckedAt ? [{ id: 'ia-check', date: lead.socialDiscovery.lastCheckedAt, title: 'Análise IA Concluída', message: 'Dados de redes sociais atualizados', icon: Zap, color: 'text-violet-500' }] : [])
               ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
               const recentEvents = timelineEvents.slice(0, 3);
