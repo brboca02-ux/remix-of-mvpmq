@@ -1,14 +1,17 @@
+import { normalizeLead } from "./leads-shared";
+import * as XLSX from 'xlsx';
+
 /**
- * Validador robusto de CSV: encoding, delimiter e cabeçalho.
+ * Validador robusto de CSV e Excel: encoding, delimiter e cabeçalho.
  * Retorna mensagens claras e acionáveis para o usuário.
  */
 
 export type CsvValidationResult =
   | {
       valid: true;
-      delimiter: "," | ";" | "\t" | "|";
+      delimiter: "," | ";" | "\t" | "|" | "excel";
       delimiterLabel: string;
-      encoding: "UTF-8" | "UTF-8 (BOM)" | "Latin-1 (provável)";
+      encoding: "UTF-8" | "UTF-8 (BOM)" | "Latin-1 (provável)" | "Excel Binary";
       headers: string[];
       mappedHeaders: string[];
       unmappedHeaders: string[];
@@ -172,7 +175,24 @@ function validateHeaders(headers: string[]): {
 
 export async function validateCsvFile(file: File): Promise<CsvValidationResult> {
   try {
-    const { text, encoding } = await decodeFile(file);
+    const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+    let text = "";
+    let encoding: any = "UTF-8";
+    let isExcelFile = false;
+
+    if (isExcel) {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      text = XLSX.utils.sheet_to_csv(worksheet);
+      encoding = "Excel Binary";
+      isExcelFile = true;
+    } else {
+      const decoded = await decodeFile(file);
+      text = decoded.text;
+      encoding = decoded.encoding;
+    }
 
     if (!text || !text.trim()) {
       return {
@@ -183,7 +203,7 @@ export async function validateCsvFile(file: File): Promise<CsvValidationResult> 
       };
     }
 
-    if (isLikelyBinary(text)) {
+    if (!isExcelFile && isLikelyBinary(text)) {
       return {
         valid: false,
         code: "BINARY_OR_INVALID_ENCODING",
