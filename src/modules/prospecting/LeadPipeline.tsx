@@ -203,7 +203,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
               </div>
 
               <div
-                className="flex-1 rounded-[1.5rem] p-2 flex flex-col gap-2 h-[500px] md:h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent bg-slate-50/30 border border-slate-100/40 shadow-inner transition-all duration-300"
+                className="flex-1 rounded-[2.5rem] p-3 flex flex-col gap-3 h-[600px] md:h-[750px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent bg-slate-50 border border-slate-200/50 shadow-inner transition-all duration-300"
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.currentTarget.classList.add('bg-primary/[0.04]', 'ring-2', 'ring-primary/10', 'ring-inset', 'scale-[1.005]');
