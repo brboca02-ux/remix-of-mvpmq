@@ -44,11 +44,12 @@ export function ActiveJobsBanner() {
     return () => clearInterval(interval);
   }, []);
 
-  if (jobs.length === 0) return null;
+  const visibleJobs = jobs.filter(j => !dismissedJobs.has(j.id));
+  if (visibleJobs.length === 0) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-80 pointer-events-none">
-      {jobs.map((job) => {
+      {visibleJobs.map((job) => {
         const progress = Math.round(((job.processed_rows || 0) / (job.total_rows || 1)) * 100);
         const hasErrors = (job.failed_rows || 0) > 0;
         const isExpanded = expanded === job.id;
