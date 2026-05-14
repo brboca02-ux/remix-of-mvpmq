@@ -894,8 +894,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    <CalendarDays className="h-3 w-3" />
-                    {formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: true, locale: ptBR })}
+                    {format(new Date(lead.updatedAt), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
