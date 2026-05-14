@@ -18,12 +18,12 @@ import {
   ShieldCheck,
   RefreshCw
 } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "../../components/ui/progress";
 import { motion } from "framer-motion";
-import { AnimatedPercent } from "@/components/ui/animated-value";
-import { LiveProgress } from "@/components/ui/live-progress";
+import { AnimatedPercent } from "../../components/ui/animated-value";
+import { LiveProgress } from "../../components/ui/live-progress";
 
 interface LeadPlaybookProps {
   leadId: string;
