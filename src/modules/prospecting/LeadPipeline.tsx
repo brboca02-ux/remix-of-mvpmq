@@ -137,12 +137,12 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex gap-6 overflow-x-auto pb-8 min-h-[640px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+    <div className="flex flex-col gap-6 md:gap-8">
+      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 min-h-[500px] md:min-h-[640px] scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         {SALES_COLUMNS.map((column) => {
           const columnLeads = getLeadsByStatus(column.id);
           return (
-            <div key={column.id} className="flex-shrink-0 w-[320px] flex flex-col gap-4">
+            <div key={column.id} className="flex-shrink-0 w-[280px] md:w-[320px] flex flex-col gap-4">
               <div className="flex items-center justify-between px-4 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm ring-1 ring-slate-900/5">
                 <div className={cn("flex items-center gap-2.5 font-black text-[11px] uppercase tracking-widest", column.color)}>
                   <span className={cn("p-1.5 rounded-lg", column.bg)}>{column.icon}</span>
@@ -211,7 +211,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
       </div>
 
       {/* Drop Zone para Perdido */}
-      <div className="grid grid-cols-2 gap-6 px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 px-2 md:px-4">
         <div 
           className="group relative flex flex-col items-center justify-center py-8 px-6 rounded-[2.5rem] border-2 border-dashed border-rose-200 bg-rose-50/30 transition-all hover:bg-rose-100/50 hover:border-rose-400 cursor-default overflow-hidden"
           onDragOver={(e) => {

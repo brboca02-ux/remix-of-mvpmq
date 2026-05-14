@@ -113,7 +113,7 @@ import { FocusMode } from './FocusMode';
 import { PerformanceDashboard } from './PerformanceDashboard';
 import { DailyAiPlan } from './DailyAiPlan';
 import { LeadPlaybook } from './LeadPlaybook';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 
   export const Route = createFileRoute('/prospecting' as any)({
   component: ProspectingPage,
@@ -123,7 +123,8 @@ export default function ProspectingPage() {
   const navigate = useNavigate();
   const { leads, addLead, updateLead, deleteLead, deleteLeads, moveLead, moveLeads, upsertLead, getFocusQueue, getWeeklyPerformanceReport, discardLead, markNoInterest } = useProspectingStore();
   const auditLogs = useAuditStore(state => state.auditLogs);
-  const [activeTab, setActiveTab] = useState('plan');
+  const [activeTab, setActiveTab] = useState('pipeline'); // Alterado de 'plan' para 'pipeline' para melhor visualização inicial
+  const [activeSubTab, setActiveSubTab] = useState('pipeline');
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -163,6 +164,7 @@ export default function ProspectingPage() {
   const [isSocialDiscoveryOpen, setIsSocialDiscoveryOpen] = useState(false);
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [discoveryResult, setDiscoveryResult] = useState<SocialDiscoveryData | null>(null);
+  const [isImporting, setIsImporting] = useState(false); // Flag para controlar visibilidade do banner de jobs
   const [isOcrLoading, setIsOcrLoading] = useState(false);
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false);
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
@@ -273,6 +275,8 @@ export default function ProspectingPage() {
       toast.error("Nenhum dado válido encontrado para importar.");
       return;
     }
+    
+    setIsImporting(true); // Ativa o banner de jobs apenas durante a importação
 
     let importedCount = 0;
     let duplicateCount = 0;
@@ -599,23 +603,24 @@ export default function ProspectingPage() {
             ))}
           </div>
 
+          <LayoutGroup>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
-            <div className="flex flex-col lg:flex-row justify-between gap-6 items-center bg-white/80 backdrop-blur-md p-5 rounded-[2rem] border border-slate-200/60 shadow-xl shadow-slate-200/20">
-              <TabsList className="bg-slate-100/80 p-1.5 rounded-2xl w-full lg:w-[750px]">
-                <TabsTrigger value="plan" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <CalendarIcon className="h-4 w-4" /> Plano do Dia
+            <div className="flex flex-col xl:flex-row justify-between gap-6 items-center bg-white/80 backdrop-blur-md p-4 md:p-5 rounded-[2rem] border border-slate-200/60 shadow-xl shadow-slate-200/20">
+              <TabsList className="bg-slate-100/80 p-1 rounded-2xl w-full xl:w-auto overflow-x-auto no-scrollbar justify-start flex-nowrap">
+                <TabsTrigger value="plan" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <CalendarIcon className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Plano</span>
                 </TabsTrigger>
-                <TabsTrigger value="leads" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <ClipboardList className="h-4 w-4" /> Lista
+                <TabsTrigger value="leads" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <ClipboardList className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Lista</span>
                 </TabsTrigger>
-                <TabsTrigger value="pipeline" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <Target className="h-4 w-4" /> Funil
+                <TabsTrigger value="pipeline" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <Target className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Funil</span>
                 </TabsTrigger>
-                <TabsTrigger value="performance" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <TrendingUp className="h-4 w-4" /> Performance
+                <TabsTrigger value="performance" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <TrendingUp className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Perf.</span>
                 </TabsTrigger>
-                <TabsTrigger value="revision" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <AlertCircle className="h-4 w-4" /> Revisão
+                <TabsTrigger value="revision" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <AlertCircle className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Revisão</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -828,7 +833,7 @@ export default function ProspectingPage() {
             </TabsContent>
 
             <TabsContent value="pipeline" className="mt-0 outline-none">
-              <div className="bg-white/40 backdrop-blur-sm rounded-[3rem] p-8 border border-slate-200/50 shadow-2xl shadow-slate-200/20 overflow-x-auto min-h-[800px]">
+              <div className="bg-white/40 backdrop-blur-sm rounded-[2rem] md:rounded-[3rem] p-4 md:p-8 border border-slate-200/50 shadow-2xl shadow-slate-200/20 overflow-x-auto min-h-[600px] md:min-h-[800px]">
                 <LeadPipeline 
                   leads={filteredLeads}
                   onMoveLead={handleMoveLead}
@@ -880,6 +885,7 @@ export default function ProspectingPage() {
               <PerformanceDashboard />
             </TabsContent>
           </Tabs>
+          </LayoutGroup>
 
         </div>
       </main>
@@ -1856,6 +1862,8 @@ export default function ProspectingPage() {
       </Dialog>
 
       <FocusMode isOpen={isFocusModeOpen} onClose={() => setIsFocusModeOpen(false)} />
+      
+      {isImporting && <ActiveJobsBanner />}
     </div>
   );
 }

@@ -131,12 +131,10 @@ function RootComponent() {
          {useShell ? (
            <AppShell hideFooter>
              <Outlet />
-             <BackgroundJobBanner />
            </AppShell>
          ) : (
            <>
              <Outlet />
-             <BackgroundJobBanner />
            </>
          )}
       </AuthProvider>

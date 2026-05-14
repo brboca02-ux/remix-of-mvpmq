@@ -100,6 +100,7 @@ function BuscadorPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [placesOpen, setPlacesOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false); // Flag para banner de jobs
   const arrivalToastShown = useRef(false);
 
   const cached = useCachedCompanies({
@@ -325,7 +326,10 @@ function BuscadorPage() {
                 size="sm"
                 variant="outline"
                 className="gap-2"
-                onClick={() => setPlacesOpen(true)}
+                onClick={() => {
+                  setPlacesOpen(true);
+                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                }}
               >
                 <Sparkles className="h-4 w-4" />
                 Buscar até 100+ empresas no Google
@@ -335,7 +339,10 @@ function BuscadorPage() {
                 variant="default"
                 className="gap-2"
                 data-testid="import-local-button"
-                onClick={() => setImportOpen(true)}
+                onClick={() => {
+                  setImportOpen(true);
+                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                }}
               >
                 <Upload className="h-4 w-4" />
                 Import GLeads CSV
@@ -476,7 +483,7 @@ function BuscadorPage() {
           </Tabs>
         </div>
       </main>
-      <ActiveJobsBanner />
+      {isImporting && <ActiveJobsBanner />}
       <CompanyDetailDialog
         company={selected}
         open={detailOpen}
