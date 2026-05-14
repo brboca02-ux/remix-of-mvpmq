@@ -127,7 +127,7 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
            </div>
         </div>
         
-        <div className="text-xs font-black text-slate-400 uppercase flex items-center gap-1">
+        <div className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
           <Clock className="h-2 w-2" />
           {lead.updatedAt ? formatDistanceToNow(new Date(lead.updatedAt), { addSuffix: false, locale: ptBR }) : 'Agora'}
         </div>
