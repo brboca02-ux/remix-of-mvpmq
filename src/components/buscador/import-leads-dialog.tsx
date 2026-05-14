@@ -48,6 +48,11 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
   const [parserErrors, setParserErrors] = useState<any[]>([]);
   const [existingCount, setExistingCount] = useState<number | null>(null);
   const [validation, setValidation] = useState<Extract<CsvValidationResult, { valid: true }> | null>(null);
+  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({
+    nome: "",
+    telefone: "",
+    email: "",
+  });
 
   const router = useRouter();
 
@@ -106,6 +111,19 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
     setValidation(result);
     setCsvHeaders(result.headers);
     setRowCount(result.rowCount);
+    
+    // Auto-mapeamento inicial inteligente
+    const mapping = { nome: "", telefone: "", email: "" };
+    const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    
+    result.headers.forEach(h => {
+      const norm = normalize(h);
+      if (!mapping.nome && (norm.includes("nome") || norm.includes("razao") || norm.includes("fantasia") || norm.includes("empresa"))) mapping.nome = h;
+      if (!mapping.telefone && (norm.includes("tel") || norm.includes("phone") || norm.includes("whatsapp") || norm.includes("celular") || norm.includes("contato"))) mapping.telefone = h;
+      if (!mapping.email && (norm.includes("email") || norm.includes("e-mail"))) mapping.email = h;
+    });
+    setColumnMapping(mapping);
+
     setPreviewLeads(
       result.previewRows.map((cols) => {
         const obj: Record<string, string> = {};
@@ -198,7 +216,20 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
       if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
 
       const result = await importLeadsCsv({ data: { csv: text, nicho } });
-      const leads = result.leads;
+      let leads = result.leads;
+
+      // Aplicar mapeamento manual se o usuário alterou
+      if (columnMapping.nome || columnMapping.telefone || columnMapping.email) {
+        leads = leads.map((lead: any) => {
+          const raw = lead.raw || {};
+          return normalizeLead({
+            ...lead,
+            nome: columnMapping.nome ? (raw[columnMapping.nome] || lead.nome) : lead.nome,
+            telefone: columnMapping.telefone ? (raw[columnMapping.telefone] || lead.telefone) : lead.telefone,
+            email: columnMapping.email ? (raw[columnMapping.email] || lead.email) : lead.email,
+          });
+        });
+      }
       
       if (result.errors && result.errors.length > 0) {
         setParserErrors(result.errors);
@@ -390,28 +421,77 @@ export function ImportLeadsDialog({ open, onOpenChange, onImported }: Props) {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4 border-t pt-4">
                   <p className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-1">
-                    <LayoutList className="h-3 w-3" /> Colunas Identificadas
+                    <ArrowRight className="h-3 w-3" /> Mapeamento de Colunas (Manual)
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {csvHeaders.map((h, i) => (
-                      <Badge key={i} variant="secondary" className="text-[10px] px-2 py-0 h-5">
-                        {h}
-                      </Badge>
-                    ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase text-muted-foreground">Nome/Empresa</Label>
+                      <select 
+                        className="w-full h-8 text-[11px] rounded-md border bg-muted/50 px-2 focus:ring-1 focus:ring-primary"
+                        value={columnMapping.nome}
+                        onChange={(e) => setColumnMapping(prev => ({ ...prev, nome: e.target.value }))}
+                      >
+                        <option value="">Auto-detectar</option>
+                        {csvHeaders.map((h, i) => <option key={i} value={h}>{h}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase text-muted-foreground">Telefone/WA</Label>
+                      <select 
+                        className="w-full h-8 text-[11px] rounded-md border bg-muted/50 px-2 focus:ring-1 focus:ring-primary"
+                        value={columnMapping.telefone}
+                        onChange={(e) => setColumnMapping(prev => ({ ...prev, telefone: e.target.value }))}
+                      >
+                        <option value="">Auto-detectar</option>
+                        {csvHeaders.map((h, i) => <option key={i} value={h}>{h}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase text-muted-foreground">E-mail</Label>
+                      <select 
+                        className="w-full h-8 text-[11px] rounded-md border bg-muted/50 px-2 focus:ring-1 focus:ring-primary"
+                        value={columnMapping.email}
+                        onChange={(e) => setColumnMapping(prev => ({ ...prev, email: e.target.value }))}
+                      >
+                        <option value="">Auto-detectar</option>
+                        {csvHeaders.map((h, i) => <option key={i} value={h}>{h}</option>)}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
                 {previewLeads.length > 0 && (
-                  <div className="space-y-2 pt-2 border-t">
-                    <p className="text-xs font-bold uppercase text-muted-foreground">Prévia dos Dados</p>
-                    <div className="space-y-1.5">
-                      {previewLeads.map((lead, i) => (
-                        <div key={i} className="text-[10px] text-muted-foreground truncate bg-muted/30 px-2 py-1 rounded">
-                          {Object.values(lead).filter(Boolean).join(" | ")}
-                        </div>
-                      ))}
+                  <div className="space-y-3 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold uppercase text-muted-foreground">Prévia dos Dados Extraídos</p>
+                      <Badge variant="outline" className="text-[9px] opacity-70">Primeiras 5 linhas</Badge>
+                    </div>
+                    <div className="rounded-lg border overflow-hidden">
+                      <table className="w-full text-left text-[10px] border-collapse">
+                        <thead>
+                          <tr className="bg-muted/50">
+                            <th className="px-2 py-1.5 border-b font-bold text-primary">Nome</th>
+                            <th className="px-2 py-1.5 border-b font-bold text-primary">Contato</th>
+                            <th className="px-2 py-1.5 border-b font-bold text-primary">Email</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {previewLeads.slice(0, 5).map((row, i) => {
+                            const name = row[columnMapping.nome] || row.nome || row.razao_social || row.fantasia || "—";
+                            const phone = row[columnMapping.telefone] || row.telefone || row.whatsapp || "—";
+                            const email = row[columnMapping.email] || row.email || "—";
+                            return (
+                              <tr key={i} className="hover:bg-muted/30">
+                                <td className="px-2 py-1.5 border-b truncate max-w-[150px]">{name}</td>
+                                <td className="px-2 py-1.5 border-b font-mono text-success">{phone}</td>
+                                <td className="px-2 py-1.5 border-b truncate max-w-[120px]">{email}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 )}
