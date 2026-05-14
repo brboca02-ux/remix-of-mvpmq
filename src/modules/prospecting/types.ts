@@ -683,6 +683,20 @@ export interface ParsedLeadData {
   linkedinUrl?: string;
   /** Phone number */
   phone?: string;
+  /** CNPJ */
+  cnpj?: string;
+  /** CNAE */
+  cnae?: string;
+  /** Opening Date */
+  openingDate?: string;
+  /** Partners */
+  partners?: string[];
+  /** Legal Type (Matriz/Filial) */
+  legalType?: string;
+  /** Size (Micro/Pequena/Demais) */
+  size?: string;
+  /** SEFAZ Status */
+  status_sefaz?: string;
   /** Rating (1-5) */
   rating?: number;
   /** Price level */
