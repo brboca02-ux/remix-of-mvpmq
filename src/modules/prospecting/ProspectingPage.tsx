@@ -601,22 +601,22 @@ export default function ProspectingPage() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-8">
-            <div className="flex flex-col lg:flex-row justify-between gap-6 items-center bg-white/80 backdrop-blur-md p-5 rounded-[2rem] border border-slate-200/60 shadow-xl shadow-slate-200/20">
-              <TabsList className="bg-slate-100/80 p-1.5 rounded-2xl w-full lg:w-[750px]">
-                <TabsTrigger value="plan" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <CalendarIcon className="h-4 w-4" /> Plano do Dia
+            <div className="flex flex-col xl:flex-row justify-between gap-6 items-center bg-white/80 backdrop-blur-md p-4 md:p-5 rounded-[2rem] border border-slate-200/60 shadow-xl shadow-slate-200/20">
+              <TabsList className="bg-slate-100/80 p-1 rounded-2xl w-full xl:w-auto overflow-x-auto no-scrollbar justify-start flex-nowrap">
+                <TabsTrigger value="plan" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <CalendarIcon className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Plano</span>
                 </TabsTrigger>
-                <TabsTrigger value="leads" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <ClipboardList className="h-4 w-4" /> Lista
+                <TabsTrigger value="leads" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <ClipboardList className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Lista</span>
                 </TabsTrigger>
-                <TabsTrigger value="pipeline" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <Target className="h-4 w-4" /> Funil
+                <TabsTrigger value="pipeline" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <Target className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Funil</span>
                 </TabsTrigger>
-                <TabsTrigger value="performance" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <TrendingUp className="h-4 w-4" /> Performance
+                <TabsTrigger value="performance" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <TrendingUp className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Perf.</span>
                 </TabsTrigger>
-                <TabsTrigger value="revision" className="flex items-center gap-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 font-bold text-xs uppercase tracking-wider transition-all">
-                  <AlertCircle className="h-4 w-4" /> Revisão
+                <TabsTrigger value="revision" className="flex items-center gap-2 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-primary py-2.5 px-3 font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-all whitespace-nowrap">
+                  <AlertCircle className="h-3.5 w-3.5" /> <span className="hidden xs:inline">Revisão</span>
                 </TabsTrigger>
               </TabsList>
 
