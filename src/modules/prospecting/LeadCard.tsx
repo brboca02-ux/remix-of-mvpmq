@@ -1011,7 +1011,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                 onClick={(e) => { e.stopPropagation(); navigationService.openExternal(lead.websiteUrl || ''); }}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[12px] font-bold shadow-sm hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-100/50 text-blue-700 text-[13px] font-bold shadow-sm hover:scale-105 transition-all"
               >
                 <Globe className="h-3.5 w-3.5" /> Ver Site
               </a>
