@@ -116,6 +116,18 @@ export function ResultsTable({
                     <TableCell className="max-w-[200px] sm:max-w-none">
                       <div className="flex items-center gap-2 overflow-hidden">
                         <div className="font-bold text-slate-900 dark:text-slate-100 truncate">{c.nome}</div>
+                        {(c as any).inPipeline && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge variant="secondary" className="h-4 px-1 text-[8px] bg-primary/10 text-primary border-primary/20 shrink-0">CRM</Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-[10px]">Já enviado ao Pipeline</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                         {c.is_enriched && (
                           <TooltipProvider>
                             <Tooltip>

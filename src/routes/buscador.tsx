@@ -29,7 +29,8 @@ import { interpretSearch } from "@/lib/search.functions";
 import type { CompanyFilter, CompanyPorte } from "@/lib/company-types";
 import { emptyFilter } from "@/lib/company-types";
 import type { Company } from "@/lib/company-types";
-import { addLeadsToCRM } from "@/lib/crm-bridge";
+import { addLeadsToCRM, type IncomingLead } from "@/lib/crm-bridge";
+import { useProspectingStore } from "@/modules/prospecting/prospecting-store";
 
 const VALID_PORTES = ["MEI", "Micro", "Pequena", "Média", "Grande"] as const;
 
@@ -123,7 +124,9 @@ function BuscadorPage() {
     [imported.companies, cached.companies],
   );
 
-  const result = useCompanySearch(filter, page, 50, sortBy, extras); // Aumentado perPage para 50 para ver mais leads por página
+  const crmLeads = useProspectingStore((s) => s.leads);
+  const result = useCompanySearch(filter, page, 50, sortBy, extras, crmLeads); 
+
 
   // Métricas sincronizadas com filtros via RPC Real
   const { data: metrics, isLoading: metricsLoading } = useQuery({
@@ -246,11 +249,14 @@ function BuscadorPage() {
   }, [filter, savePreset]);
 
   const onSendToPipeline = useCallback(() => {
+    // Pega todos os leads da pesquisa (ignora paginação)
     const rows = result.all;
     if (rows.length === 0) {
       toast.error("Nenhum lead para enviar");
       return;
     }
+
+    // Identifica quais já foram enviados para marcar visualmente (opcional, mas bom para UX)
     const incoming = rows.map((c) => ({
       name: c.nome,
       phone: c.telefone,
@@ -262,11 +268,16 @@ function BuscadorPage() {
       source_detail: c.cnpj?.startsWith("PLACES:") ? "google_places" : "cnpj",
       raw: { cnpj: c.cnpj, uf: c.estado, site: c.site, email: c.email },
     }));
-    const res = addLeadsToCRM(incoming);
-    if (res.created > 0) {
-      toast.success(`${res.created} leads enviados ao Pipeline${res.skipped ? ` (${res.skipped} duplicados/ignorados)` : ""}`);
-    } else {
-      toast.message(`Nenhum lead novo enviado (${res.skipped} duplicados/ignorados)`);
+
+    try {
+      const res = addLeadsToCRM(incoming);
+      if (res.created > 0) {
+        toast.success(`${res.created} leads enviados ao Pipeline${res.skipped ? ` (${res.skipped} ignorados/limite)` : ""}`);
+      } else {
+        toast.message(`Nenhum lead novo enviado (${res.skipped} duplicados/limite)`);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao enviar ao Pipeline");
     }
   }, [result.all]);
 
@@ -328,7 +339,8 @@ function BuscadorPage() {
                 className="gap-2"
                 onClick={() => {
                   setPlacesOpen(true);
-                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                  setIsImporting(true); 
+                  setFilter(prev => ({ ...prev, inPipeline: false }));
                 }}
               >
                 <Sparkles className="h-4 w-4" />
@@ -341,7 +353,7 @@ function BuscadorPage() {
                 data-testid="import-local-button"
                 onClick={() => {
                   setImportOpen(true);
-                  setIsImporting(true); // Ativa banner ao abrir diálogo
+                  setIsImporting(true);
                 }}
               >
                 <Upload className="h-4 w-4" />

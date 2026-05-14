@@ -30,28 +30,41 @@ export function useCompanySearch(
   perPage = 25,
   sortBy: "nome" | "cidade" | "porte" | "score" | "digital" = "score",
   extraCompanies: Company[] = [],
+  crmLeads: any[] = [], 
 ): SearchResult {
   const debouncedText = useDebounced(filter.text, 200);
-  const baseCompanies = useMemo(() => [], []); // Removido mock fixo para não mascarar dados reais
+  const baseCompanies = useMemo(() => [], []); 
+
   const companies = useMemo(() => {
-    if (!extraCompanies.length) return baseCompanies;
+    const pipelineCnpjs = new Set(crmLeads.map(l => (l.raw?.cnpj || l.cnpj || '').replace(/\D/g, '')).filter(Boolean));
+    const pipelinePhones = new Set(crmLeads.map(l => (l.whatsapp || '').replace(/\D/g, '')).filter(p => p.length >= 10));
+
+    const mergedRaw = !extraCompanies.length ? baseCompanies : [...extraCompanies, ...baseCompanies];
+    
     const seen = new Set<string>();
     const merged: Company[] = [];
-    for (const c of [...extraCompanies, ...baseCompanies]) {
+    
+    for (const c of mergedRaw) {
       const key = c.cnpj && c.cnpj !== "—" ? c.cnpj : `id:${c.id}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      merged.push(c);
+
+      const cleanCnpj = (c.cnpj || '').replace(/\D/g, '');
+      const cleanPhone = (c.telefone || '').replace(/\D/g, '');
+      const isInPipeline = pipelineCnpjs.has(cleanCnpj) || (cleanPhone.length >= 10 && pipelinePhones.has(cleanPhone));
+      
+      merged.push({ ...c, inPipeline: isInPipeline } as any);
     }
     return merged;
-  }, [baseCompanies, extraCompanies]);
+  }, [baseCompanies, extraCompanies, crmLeads]);
 
   const filtered = useMemo(() => {
     const text = debouncedText.trim().toLowerCase();
     const porteOrder: Record<CompanyPorte, number> = {
       MEI: 1, Micro: 2, Pequena: 3, "Média": 4, Grande: 5,
     };
-    const out = companies.filter((c) => {
+    const out = companies.filter((c: any) => {
+      if (filter.inPipeline !== undefined && c.inPipeline !== filter.inPipeline) return false;
       if (filter.onlyAtivas && c.status !== "ativa") return false;
       if (filter.cnaeCodes.length && !filter.cnaeCodes.includes(c.cnaeCode) && !filter.cnaeCodes.some(code => c.sector?.toLowerCase().includes(code.toLowerCase()))) return false;
       if (filter.portes.length && !filter.portes.includes(c.porte)) return false;

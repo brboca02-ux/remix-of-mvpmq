@@ -93,6 +93,7 @@ export interface CompanyFilter {
   digitalScoreMin: number;
   jobId?: string;
   contactStatus?: ContactStatus[];
+  inPipeline?: boolean; // Novo filtro
 };
 
 export const emptyFilter: CompanyFilter = {
@@ -110,6 +111,7 @@ export const emptyFilter: CompanyFilter = {
   digitalLevels: [],
   digitalScoreMin: 0,
   jobId: undefined,
+  inPipeline: undefined, // undefined = todos, true = apenas no pipeline, false = apenas não enviados
 };
 
 export interface SavedList {
