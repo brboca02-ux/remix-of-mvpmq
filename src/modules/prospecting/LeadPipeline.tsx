@@ -193,7 +193,7 @@ export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, o
                   <div className={cn("p-1.5 rounded-lg shadow-sm", column.bg)}>
                     {column.icon}
                   </div>
-                  {column.label}
+                  <span className="truncate max-w-[120px]">{column.label}</span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-[9px] font-black text-slate-500 tabular-nums bg-slate-100/80 px-1.5 py-0.5 rounded-full">
