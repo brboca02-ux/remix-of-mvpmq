@@ -30,9 +30,9 @@ import {
   Info,
   Loader2,
   Target,
-  Mail
+  Target
 } from "@/lib/icons";
-import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Globe, Phone, TrendingUp } from "lucide-react";
+import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Globe, Phone, TrendingUp, Users, Eye } from "lucide-react";
 import { useProspectingStore } from './prospecting-store';
 import { addDays } from 'date-fns';
 import { calculateOpportunityScore } from './opportunity-score';
