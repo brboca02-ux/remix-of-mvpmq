@@ -156,8 +156,6 @@ const PipelineMiniCard: React.FC<{ lead: ProspectLead; onClick: () => void }> = 
     </div>
   );
 };
-  );
-};
 
 export const LeadPipeline: React.FC<LeadPipelineProps> = ({ leads, onMoveLead, onEditLead }) => {
   const { discardLead, markNoInterest, undoDiscard } = useProspectingStore();
