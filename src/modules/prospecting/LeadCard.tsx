@@ -1250,7 +1250,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                           isInstagramRecent ? "bg-amber-50 border-amber-100 text-amber-700 animate-pulse" : (lead.instagramInteractedAt ? "bg-emerald-50 border-emerald-100 text-emerald-700 opacity-60" : "bg-slate-50 border-slate-100 text-slate-400")
                         )}>
                           <div className={cn("w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0", isInstagramRecent ? "bg-amber-500 text-white" : "bg-slate-300 text-white")}>
-                            {isInstagramRecent ? <Clock className="h-2 w-2" /> : "3"}
+                            {isInstagramRecent ? <Zap className="h-2 w-2" /> : "3"}
                           </div>
                           <span className="text-[8px] font-bold">Pausa</span>
                         </div>
