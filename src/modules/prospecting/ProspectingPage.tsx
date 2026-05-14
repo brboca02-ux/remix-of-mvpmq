@@ -194,7 +194,7 @@ export default function ProspectingPage() {
                 legalType: dbLead.status === 'MATRIZ' || dbLead.status === 'FILIAL' ? dbLead.status : undefined,
                 size: dbLead.porte || undefined,
                 status_sefaz: dbLead.status || undefined,
-                partners: Array.isArray(dbLead.socios) ? dbLead.socios : undefined,
+                partners: Array.isArray(dbLead.socios) ? (dbLead.socios as any as string[]) : undefined,
                 is_enriched: !!dbLead.enrichment_data,
                 digitalScore: computeDigitalScore({ 
                   websiteUrl: dbLead.site, 
