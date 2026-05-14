@@ -11,6 +11,7 @@ export function ActiveJobsBanner() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [dismissedJobs, setDismissedJobs] = useState<Set<string>>(new Set());
   const [jobErrors, setJobErrors] = useState<Record<string, any[]>>({});
 
   const fetchJobs = async () => {
@@ -43,11 +44,12 @@ export function ActiveJobsBanner() {
     return () => clearInterval(interval);
   }, []);
 
-  if (jobs.length === 0) return null;
+  const visibleJobs = jobs.filter(j => !dismissedJobs.has(j.id));
+  if (visibleJobs.length === 0) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-80 pointer-events-none">
-      {jobs.map((job) => {
+      {visibleJobs.map((job) => {
         const progress = Math.round(((job.processed_rows || 0) / (job.total_rows || 1)) * 100);
         const hasErrors = (job.failed_rows || 0) > 0;
         const isExpanded = expanded === job.id;
@@ -62,12 +64,21 @@ export function ActiveJobsBanner() {
                 {job.mode === 'smart' ? '🧠' : '🚀'} {job.filename || "Importação"}
               </span>
 
-              <button 
-                onClick={() => setExpanded(isExpanded ? null : job.id)}
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-              </button>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => setExpanded(isExpanded ? null : job.id)}
+                  className="text-muted-foreground hover:text-primary transition-colors p-1"
+                >
+                  {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                </button>
+                <button 
+                  onClick={() => setDismissedJobs(prev => new Set([...prev, job.id]))}
+                  className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                  title="Ocultar"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
             
             <div className="space-y-1">
