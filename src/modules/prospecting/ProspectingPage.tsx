@@ -176,6 +176,19 @@ export default function ProspectingPage() {
                 size: dbLead.porte || undefined,
                 status_sefaz: dbLead.status || undefined,
                 partners: Array.isArray(dbLead.socios) ? dbLead.socios : undefined,
+                is_enriched: !!dbLead.enrichment_data,
+                digitalScore: computeDigitalScore({ 
+                  websiteUrl: dbLead.site, 
+                  instagramHandle: dbLead.instagram_handle, 
+                  whatsapp: dbLead.telefone, 
+                  email: dbLead.email 
+                }).score,
+                digitalLevel: computeDigitalScore({ 
+                  websiteUrl: dbLead.site, 
+                  instagramHandle: dbLead.instagram_handle, 
+                  whatsapp: dbLead.telefone, 
+                  email: dbLead.email 
+                }).level,
                 source: 'supabase_import',
                 status: dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo'),
                 opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
