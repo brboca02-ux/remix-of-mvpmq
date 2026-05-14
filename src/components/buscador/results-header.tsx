@@ -1,4 +1,4 @@
-import { Download, Save, AlertTriangle, Sparkles, MessageCircle, Search, X, ShieldCheck, Database, Zap, Loader2, Info, Clock, LayoutList, TrendingUp, DollarSign } from "lucide-react";
+import { Download, Save, AlertTriangle, Sparkles, MessageCircle, Search, X, ShieldCheck, Database, Zap, Loader2, Info, Clock, LayoutList, TrendingUp, DollarSign, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,6 +49,7 @@ export function ResultsHeader({
   onExportWhatsApp,
   onSaveList,
   onSavePreset,
+  onSendToPipeline,
   cacheStatus,
   loading = false,
   updatedAt,
@@ -63,6 +64,7 @@ export function ResultsHeader({
   onExportWhatsApp: () => void;
   onSaveList: () => void;
   onSavePreset: () => void;
+  onSendToPipeline?: () => void;
   cacheStatus?: CacheStatus;
   loading?: boolean;
   updatedAt?: string;
@@ -156,6 +158,19 @@ export function ResultsHeader({
             <MessageCircle className="h-4 w-4" />
             WhatsApp
           </Button>
+          {onSendToPipeline && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={onSendToPipeline}
+              disabled={total === 0}
+              className="gap-2"
+              data-testid="send-to-pipeline-button"
+            >
+              <Send className="h-4 w-4" />
+              Enviar para Pipeline
+            </Button>
+          )}
           <Button size="sm" onClick={onExport} disabled={total === 0} className="gap-2">
             <Download className="h-4 w-4" />
             Export CSV

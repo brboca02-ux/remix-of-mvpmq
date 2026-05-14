@@ -29,6 +29,7 @@ import { interpretSearch } from "@/lib/search.functions";
 import type { CompanyFilter, CompanyPorte } from "@/lib/company-types";
 import { emptyFilter } from "@/lib/company-types";
 import type { Company } from "@/lib/company-types";
+import { addLeadsToCRM } from "@/lib/crm-bridge";
 
 const VALID_PORTES = ["MEI", "Micro", "Pequena", "Média", "Grande"] as const;
 
@@ -240,6 +241,31 @@ function BuscadorPage() {
     toast.success(`Preset "${name}" salvo`);
   }, [filter, savePreset]);
 
+  const onSendToPipeline = useCallback(() => {
+    const rows = result.all;
+    if (rows.length === 0) {
+      toast.error("Nenhum lead para enviar");
+      return;
+    }
+    const incoming = rows.map((c) => ({
+      name: c.nome,
+      phone: c.telefone,
+      business_name: c.fantasia ?? c.nome,
+      city: c.cidade,
+      niche: c.sector,
+      instagram: c.instagramHandle,
+      source: "buscador" as const,
+      source_detail: c.cnpj?.startsWith("PLACES:") ? "google_places" : "cnpj",
+      raw: { cnpj: c.cnpj, uf: c.estado, site: c.site, email: c.email },
+    }));
+    const res = addLeadsToCRM(incoming);
+    if (res.created > 0) {
+      toast.success(`${res.created} leads enviados ao Pipeline${res.skipped ? ` (${res.skipped} duplicados/ignorados)` : ""}`);
+    } else {
+      toast.message(`Nenhum lead novo enviado (${res.skipped} duplicados/ignorados)`);
+    }
+  }, [result.all]);
+
   const activeCount = useMemo(() => {
     return (
       filter.cnaeCodes.length +
@@ -372,6 +398,7 @@ function BuscadorPage() {
                 onExportWhatsApp={onExportWhatsApp}
                 onSaveList={onSaveList}
                 onSavePreset={onSavePreset}
+                onSendToPipeline={onSendToPipeline}
                 loading={metricsLoading}
                 updatedAt={metrics?.updated_at}
                 cacheStatus={{
