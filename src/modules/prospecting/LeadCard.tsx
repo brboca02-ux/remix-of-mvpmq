@@ -655,7 +655,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
 
                   {lead.timingIntel?.isIdealTime && (
                     <Badge variant="outline" className="bg-blue-100 text-blue-700 text-[9px] font-black uppercase px-1.5 h-5 border-transparent">
-                      <Clock className="h-2.5 w-2.5" /> Timing Ideal
+                      <Zap className="h-2.5 w-2.5" /> Timing Ideal
                     </Badge>
                   )}
                   {(lead.saturationIndex || 0) > 50 && (
