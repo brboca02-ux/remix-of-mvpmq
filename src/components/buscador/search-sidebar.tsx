@@ -210,6 +210,27 @@ export function SearchSidebar({
         </div>
       </Collapsible>
 
+      <Collapsible title="CRM e Pipeline">
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <Checkbox
+            checked={filter.inPipeline === true}
+            onCheckedChange={(v) => onChange({ ...filter, inPipeline: v === true ? true : undefined })}
+          />
+          <span className="flex items-center gap-1.5">
+            Já no Pipeline <Badge variant="outline" className="h-4 px-1 text-[9px] bg-primary/5">CRM</Badge>
+          </span>
+        </label>
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <Checkbox
+            checked={filter.inPipeline === false}
+            onCheckedChange={(v) => onChange({ ...filter, inPipeline: v === true ? false : undefined })}
+          />
+          <span className="flex items-center gap-1.5">
+            Não enviados <Badge variant="outline" className="h-4 px-1 text-[9px]">NOVO</Badge>
+          </span>
+        </label>
+      </Collapsible>
+
       <Collapsible title="Qualidade do contato">
         <label className="flex cursor-pointer items-center gap-2 text-sm">
           <Checkbox
