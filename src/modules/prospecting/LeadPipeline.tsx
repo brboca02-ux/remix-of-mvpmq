@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { cn } from "../../lib/utils";
 import { ProspectLead } from './types';
 import { Badge } from "../../components/ui/badge";
-import { Sparkles, Target, Zap, Trophy, Inbox, Ban, UserMinus, Trash2, XCircle, AlertTriangle, Clock, MessageCircle, Globe as GlobeIcon } from 'lucide-react';
+import { Sparkles, Target, Zap, Trophy, Inbox, Ban, UserMinus, Trash2, XCircle, AlertTriangle, Clock, MessageCircle, Globe as GlobeIcon, Instagram } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
