@@ -1044,20 +1044,20 @@ export const LeadCard: React.FC<LeadCardProps> = ({
           </div>
 
             {/* Quick Contact Actions if Ready */}
-            {(lead.warmupStatus === 'Pronto' || lead.warmupStatus === 'Morno') && lead.whatsapp && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-200">
-                    <MessageCircle className="h-5 w-5 fill-current" />
+            {useMemo(() => (lead.warmupStatus === 'Pronto' || lead.warmupStatus === 'Morno') && lead.whatsapp && (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2 mt-4 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                    <MessageCircle className="h-6 w-6 fill-current" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Abordagem Liberada</p>
-                    <p className="text-xs font-bold text-emerald-700">Lead Seguro para WhatsApp</p>
+                    <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Abordagem Liberada</p>
+                    <p className="text-sm font-bold text-emerald-700 leading-tight">Lead Seguro para WhatsApp</p>
                   </div>
                 </div>
                 <Button 
                   size="sm" 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold px-4"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold px-6 h-11"
                   onClick={(e) => {
                     e.stopPropagation();
                     const { normalized } = normalizeWhatsApp(lead.whatsapp || '');
@@ -1073,7 +1073,7 @@ export const LeadCard: React.FC<LeadCardProps> = ({
                   Abrir Whats
                 </Button>
               </div>
-            )}
+            ), [lead.warmupStatus, lead.whatsapp, lead.id])}
 
             {/* ===== Ações & Inteligência ===== */}
             {(() => {
