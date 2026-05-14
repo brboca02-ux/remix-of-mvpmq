@@ -1,4 +1,6 @@
 import { ProspectLead, SocialDiscoveryData, SocialDiscoveryStatus } from './types';
+import { apifyInstagramProfile } from '@/server/enrichment-paid-providers';
+import { logger } from '@/lib/logger';
 
 /**
  * Social Discovery Service
