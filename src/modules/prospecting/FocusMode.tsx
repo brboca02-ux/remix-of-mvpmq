@@ -2,26 +2,26 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useProspectingStore } from './prospecting-store';
 import { ProspectLead, MessageObjective, MessageOutcome, ConversationStage } from './types';
 import { generatePitch } from './pitch-generator';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Progress } from "../../components/ui/progress";
 import { 
   Send, X, ChevronRight, SkipForward, Clock, UserMinus, Ban, Sparkles, MessageSquare, Instagram, Mail, Zap, CheckCircle2, Copy, AlertTriangle, ArrowRight, TrendingUp, Brain, Rocket, MousePointer2, AlertCircle, Coffee, ChevronDown, ChevronUp, Target, ListChecks, History, Info, MessageCircle, Navigation, ShieldAlert, Trophy, RefreshCw, Lock, ShieldCheck, Building2, Globe, Search
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { addDays } from 'date-fns';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/dialog";
+import { Label } from "../../components/ui/label";
+import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../components/ui/collapsible";
 import { CONVERSATION_ROADMAP, getNextStage, CLOSING_SCRIPTS } from './conversation-roadmap';
 import { LeadPlaybook } from './LeadPlaybook';
 import { AutonomousDecisionLayer } from './components/AutonomousDecisionLayer';
-import { AnimatedCurrency, AnimatedPercent, AnimatedValue } from "@/components/ui/animated-value";
-import { LiveProgress } from "@/components/ui/live-progress";
+import { AnimatedCurrency, AnimatedPercent, AnimatedValue } from "../../components/ui/animated-value";
+import { LiveProgress } from "../../components/ui/live-progress";
 
 export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { 

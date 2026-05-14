@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useProspectingStore } from '../prospecting-store';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
 import { 
   PlayCircle, 
   AlertTriangle, 
@@ -16,9 +16,9 @@ import {
   RefreshCw,
   TrendingUp
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import { toast } from 'sonner';
-import { AnimatedPercent } from '@/components/ui/animated-value';
+import { AnimatedPercent } from '../../../components/ui/animated-value';
 
 interface AutonomousDecisionLayerProps {
   leadId: string;

@@ -1,13 +1,13 @@
 // @ts-nocheck
 import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
-import { cn } from "@/lib/utils";
-import { navigationService } from '@/lib/navigation-service';
-import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { cn } from "../../lib/utils";
+import { navigationService } from '../../lib/navigation-service';
+import { Card, CardContent, CardHeader, CardFooter } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Progress } from "../../components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../../components/ui/dialog";
 import { 
   ExternalLink, 
   MessageCircle, 
@@ -30,7 +30,7 @@ import {
   Info,
   Loader2,
   Target
-} from "@/lib/icons";
+} from "../../lib/icons";
 import { History, Send, Sparkles, Zap, Building2, MousePointer2, ChevronDown, Brain, Workflow, Ban, MessageSquareDashed, UserMinus, UserCheck, CalendarDays, MoreHorizontal, RotateCcw, DollarSign, ArrowUpRight, Search, ListChecks, ShieldCheck, Mail, Globe, Phone, TrendingUp, Users, Eye } from "lucide-react";
 import { useProspectingStore } from './prospecting-store';
 import { addDays } from 'date-fns';
@@ -41,16 +41,16 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "../../components/ui/tooltip";
 import { ProspectLead, FollowUpSequence, ManualAnalysis, LeadStatus } from './types';
 import { StatusNotesDialog } from './StatusNotesDialog';
-import { SendToMakeDialog } from '@/components/integrations/SendToMakeDialog';
+import { SendToMakeDialog } from '../../components/integrations/SendToMakeDialog';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 import { 
   Select, 
   SelectContent, 

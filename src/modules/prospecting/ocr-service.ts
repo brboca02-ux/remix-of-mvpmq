@@ -1,5 +1,5 @@
 import Tesseract from 'tesseract.js';
-import { logger } from '@/lib/logger';
+import { logger } from '../../lib/logger';
 
 export const extractTextFromImage = async (file: File): Promise<string> => {
   try {
