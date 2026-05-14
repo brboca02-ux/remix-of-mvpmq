@@ -122,8 +122,47 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 export default function ProspectingPage() {
   const navigate = useNavigate();
   const { leads, addLead, updateLead, deleteLead, deleteLeads, moveLead, moveLeads, upsertLead, getFocusQueue, getWeeklyPerformanceReport, discardLead, markNoInterest } = useProspectingStore();
+  
+  // Sincronização automática de leads do Supabase para o CRM/Prospecção
+  React.useEffect(() => {
+    const loadSupabaseLeads = async () => {
+      try {
+        const { listImportedLeads } = await import('@/lib/leads-import.functions');
+        const res = await listImportedLeads({ data: { page: 1, pageSize: 2000 } });
+        
+        if (res.rows && res.rows.length > 0) {
+          const existingIds = new Set(leads.map(l => l.id));
+          res.rows.forEach(dbLead => {
+            if (!existingIds.has(dbLead.id)) {
+              addLead({
+                id: dbLead.id,
+                companyName: dbLead.nome || 'Sem nome',
+                niche: dbLead.nicho || 'geral',
+                city: dbLead.cidade || '',
+                email: dbLead.email || undefined,
+                whatsapp: dbLead.telefone || undefined,
+                websiteUrl: dbLead.site || undefined,
+                instagramHandle: dbLead.instagram_handle || undefined,
+                source: 'supabase_import',
+                status: dbLead.status === 'Novo' ? 'Novo' : (dbLead.followup_status || 'Novo'),
+                opportunityScore: Math.round((dbLead.confidence_score || 0.5) * 100),
+                opportunityLevel: 'média',
+                diagnosis: dbLead.atividade || '',
+                createdAt: dbLead.created_at || new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              });
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Falha ao sincronizar leads do banco:', err);
+      }
+    };
+    loadSupabaseLeads();
+  }, [addLead]);
+
   const auditLogs = useAuditStore(state => state.auditLogs);
-  const [activeTab, setActiveTab] = useState('pipeline'); // Alterado de 'plan' para 'pipeline' para melhor visualização inicial
+  const [activeTab, setActiveTab] = useState('pipeline'); 
   const [activeSubTab, setActiveSubTab] = useState('pipeline');
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
