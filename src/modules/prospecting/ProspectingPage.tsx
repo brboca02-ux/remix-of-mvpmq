@@ -1,3 +1,4 @@
+"use client";
 // @ts-nocheck
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
