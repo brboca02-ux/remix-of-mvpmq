@@ -123,6 +123,30 @@ export default function ProspectingPage() {
   const navigate = useNavigate();
   const { leads, addLead, updateLead, deleteLead, deleteLeads, moveLead, moveLeads, upsertLead, getFocusQueue, getWeeklyPerformanceReport, discardLead, markNoInterest } = useProspectingStore();
   
+  // Funções de utilidade do buscador
+  const { computeDigitalScore } = React.useMemo(() => {
+    // Importação dinâmica para evitar ciclos
+    return { 
+      computeDigitalScore: (lead: any) => {
+        const hasSite = !!lead.websiteUrl;
+        const hasInsta = !!lead.instagramHandle;
+        const hasWhats = !!lead.whatsapp;
+        const hasEmail = !!lead.email;
+        let score = 0;
+        if (hasSite) score += 40;
+        if (hasInsta) score += 20;
+        if (hasWhats) score += 20;
+        if (hasEmail) score += 20;
+        
+        let level: 'verde' | 'amarelo' | 'vermelho' = 'vermelho';
+        if (score >= 80) level = 'verde';
+        else if (score >= 50) level = 'amarelo';
+        
+        return { score, level };
+      }
+    };
+  }, []);
+  
   // Sincronização automática de leads do Supabase para o CRM/Prospecção
   React.useEffect(() => {
     const loadSupabaseLeads = async () => {
