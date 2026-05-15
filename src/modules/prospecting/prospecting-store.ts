@@ -1248,19 +1248,23 @@ export const useProspectingStore = create<ProspectingState>()(
       },
       applyActiveLearning: (outcome: DecisionOutcome) => {
         const state = get();
-        const patterns = [...state.activeLearningState.winningPatterns];
+        const patterns = state.activeLearningState.winningPatterns.map(p => {
+          if (p.name === outcome.strategy) {
+            const total = (p.totalUses || 0) + 1;
+            let successRate = p.successRate;
+            if (outcome.outcome === 'interested' || outcome.outcome === 'responded') {
+              successRate = ((p.successRate * (total - 1)) + 1) / total;
+            } else {
+              successRate = (p.successRate * (total - 1)) / total;
+            }
+            return { ...p, totalUses: total, successRate, lastOutcome: outcome.outcome };
+          }
+          return p;
+        });
         
         const existingPattern = patterns.find(p => p.name === outcome.strategy);
         
-        if (existingPattern) {
-          existingPattern.totalUses = (existingPattern.totalUses || 0) + 1;
-          if (outcome.outcome === 'interested' || outcome.outcome === 'responded') {
-            existingPattern.successRate = ((existingPattern.successRate * (existingPattern.totalUses - 1)) + 1) / existingPattern.totalUses;
-          } else {
-            existingPattern.successRate = (existingPattern.successRate * (existingPattern.totalUses - 1)) / existingPattern.totalUses;
-          }
-          existingPattern.lastOutcome = outcome.outcome;
-        } else {
+        if (!existingPattern) {
           patterns.push({
             id: `pattern_${Date.now()}`,
             name: outcome.strategy,
