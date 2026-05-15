@@ -687,7 +687,9 @@ export const useProspectingStore = create<ProspectingState>()(
         const lead = state.leads.find(l => l.id === leadId);
         if (!lead) return {};
         
-        const metrics = lead.hesitationMetrics || { idleTimeMs: 0, strategyChangesCount: 0, lastActionAt: new Date().toISOString(), isOverthinking: false };
+        const currentMetrics = lead.hesitationMetrics || { idleTimeMs: 0, strategyChangesCount: 0, lastActionAt: new Date().toISOString(), isOverthinking: false };
+        
+        const metrics = { ...currentMetrics };
         
         if (type === 'idle') metrics.idleTimeMs += 5000;
         if (type === 'change') metrics.strategyChangesCount += 1;
