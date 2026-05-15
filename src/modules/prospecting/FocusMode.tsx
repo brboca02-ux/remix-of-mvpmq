@@ -141,7 +141,6 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
   const [activeStrategyMode, setActiveStrategyMode] = useState<'roadmap' | 'playbook' | 'audit'>('playbook');
   const [showClosureWarning, setShowClosureWarning] = useState(false);
   const [perfectMomentAlert, setPerfectMomentAlert] = useState(false);
-  const { getDominantPlaybookInfo } = useProspectingStore();
   const dominantPlaybook = getDominantPlaybookInfo();
   
   const processedToday = getProcessedTodayCount();
