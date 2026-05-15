@@ -329,6 +329,25 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 </div>
               </div>
 
+              {/* Summary Stats Row from Image */}
+              <div className="grid grid-cols-3 gap-2 border-b border-white/[0.04] pb-3 mb-1">
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Prospects</span>
+                  <span className="text-sm font-black text-white">{plan.summary.newContacts}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Contatos</span>
+                  <span className="text-sm font-black text-white">{processedToday}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Canal</span>
+                  <div className="flex items-center gap-1">
+                    <Instagram className="w-3 h-3 text-pink-500/80" />
+                    <Zap className="w-3 h-3 text-emerald-500/80" />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {[
                   { key: 'companyExists', label: 'Empresa', icon: Building2 },
