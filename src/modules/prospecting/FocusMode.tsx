@@ -24,9 +24,32 @@ import { AnimatedCurrency, AnimatedPercent, AnimatedValue } from "../../componen
 import { LiveProgress } from "../../components/ui/live-progress";
 
 export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  const { 
-    getFocusQueue, getProcessedTodayCount, addContactHistory, markNoInterest, discardLead, updateLead, recordMessageResult, getMessagePerformance, dailyGoal, getMotivationStats, setConversationStage, getNextTargets, channelGoals, getDecisionHistory, getPersuasionProgression, getPsychologicalAnalysis, getEmotionalAnalysis, getDailyPlan, getDecisionScore, getNegotiationSimulation, getRevenueOrchestration, getAuditHistory, updateManualAnalysis, recordGoogleSearch, recordInstagramOpen
-  } = useProspectingStore();
+  const getFocusQueue = useProspectingStore(state => state.getFocusQueue);
+  const getProcessedTodayCount = useProspectingStore(state => state.getProcessedTodayCount);
+  const addContactHistory = useProspectingStore(state => state.addContactHistory);
+  const markNoInterest = useProspectingStore(state => state.markNoInterest);
+  const discardLead = useProspectingStore(state => state.discardLead);
+  const updateLead = useProspectingStore(state => state.updateLead);
+  const recordMessageResult = useProspectingStore(state => state.recordMessageResult);
+  const getMessagePerformance = useProspectingStore(state => state.getMessagePerformance);
+  const dailyGoal = useProspectingStore(state => state.dailyGoal);
+  const getMotivationStats = useProspectingStore(state => state.getMotivationStats);
+  const setConversationStage = useProspectingStore(state => state.setConversationStage);
+  const getNextTargets = useProspectingStore(state => state.getNextTargets);
+  const channelGoals = useProspectingStore(state => state.channelGoals);
+  const getDecisionHistory = useProspectingStore(state => state.getDecisionHistory);
+  const getPersuasionProgression = useProspectingStore(state => state.getPersuasionProgression);
+  const getPsychologicalAnalysis = useProspectingStore(state => state.getPsychologicalAnalysis);
+  const getEmotionalAnalysis = useProspectingStore(state => state.getEmotionalAnalysis);
+  const getDailyPlan = useProspectingStore(state => state.getDailyPlan);
+  const getDecisionScore = useProspectingStore(state => state.getDecisionScore);
+  const getNegotiationSimulation = useProspectingStore(state => state.getNegotiationSimulation);
+  const getRevenueOrchestration = useProspectingStore(state => state.getRevenueOrchestration);
+  const getAuditHistory = useProspectingStore(state => state.getAuditHistory);
+  const updateManualAnalysis = useProspectingStore(state => state.updateManualAnalysis);
+  const recordGoogleSearch = useProspectingStore(state => state.recordGoogleSearch);
+  const recordInstagramOpen = useProspectingStore(state => state.recordInstagramOpen);
+  const getDominantPlaybookInfo = useProspectingStore(state => state.getDominantPlaybookInfo);
 
   const motivation = getMotivationStats();
   const nextTargets = getNextTargets();
