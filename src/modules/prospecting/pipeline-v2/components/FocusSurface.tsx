@@ -16,38 +16,34 @@ interface FocusSurfaceProps {
 
 export function FocusSurface({ leadId, onClose }: FocusSurfaceProps) {
   const leads = useProspectingStore((s) => s.leads);
-  const discardLead = useProspectingStore((s) => s.discardLead);
-  const addContactHistory = useProspectingStore((s) => s.addContactHistory);
 
   const lead = useMemo(() => leads.find((l) => l.id === leadId), [leads, leadId]);
-
-  const processedCount = useProspectingStore((s) => s.getProcessedTodayCount());
-  const totalQueue = leads.length;
 
   const handleAction = useCallback((action: QuickAction) => {
     if (!lead) return;
     try {
+      const store = useProspectingStore.getState();
       switch (action) {
         case 'whatsapp':
         case 'instagram':
         case 'email':
-          addContactHistory(lead.id, {
+          store.addContactHistory(lead.id, {
             channel: action === 'whatsapp' ? 'WhatsApp' : action === 'instagram' ? 'Instagram' : 'Email',
             status: 'confirmado',
-            message: lead.autonomousDecision?.readyMessage || '',
+            message: '',
           });
+          break;
+        case 'discard':
+          store.discardLead(lead.id, 'Pipeline V2 - descartado');
           break;
         case 'skip':
           break;
-        case 'discard':
-          discardLead(lead.id, 'Pipeline V2 - descartado');
-          break;
       }
     } catch (err) {
-      console.error('[FocusSurface] Error executing action:', err);
+      console.error('[FocusSurface] action error:', err);
     }
     onClose();
-  }, [lead, addContactHistory, discardLead, onClose]);
+  }, [lead, onClose]);
 
   // Keyboard shortcuts
   const shortcuts = useMemo(() => {
@@ -85,7 +81,7 @@ export function FocusSurface({ leadId, onClose }: FocusSurfaceProps) {
       {/* Action Bar */}
       <ActionBar
         onAction={handleAction}
-        progress={{ current: processedCount, total: totalQueue }}
+        progress={{ current: 0, total: leads.length }}
       />
 
       {/* Context Section */}
@@ -102,8 +98,12 @@ export function FocusSurface({ leadId, onClose }: FocusSurfaceProps) {
         </div>
       </div>
 
-      {/* Decision Strip */}
-      <DecisionStrip leadId={lead.id} onExecute={() => handleAction('skip')} />
+      {/* Decision Strip - simplified, no store selector */}
+      <div className="h-9 flex items-center px-3 rounded-lg bg-zinc-800/30 text-[12px] text-zinc-400">
+        {lead.autonomousDecision?.readyMessage
+          ? lead.autonomousDecision.readyMessage.slice(0, 60)
+          : 'Sem sugestão de IA'}
+      </div>
     </div>
   );
 }
