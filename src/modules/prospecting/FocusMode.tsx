@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Progress } from "../../components/ui/progress";
 import { 
-  Send, X, ChevronRight, SkipForward, Clock, UserMinus, Ban, Sparkles, MessageSquare, Instagram, Mail, Zap, CheckCircle2, Copy, AlertTriangle, ArrowRight, TrendingUp, Brain, Rocket, MousePointer2, AlertCircle, Coffee, ChevronDown, ChevronUp, Target, ListChecks, History, Info, MessageCircle, Navigation, ShieldAlert, Trophy, RefreshCw, Lock, ShieldCheck, Building2, Globe, Search
+  Send, X, ChevronRight, SkipForward, Clock, UserMinus, Ban, Sparkles, MessageSquare, Instagram, Mail, Zap, CheckCircle2, Copy, AlertTriangle, ArrowRight, TrendingUp, Brain, Rocket, MousePointer2, AlertCircle, Coffee, ChevronDown, ChevronUp, Target, ListChecks, History, Info, MessageCircle, Navigation, ShieldAlert, Trophy, RefreshCw, Lock, ShieldCheck, Building2, Globe, Search, Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from "../../lib/utils";
@@ -307,32 +307,48 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
 
         <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-4 lg:gap-6 min-h-0">
           <div className="xl:col-span-8 flex flex-col gap-4 min-h-0">
-            {/* MODO PESQUISA MANUAL GUIADA */}
-            <div className="bg-white/[0.03] border border-white/10 p-4 rounded-xl relative overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            {/* CENÁRIO DE OPERAÇÃO - REESTRUTURADO PARA DENSIDADE */}
+            <div className="bg-white/[0.03] border border-white/10 p-3 sm:p-4 rounded-xl relative overflow-hidden flex flex-col gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <ShieldCheck className="w-4 h-4 text-primary/70 shrink-0" aria-hidden="true" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">Prospecção Segura</h3>
+                  <Activity className="w-4 h-4 text-primary/70 shrink-0" aria-hidden="true" />
+                  <h3 className="text-[11px] font-black uppercase tracking-widest text-white/90">Cenário de Operação</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={cn(
-                    "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                    "text-[9px] font-black uppercase px-2 py-0.5 rounded-md",
                     lead.warmupStatus === 'Pronto' ? "bg-emerald-500/10 text-emerald-400" :
                     lead.warmupStatus === 'Morno' ? "bg-amber-500/10 text-amber-400" :
                     "bg-rose-500/10 text-rose-400"
                   )}>
                     {lead.warmupStatus === 'Pronto' ? 'Seguro' : lead.warmupStatus === 'Morno' ? 'Atenção' : 'Risco'}
                   </span>
-                  <span className={cn(
-                    "text-[10px] font-mono tabular-nums",
-                    analysisTimer < 15 ? "text-amber-400/70" : "text-emerald-400/70"
-                  )}>
+                  <span className="text-[10px] font-mono text-white/30 tabular-nums">
                     {analysisTimer}s
                   </span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-3">
+              {/* Summary Stats Row from Image */}
+              <div className="grid grid-cols-3 gap-2 border-b border-white/[0.04] pb-3 mb-1">
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Prospects</span>
+                  <span className="text-sm font-black text-white">{plan.summary.newContacts}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Contatos</span>
+                  <span className="text-sm font-black text-white">{processedToday}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Canal</span>
+                  <div className="flex items-center gap-1">
+                    <Instagram className="w-3 h-3 text-pink-500/80" />
+                    <Zap className="w-3 h-3 text-emerald-500/80" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {[
                   { key: 'companyExists', label: 'Empresa', icon: Building2 },
                   { key: 'activeInstagram', label: 'Instagram', icon: Instagram },
@@ -353,25 +369,25 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                         updateManualAnalysis(lead.id, { [item.key]: !isChecked });
                       }}
                       className={cn(
-                        "flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left",
+                        "flex items-center gap-2 px-2 py-1.5 rounded-lg border transition-all text-left",
                         isChecked 
                           ? "bg-emerald-500/10 border-emerald-500/30 text-white" 
-                          : "bg-white/[0.02] border-white/[0.06] text-muted-foreground hover:border-white/15"
+                          : "bg-white/[0.01] border-white/[0.04] text-muted-foreground/60 hover:border-white/10"
                       )}
                     >
-                      {isChecked ? <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" /> : <Icon className="w-3 h-3 shrink-0" />}
-                      <span className="text-[10px] font-medium truncate">{item.label}</span>
+                      {isChecked ? <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" /> : <Icon className="w-3 h-3 shrink-0 opacity-40" />}
+                      <span className="text-[10px] font-bold truncate">{item.label}</span>
                     </button>
                   );
                 })}
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-white/[0.04]">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => handleManualSearch('google')}
-                  className="h-7 px-3 text-[10px] font-semibold gap-1.5 text-muted-foreground hover:text-white"
+                  className="h-7 px-2.5 text-[10px] font-bold gap-1.5 text-muted-foreground/70 hover:text-white hover:bg-white/5"
                 >
                   <Search className="w-3 h-3" /> Google
                 </Button>
@@ -379,13 +395,13 @@ export const FocusMode: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => handleManualSearch('instagram')}
-                  className="h-7 px-3 text-[10px] font-semibold gap-1.5 text-muted-foreground hover:text-white"
+                  className="h-7 px-2.5 text-[10px] font-bold gap-1.5 text-muted-foreground/70 hover:text-white hover:bg-white/5"
                 >
                   <Instagram className="w-3 h-3" /> Instagram
                 </Button>
                 {analysisTimer < 10 && (
-                  <span className="text-[10px] text-amber-400/60 self-center ml-2">
-                    Recomendado: +15s de análise
+                  <span className="text-[9px] text-amber-500/60 font-medium ml-auto hidden sm:inline">
+                    Analise por +{10 - analysisTimer}s
                   </span>
                 )}
               </div>

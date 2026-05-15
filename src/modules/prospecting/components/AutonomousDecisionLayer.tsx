@@ -101,78 +101,87 @@ const AutonomousDecisionLayerComponent: React.FC<AutonomousDecisionLayerProps> =
       {/* Superfície operacional compacta */}
       <div
         className={cn(
-          'p-4 rounded-xl border bg-card/50 transition-colors',
+          'p-3 sm:p-4 rounded-xl border bg-card/40 transition-colors',
           decision.isLocked ? 'border-destructive/20' : 'border-white/[0.06] hover:border-white/10',
         )}
       >
-        {/* Header: Ação + Score integrado */}
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <BrainCircuit className="w-4 h-4 text-primary/70" aria-hidden="true" />
-            Ação recomendada
-          </h2>
-          <span
-            className={cn(
-              'text-xs font-mono font-semibold tabular-nums',
-              isHighConfidence ? 'text-emerald-400/80' : 'text-primary/70',
-            )}
-          >
-            {score}%
-          </span>
-        </div>
+        <div className="flex items-start gap-4">
+          {/* Score Circular Compacto */}
+          <div className="relative shrink-0 flex items-center justify-center w-12 h-12">
+            <svg className="w-full h-full -rotate-90">
+              <circle
+                cx="24" cy="24" r="20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                className="text-white/[0.05]"
+              />
+              <circle
+                cx="24" cy="24" r="20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeDasharray={2 * Math.PI * 20}
+                strokeDashoffset={2 * Math.PI * 20 * (1 - score / 100)}
+                className={cn(
+                  "transition-all duration-1000",
+                  isHighConfidence ? "text-emerald-500/80" : "text-primary/70"
+                )}
+              />
+            </svg>
+            <span className="absolute text-[11px] font-mono font-bold text-white">
+              {score}
+            </span>
+          </div>
 
-        {/* Meta inline: canal · tipo · risco */}
-        <div className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted-foreground mb-3">
-          <span className="font-medium text-white/70">{decision.recommendedChannel}</span>
-          <span className="text-white/20">·</span>
-          <span>{decision.type}</span>
-          {decision.expectedOutcome && (
-            <>
-              <span className="text-white/20">·</span>
-              <span>Impacto: {decision.expectedOutcome}</span>
-            </>
-          )}
-          {decision.isLocked && (
-            <>
-              <span className="text-white/20">·</span>
-              <span className="inline-flex items-center gap-0.5 text-destructive/80 font-semibold">
-                <Lock className="w-2.5 h-2.5" aria-hidden="true" /> Risco
-              </span>
-            </>
-          )}
-        </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h2 className="text-[13px] font-bold text-white truncate">
+                {decision.type}
+              </h2>
+              {decision.isLocked && (
+                <span className="inline-flex items-center gap-1 text-[10px] text-destructive/80 font-bold uppercase tracking-wider">
+                  <Lock className="w-2.5 h-2.5" aria-hidden="true" /> Bloqueado
+                </span>
+              )}
+            </div>
 
-        {/* Mensagem (contexto) */}
-        <p className="text-[13px] leading-relaxed text-white/75 mb-4 line-clamp-2">
-          {decision.readyMessage}
-        </p>
+            <div className="flex flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground mb-2">
+              <span className="text-primary/70 font-semibold">{decision.recommendedChannel}</span>
+              <span className="opacity-20">|</span>
+              <span className="truncate">{decision.expectedOutcome}</span>
+            </div>
+            
+            <p className="text-[12px] leading-snug text-white/70 mb-3 line-clamp-2">
+              {decision.readyMessage}
+            </p>
 
-        {/* CTA compacto */}
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            className="h-9 text-xs font-semibold gap-1.5 rounded-lg flex-1"
-            onClick={handleExecute}
-            disabled={isExecuting}
-          >
-            {isExecuting ? 'Processando...' : 'Executar ação'}
-            <PlayCircle className="w-3.5 h-3.5" aria-hidden="true" />
-          </Button>
-          {!decision.isLocked && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 text-xs text-muted-foreground hover:text-white px-3"
-              onClick={() => {
-                setShowAlternatives((v) => !v);
-                recordHesitation(leadId, 'change');
-              }}
-              aria-expanded={showAlternatives}
-            >
-              Alternativas
-              <ChevronRight className={cn('w-3 h-3 ml-1 transition-transform', showAlternatives && 'rotate-90')} aria-hidden="true" />
-            </Button>
-          )}
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                className="h-8 text-[11px] font-bold gap-1.5 rounded-lg flex-1 shadow-lg shadow-primary/10"
+                onClick={handleExecute}
+                disabled={isExecuting}
+              >
+                {isExecuting ? '...' : 'Executar'}
+                <PlayCircle className="w-3.5 h-3.5" aria-hidden="true" />
+              </Button>
+              {!decision.isLocked && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-[10px] text-muted-foreground hover:text-white px-2"
+                  onClick={() => {
+                    setShowAlternatives((v) => !v);
+                    recordHesitation(leadId, 'change');
+                  }}
+                  aria-expanded={showAlternatives}
+                >
+                  <ChevronRight className={cn('w-3.5 h-3.5 transition-transform', showAlternatives && 'rotate-90')} aria-hidden="true" />
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Alerta crítico (inline, discreto) */}
