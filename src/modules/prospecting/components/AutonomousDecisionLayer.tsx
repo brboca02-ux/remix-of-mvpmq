@@ -53,7 +53,9 @@ const DegradedCard: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 );
 
 const AutonomousDecisionLayerComponent: React.FC<AutonomousDecisionLayerProps> = ({ leadId, onExecute }) => {
-  const { getAutonomousDecision, executeAutonomousAction, recordHesitation } = useProspectingStore();
+  const getAutonomousDecision = useProspectingStore(state => state.getAutonomousDecision);
+  const executeAutonomousAction = useProspectingStore(state => state.executeAutonomousAction);
+  const recordHesitation = useProspectingStore(state => state.recordHesitation);
   const [showEducation, setShowEducation] = useState(false);
   const [showAlternatives, setShowAlternatives] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);

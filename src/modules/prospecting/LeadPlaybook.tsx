@@ -30,7 +30,10 @@ interface LeadPlaybookProps {
 }
 
 export const LeadPlaybook: React.FC<LeadPlaybookProps> = ({ leadId }) => {
-  const { leads, advancePlaybook, generatePlaybook, adaptPlaybook } = useProspectingStore();
+  const leads = useProspectingStore(state => state.leads);
+  const advancePlaybook = useProspectingStore(state => state.advancePlaybook);
+  const generatePlaybook = useProspectingStore(state => state.generatePlaybook);
+  const adaptPlaybook = useProspectingStore(state => state.adaptPlaybook);
   const lead = leads.find(l => l.id === leadId);
 
   if (!lead) return null;
